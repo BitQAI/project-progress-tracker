@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getComments, addComment } from '@/lib/comment-service';
+import { ensureDbLoaded } from '@/lib/db';
 
 export async function GET(req: NextRequest) {
   try {
+    await ensureDbLoaded();
     const { searchParams } = new URL(req.url);
     const nodeId = searchParams.get('nodeId') || undefined;
     const taskId = searchParams.get('taskId') || undefined;
@@ -21,6 +23,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    await ensureDbLoaded();
     const body = await req.json();
     const { nodeId, taskId, parentId, author, content } = body;
 

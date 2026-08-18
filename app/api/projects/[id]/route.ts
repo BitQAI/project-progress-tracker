@@ -2,12 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getProjectTree } from '@/lib/project-service';
 import { updateProjectStatus, deleteNodeCascading } from '@/lib/mutations';
 import { ProjectStatus } from '@/lib/types';
+import { ensureDbLoaded } from '@/lib/db';
 
 export async function GET(
   _req: NextRequest,
   props: { params: Promise<{ id: string }> }
 ) {
   try {
+    await ensureDbLoaded();
     const { id } = await props.params;
     const tree = await getProjectTree(id);
     if (!tree) {
@@ -25,6 +27,7 @@ export async function PATCH(
   props: { params: Promise<{ id: string }> }
 ) {
   try {
+    await ensureDbLoaded();
     const { id } = await props.params;
     const body = await req.json();
     const { status } = body;
@@ -45,6 +48,7 @@ export async function DELETE(
   props: { params: Promise<{ id: string }> }
 ) {
   try {
+    await ensureDbLoaded();
     const { id } = await props.params;
     await deleteNodeCascading(id);
     return NextResponse.json({ ok: true });

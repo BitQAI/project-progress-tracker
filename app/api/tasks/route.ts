@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { addTask, updateTask, toggleTaskStatus, deleteTask } from '@/lib/mutations';
 import { TaskStatus } from '@/lib/types';
+import { ensureDbLoaded } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
   try {
+    await ensureDbLoaded();
     const body = await req.json();
     const { nodeId, name, owner, dueDate, hasDeliverable, deliverableRequirement, estimatedDuration, deliverableItems } = body;
     if (!nodeId || !name?.trim() || !owner?.trim()) {
@@ -28,6 +30,7 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
+    await ensureDbLoaded();
     const body = await req.json();
     const {
       id,
@@ -67,6 +70,7 @@ export async function PUT(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
+    await ensureDbLoaded();
     const body = await req.json();
     const { id, status, deliverableSubmission, doneAt } = body;
     if (!id || !status || !['pending', 'done'].includes(status)) {
@@ -82,6 +86,7 @@ export async function PATCH(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    await ensureDbLoaded();
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
     if (!id) {

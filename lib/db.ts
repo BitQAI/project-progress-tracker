@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { supabase } from './supabase';
 import {
   DbNode,
   DbTask,
@@ -338,6 +339,7 @@ export function getDb(): AppDatabase {
     return inMemoryDb;
   }
 
+  // 同步加载作为兜底
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
   }
@@ -348,24 +350,87 @@ export function getDb(): AppDatabase {
       inMemoryDb = JSON.parse(content);
       if (!inMemoryDb || !Array.isArray(inMemoryDb.nodes)) {
         inMemoryDb = getInitialDatabase();
-        persistDb();
+        persistDbLocalSync();
       } else if (!Array.isArray(inMemoryDb.activities)) {
         inMemoryDb.activities = [];
       }
     } catch {
       inMemoryDb = getInitialDatabase();
-      persistDb();
+      persistDbLocalSync();
     }
   } else {
     inMemoryDb = getInitialDatabase();
-    persistDb();
+    persistDbLocalSync();
   }
 
   if (!inMemoryDb.activities) inMemoryDb.activities = [];
   return inMemoryDb!;
 }
 
-export function persistDb(): void {
+// 异步加载/初始化 Supabase DB 状态
+export async function ensureDbLoaded(): Promise<AppDatabase> {
+  if (inMemoryDb) {
+    if (!inMemoryDb.activities) inMemoryDb.activities = [];
+    return inMemoryDb;
+  }
+
+  if (supabase) {
+    try {
+      const { data: row, error } = await supabase
+        .from('project_app_state')
+        .select('data')
+        .eq('id', 'singleton')
+        .maybeSingle();
+
+      if (error) {
+        console.warn('Supabase 加载异常 (将降级使用本地文件系统):', error.message);
+      } else if (row && row.data) {
+        const supabaseDb = row.data as AppDatabase;
+        const localDb = getDb(); // 读取本地原有数据
+        
+        const localRootProjects = localDb.nodes?.filter(n => n.parent_id === null) || [];
+        const supabaseRootProjects = supabaseDb.nodes?.filter(n => n.parent_id === null) || [];
+        
+        // 智能合并迁移：如果本地的项目数多于云端，说明本地有尚未同步的自定义重要数据，自动执行上云覆盖
+        if (localRootProjects.length > supabaseRootProjects.length) {
+          console.log(`智能数据迁移：检测到本地存在 ${localRootProjects.length} 个项目，多于云端（${supabaseRootProjects.length} 个）。正在自动将您的本地原有数据同步覆盖至 Supabase 云端...`);
+          inMemoryDb = localDb;
+          await supabase
+            .from('project_app_state')
+            .upsert({ id: 'singleton', data: inMemoryDb, updated_at: new Date().toISOString() });
+          console.log('本地原有项目数据已成功迁移同步至 Supabase！');
+        } else {
+          inMemoryDb = supabaseDb;
+          console.log('成功从 Supabase 加载项目状态数据！');
+        }
+
+        if (!inMemoryDb.activities) inMemoryDb.activities = [];
+        return inMemoryDb;
+      } else {
+        // 表可能存在但无数据，在此进行数据初始化：优先读取并同步本地已有的自定义数据
+        console.log('Supabase 中暂无数据，正在自动提取本地已有的项目数据同步上云...');
+        inMemoryDb = getDb();
+        const { error: insertError } = await supabase
+          .from('project_app_state')
+          .insert({ id: 'singleton', data: inMemoryDb });
+        if (insertError) {
+          console.warn('Supabase 写入初始数据失败 (降级使用本地文件):', insertError.message);
+        } else {
+          console.log('成功将本地原有的自定义数据迁移植入 Supabase！');
+          return inMemoryDb;
+        }
+      }
+    } catch (e: any) {
+      console.warn('连接 Supabase 失败，系统自动降级使用本地文件系统:', e.message);
+    }
+  }
+
+  // 降级使用本地文件系统
+  return getDb();
+}
+
+// 辅助本地同步持久化函数
+function persistDbLocalSync(): void {
   if (!inMemoryDb) return;
   try {
     if (!fs.existsSync(DATA_DIR)) {
@@ -375,6 +440,33 @@ export function persistDb(): void {
     fs.writeFileSync(tempFile, JSON.stringify(inMemoryDb, null, 2), 'utf-8');
     fs.renameSync(tempFile, DB_FILE);
   } catch (err) {
-    console.error('Failed to persist database:', err);
+    console.error('本地文件持久化失败:', err);
+  }
+}
+
+// 支持异步向 Supabase 同步更新的持久化函数
+export function persistDb(): void {
+  if (!inMemoryDb) return;
+  
+  // 1. 同步保存本地文件备份
+  persistDbLocalSync();
+
+  // 2. 异步保存到 Supabase 云数据库
+  if (supabase) {
+    (async () => {
+      try {
+        const { error } = await supabase
+          .from('project_app_state')
+          .upsert({ id: 'singleton', data: inMemoryDb, updated_at: new Date().toISOString() });
+        
+        if (error) {
+          console.error('Supabase 云数据库同步失败 (已保存在本地):', error.message);
+        } else {
+          console.log('成功将最新数据实时同步至 Supabase 云端！');
+        }
+      } catch (err) {
+        console.error('Supabase 同步触发异常:', err);
+      }
+    })();
   }
 }

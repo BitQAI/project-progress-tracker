@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTemplates, createTemplate, deleteTemplate } from '@/lib/template-service';
+import { ensureDbLoaded } from '@/lib/db';
 
 export async function GET() {
   try {
+    await ensureDbLoaded();
     const templates = await getTemplates();
     return NextResponse.json({ ok: true, data: templates });
   } catch (error: any) {
@@ -13,6 +15,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    await ensureDbLoaded();
     const body = await req.json();
     const { name, stages } = body;
 
@@ -33,6 +36,7 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    await ensureDbLoaded();
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
     if (!id) {

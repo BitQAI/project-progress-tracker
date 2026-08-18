@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getProjectsSummaryList, getDashboardMetrics } from '@/lib/project-service';
 import { createProjectFromScratch, createProjectFromTemplate } from '@/lib/mutations';
+import { ensureDbLoaded } from '@/lib/db';
 
 export async function GET() {
   try {
+    await ensureDbLoaded();
     const [summaries, metrics] = await Promise.all([
       getProjectsSummaryList(),
       getDashboardMetrics(),
@@ -17,6 +19,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    await ensureDbLoaded();
     const body = await req.json();
     const { name, owner, templateId, description, estimatedDuration, priority } = body;
 

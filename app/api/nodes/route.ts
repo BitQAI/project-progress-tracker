@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { addNode, updateNode, deleteNodeCascading } from '@/lib/mutations';
+import { ensureDbLoaded } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
   try {
+    await ensureDbLoaded();
     const body = await req.json();
     const { parentId, name, owner, description, estimatedDuration } = body;
     if (!parentId || !name?.trim() || !owner?.trim()) {
@@ -18,6 +20,7 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
+    await ensureDbLoaded();
     const body = await req.json();
     const { id, name, owner, description, estimatedDuration, priority, dueDate } = body;
     if (!id || !name?.trim() || !owner?.trim()) {
@@ -33,6 +36,7 @@ export async function PUT(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    await ensureDbLoaded();
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
     if (!id) {

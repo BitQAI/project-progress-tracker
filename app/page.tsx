@@ -111,7 +111,7 @@ export default function DashboardPage() {
               项目总览与执行监控
             </h1>
             <p className="mt-1 text-xs text-zinc-500">
-              老板一屏掌握全部项目进度与超期状态，员工勾选任务实时驱动全局完成度
+              全景掌控项目进度与逾期状态，通过任务协作实时驱动全局项目交付进度
             </p>
           </div>
 
