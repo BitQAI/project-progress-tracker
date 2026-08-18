@@ -1,0 +1,6 @@
+{
+  "name": "Project Progress Tracker",
+  "description": "项目进度管理系统 - 老板一屏直观掌握项目进度与超期状态，员工极简勾选驱动进度，支持无限层级项目树、交付件模板与评论留档",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

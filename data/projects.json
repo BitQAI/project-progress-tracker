@@ -1,0 +1,393 @@
+{
+  "nodes": [
+    {
+      "id": "proj_ai_service_platform",
+      "parent_id": null,
+      "name": "AI 智能客服中台系统",
+      "owner": "张总 (项目总监)",
+      "order": 1,
+      "status": "in_progress",
+      "created_at": "2026-08-18T06:11:58.188Z"
+    },
+    {
+      "id": "node_rag_engine",
+      "parent_id": "proj_ai_service_platform",
+      "name": "智能 RAG 向量知识库",
+      "owner": "李工 (后端主管)",
+      "order": 1,
+      "status": "in_progress",
+      "created_at": "2026-08-18T06:11:58.188Z"
+    },
+    {
+      "id": "node_agent_workbench",
+      "parent_id": "proj_ai_service_platform",
+      "name": "全渠道坐席协同工作台",
+      "owner": "刘工 (前端架构)",
+      "order": 2,
+      "status": "in_progress",
+      "created_at": "2026-08-18T06:11:58.188Z"
+    },
+    {
+      "id": "node_agent_miniprogram",
+      "parent_id": "node_agent_workbench",
+      "name": "微信小程序坐席端快速响应版",
+      "owner": "赵工",
+      "order": 1,
+      "status": "in_progress",
+      "created_at": "2026-08-18T06:11:58.188Z"
+    },
+    {
+      "id": "proj_erp_digital_v2",
+      "parent_id": null,
+      "name": "新一代供应链 ERP 数字化升级",
+      "owner": "孙总 (业务VP)",
+      "order": 2,
+      "status": "in_progress",
+      "created_at": "2026-08-18T06:11:58.188Z"
+    },
+    {
+      "id": "node_wms_module",
+      "parent_id": "proj_erp_digital_v2",
+      "name": "智能仓储 WMS 模块",
+      "owner": "周工",
+      "order": 1,
+      "status": "in_progress",
+      "created_at": "2026-08-18T06:11:58.188Z"
+    },
+    {
+      "id": "proj_iso_compliance",
+      "parent_id": null,
+      "name": "全球合规与 ISO27001 安全认证",
+      "owner": "钱总 (法务与安全)",
+      "order": 3,
+      "status": "unstarted",
+      "created_at": "2026-08-18T06:11:58.188Z"
+    },
+    {
+      "id": "node_security_audit",
+      "parent_id": "proj_iso_compliance",
+      "name": "安全合规差距分析与策略制定",
+      "owner": "钱总",
+      "order": 1,
+      "status": "unstarted",
+      "created_at": "2026-08-18T06:11:58.188Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task_1_1",
+      "node_id": "node_rag_engine",
+      "name": "企业多格式文档解析器 (PDF/Word/Excel)",
+      "owner": "李工",
+      "due_date": "2026-08-10",
+      "status": "done",
+      "done_at": "2026-08-09T14:30:00.000Z",
+      "created_at": "2026-08-18T06:11:58.188Z"
+    },
+    {
+      "id": "task_1_2",
+      "node_id": "node_rag_engine",
+      "name": "向量数据库混合检索与重排算法优化",
+      "owner": "王工",
+      "due_date": "2026-08-15",
+      "status": "done",
+      "done_at": "2026-08-14T18:00:00.000Z",
+      "created_at": "2026-08-18T06:11:58.188Z"
+    },
+    {
+      "id": "task_1_3",
+      "node_id": "node_rag_engine",
+      "name": "高并发知识库语义切片与流式召回接口",
+      "owner": "李工",
+      "due_date": "2026-08-25",
+      "status": "pending",
+      "done_at": null,
+      "created_at": "2026-08-18T06:11:58.188Z"
+    },
+    {
+      "id": "task_2_1",
+      "node_id": "node_agent_workbench",
+      "name": "人机协作会话流实时接管与打断逻辑",
+      "owner": "刘工",
+      "due_date": "2026-08-16",
+      "status": "done",
+      "done_at": "2026-08-16T11:00:00.000Z",
+      "created_at": "2026-08-18T06:11:58.188Z"
+    },
+    {
+      "id": "task_2_2",
+      "node_id": "node_agent_workbench",
+      "name": "WebSocket 多人实时协同与消息防重",
+      "owner": "陈工",
+      "due_date": "2026-08-14",
+      "status": "pending",
+      "done_at": null,
+      "created_at": "2026-08-18T06:11:58.188Z"
+    },
+    {
+      "id": "task_2_sub_1",
+      "node_id": "node_agent_miniprogram",
+      "name": "企业微信与服务号模板消息推送",
+      "owner": "赵工",
+      "due_date": "2026-08-28",
+      "status": "pending",
+      "done_at": null,
+      "created_at": "2026-08-18T06:11:58.188Z"
+    },
+    {
+      "id": "task_3_1",
+      "node_id": "node_wms_module",
+      "name": "PDA 条码扫码出入库流程联调",
+      "owner": "周工",
+      "due_date": "2026-08-05",
+      "status": "done",
+      "done_at": "2026-08-04T10:00:00.000Z",
+      "created_at": "2026-08-18T06:11:58.188Z"
+    },
+    {
+      "id": "task_3_2",
+      "node_id": "node_wms_module",
+      "name": "库位动态分配与波次拣货算法",
+      "owner": "吴工",
+      "due_date": "2026-08-12",
+      "status": "done",
+      "done_at": "2026-08-11T16:20:00.000Z",
+      "created_at": "2026-08-18T06:11:58.188Z"
+    },
+    {
+      "id": "task_4_1",
+      "node_id": "node_security_audit",
+      "name": "外部第三方安全渗透测试报告归档",
+      "owner": "钱总",
+      "due_date": "2026-09-10",
+      "status": "pending",
+      "done_at": null,
+      "created_at": "2026-08-18T06:11:58.188Z"
+    }
+  ],
+  "templates": [
+    {
+      "id": "tpl_software_standard",
+      "name": "标准软件研发流程模板",
+      "created_at": "2026-08-18T06:11:58.188Z"
+    },
+    {
+      "id": "tpl_hardware_trial",
+      "name": "智能硬件试产与量产流程",
+      "created_at": "2026-08-18T06:11:58.188Z"
+    }
+  ],
+  "templateStages": [
+    {
+      "id": "stg_1",
+      "template_id": "tpl_software_standard",
+      "name": "阶段一：需求与方案评审",
+      "order": 1
+    },
+    {
+      "id": "stg_2",
+      "template_id": "tpl_software_standard",
+      "name": "阶段二：核心模块研发",
+      "order": 2
+    },
+    {
+      "id": "stg_3",
+      "template_id": "tpl_software_standard",
+      "name": "阶段三：质量测试与回归",
+      "order": 3
+    },
+    {
+      "id": "stg_4",
+      "template_id": "tpl_software_standard",
+      "name": "阶段四：发布与上线交付",
+      "order": 4
+    },
+    {
+      "id": "hstg_1",
+      "template_id": "tpl_hardware_trial",
+      "name": "EVT（工程验证阶段）",
+      "order": 1
+    },
+    {
+      "id": "hstg_2",
+      "template_id": "tpl_hardware_trial",
+      "name": "DVT（设计验证阶段）",
+      "order": 2
+    },
+    {
+      "id": "hstg_3",
+      "template_id": "tpl_hardware_trial",
+      "name": "PVT（生产验证阶段）",
+      "order": 3
+    }
+  ],
+  "templateDeliverables": [
+    {
+      "id": "del_1_1",
+      "stage_id": "stg_1",
+      "name": "产品需求规格说明书 (PRD)",
+      "order": 1
+    },
+    {
+      "id": "del_1_2",
+      "stage_id": "stg_1",
+      "name": "系统架构与技术选型文档",
+      "order": 2
+    },
+    {
+      "id": "del_1_3",
+      "stage_id": "stg_1",
+      "name": "UI/UX 高保真交互原型",
+      "order": 3
+    },
+    {
+      "id": "del_1_4",
+      "stage_id": "stg_1",
+      "name": "数据库表结构设计与迁移脚本",
+      "order": 4
+    },
+    {
+      "id": "del_2_1",
+      "stage_id": "stg_2",
+      "name": "后端核心业务 API 与数据层开发",
+      "order": 1
+    },
+    {
+      "id": "del_2_2",
+      "stage_id": "stg_2",
+      "name": "前端界面与组件库封装",
+      "order": 2
+    },
+    {
+      "id": "del_2_3",
+      "stage_id": "stg_2",
+      "name": "第三方服务与 OAuth 鉴权对接",
+      "order": 3
+    },
+    {
+      "id": "del_2_4",
+      "stage_id": "stg_2",
+      "name": "单测覆盖率达到 80%+",
+      "order": 4
+    },
+    {
+      "id": "del_3_1",
+      "stage_id": "stg_3",
+      "name": "测试用例编写与全量功能回归",
+      "order": 1
+    },
+    {
+      "id": "del_3_2",
+      "stage_id": "stg_3",
+      "name": "压力与安全渗透测试报告",
+      "order": 2
+    },
+    {
+      "id": "del_3_3",
+      "stage_id": "stg_3",
+      "name": "跨端/多分辨率适配验收",
+      "order": 3
+    },
+    {
+      "id": "del_4_1",
+      "stage_id": "stg_4",
+      "name": "生产环境配置与灰度发布",
+      "order": 1
+    },
+    {
+      "id": "del_4_2",
+      "stage_id": "stg_4",
+      "name": "操作手册与技术交接文档",
+      "order": 2
+    },
+    {
+      "id": "del_4_3",
+      "stage_id": "stg_4",
+      "name": "线上业务监控与告警配置",
+      "order": 3
+    },
+    {
+      "id": "hdel_1_1",
+      "stage_id": "hstg_1",
+      "name": "原理图与 PCB 打样验证",
+      "order": 1
+    },
+    {
+      "id": "hdel_1_2",
+      "stage_id": "hstg_1",
+      "name": "结构手板拼装与干涉检查",
+      "order": 2
+    },
+    {
+      "id": "hdel_1_3",
+      "stage_id": "hstg_1",
+      "name": "核心元器件选型评估",
+      "order": 3
+    },
+    {
+      "id": "hdel_2_1",
+      "stage_id": "hstg_2",
+      "name": "模具开模与注塑试模",
+      "order": 1
+    },
+    {
+      "id": "hdel_2_2",
+      "stage_id": "hstg_2",
+      "name": "高低温跌落与可靠性测试",
+      "order": 2
+    },
+    {
+      "id": "hdel_2_3",
+      "stage_id": "hstg_2",
+      "name": "EMC/安规预扫测试",
+      "order": 3
+    },
+    {
+      "id": "hdel_3_1",
+      "stage_id": "hstg_3",
+      "name": "产线治具与自动化烧录工具",
+      "order": 1
+    },
+    {
+      "id": "hdel_3_2",
+      "stage_id": "hstg_3",
+      "name": "小批量试产直通率统计",
+      "order": 2
+    },
+    {
+      "id": "hdel_3_3",
+      "stage_id": "hstg_3",
+      "name": "量产作业指导书 (SOP)",
+      "order": 3
+    }
+  ],
+  "comments": [
+    {
+      "id": "cmt_1",
+      "node_id": "proj_ai_service_platform",
+      "task_id": null,
+      "parent_id": null,
+      "author": "张总 (项目总监)",
+      "content": "本周请李工团队重点攻坚 RAG 向量切片性能，确保 8 月 25 日前完成联调！",
+      "created_at": "2026-08-17T09:00:00.000Z"
+    },
+    {
+      "id": "cmt_2",
+      "node_id": null,
+      "task_id": "task_2_2",
+      "parent_id": null,
+      "author": "刘工",
+      "content": "WebSocket 消息防重联调中发现偶发重连丢失，正在排查心跳包机制。",
+      "created_at": "2026-08-17T10:15:00.000Z"
+    },
+    {
+      "id": "cmt_3",
+      "node_id": null,
+      "task_id": "task_2_2",
+      "parent_id": "cmt_2",
+      "author": "陈工",
+      "content": "已增加 Redis Ack 机制，预计今天下午完成验证。",
+      "created_at": "2026-08-17T11:20:00.000Z"
+    }
+  ]
+}
