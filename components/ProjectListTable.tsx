@@ -174,8 +174,6 @@ export function ProjectListTable({
                           <span className="font-medium text-zinc-600">周期: {project.estimated_duration}</span>
                         </>
                       )}
-                      <span>•</span>
-                      <span>创建于 {project.created_at.split('T')[0]}</span>
                     </div>
                     {project.description && (
                       <div className="mt-1.5 text-xs text-zinc-500 max-w-lg whitespace-pre-wrap leading-relaxed">
