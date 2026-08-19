@@ -18,7 +18,7 @@ interface ProjectTreeProps {
 
 export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
   const [tree, setTree] = useState<NodeTreeNode>(initialTree);
-  const [hideCompleted, setHideCompleted] = useState(true);
+  const [hideCompleted, setHideCompleted] = useState(false);
   const [commentTarget, setCommentTarget] = useState<{
     isOpen: boolean;
     title: string;

@@ -22,10 +22,10 @@ export function ProjectHeader({ tree, onEditClick, onStatusChange }: ProjectHead
   return (
     <div
       id="project-detail-compact-header"
-      className="flex flex-wrap items-center justify-between gap-2.5 rounded-xl border border-zinc-200 bg-white px-3 py-1.5 shadow-2xs"
+      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 rounded-xl border border-zinc-200 bg-white p-2.5 sm:px-3 sm:py-1.5 shadow-2xs"
     >
       {/* 左侧：返回仪表盘 + 分隔符 + 项目名称 + 进度条与指标 + 预估周期 */}
-      <div className="flex items-center gap-2.5 min-w-0 flex-1 flex-wrap">
+      <div className="flex items-center gap-2 min-w-0 flex-1 flex-wrap">
         <Link
           id="back-to-dashboard-btn"
           href="/"
@@ -42,7 +42,7 @@ export function ProjectHeader({ tree, onEditClick, onStatusChange }: ProjectHead
           <div className="flex h-5 w-5 items-center justify-center rounded bg-zinc-900 text-emerald-400 shrink-0">
             <FolderGit2 className="h-3 w-3" />
           </div>
-          <h1 className="text-xs sm:text-sm font-bold tracking-tight text-zinc-900 truncate max-w-[200px] sm:max-w-xs">
+          <h1 className="text-xs sm:text-sm font-bold tracking-tight text-zinc-900 truncate max-w-[180px] sm:max-w-xs">
             {tree.name}
           </h1>
         </div>
@@ -85,13 +85,13 @@ export function ProjectHeader({ tree, onEditClick, onStatusChange }: ProjectHead
       </div>
 
       {/* 右侧：编辑信息与状态切换 */}
-      <div className="flex items-center gap-1.5 shrink-0">
+      <div className="flex items-center justify-between sm:justify-end gap-1.5 shrink-0 border-t border-zinc-100 sm:border-t-0 pt-1.5 sm:pt-0">
         <button
           onClick={onEditClick}
-          className="inline-flex items-center gap-1 rounded-md border border-zinc-200 bg-zinc-50/60 px-2 py-0.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 transition-colors"
+          className="inline-flex items-center gap-1 rounded-md border border-zinc-200 bg-zinc-50/60 px-2.5 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 transition-colors"
         >
           <Edit2 className="h-3 w-3 text-zinc-500" />
-          <span>编辑</span>
+          <span>编辑项目</span>
         </button>
 
         <div className="relative inline-flex items-center">
@@ -99,7 +99,7 @@ export function ProjectHeader({ tree, onEditClick, onStatusChange }: ProjectHead
             aria-label="切换项目状态"
             value={tree.status}
             onChange={(e) => onStatusChange(e.target.value as ProjectStatus)}
-            className={`appearance-none cursor-pointer rounded-md pl-4.5 pr-5 py-0.5 text-xs font-semibold border transition-all focus:outline-none focus:ring-1 focus:ring-zinc-900 shadow-2xs ${
+            className={`appearance-none cursor-pointer rounded-md pl-4.5 pr-5 py-1 text-xs font-semibold border transition-all focus:outline-none focus:ring-1 focus:ring-zinc-900 shadow-2xs ${
               tree.status === 'done'
                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100/80'
                 : tree.status === 'in_progress'

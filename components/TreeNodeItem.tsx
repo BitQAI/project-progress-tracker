@@ -135,11 +135,14 @@ export function TreeNodeItem({
   };
 
   return (
-    <div className="flex flex-col select-none" style={{ marginLeft: `${depth > 0 ? 20 : 0}px` }}>
+    <div
+      className="flex flex-col select-none"
+      style={{ paddingLeft: depth > 0 ? `${Math.min(depth * 14, 28)}px` : '0px' }}
+    >
       {/* 节点控制条 */}
       <div
         id={`tree-node-${node.id}`}
-        className={`group flex items-center justify-between rounded-xl border p-2.5 sm:p-3 transition-all ${
+        className={`group flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 rounded-xl border p-2.5 sm:p-3 transition-all ${
           depth === 0
             ? 'border-zinc-200 bg-zinc-50/90 shadow-xs mb-2'
             : 'border-zinc-200/80 bg-white hover:border-zinc-300 hover:shadow-2xs my-1'
@@ -194,9 +197,9 @@ export function TreeNodeItem({
         </div>
 
         {/* 右侧递归汇总进度与操作 */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center justify-between sm:justify-end gap-2.5 sm:gap-3 shrink-0 pt-1.5 sm:pt-0 border-t border-zinc-100 sm:border-t-0">
           <div className="flex items-center gap-2">
-            <div className="flex flex-col items-end">
+            <div className="flex flex-col items-start sm:items-end">
               <span className="text-xs font-bold text-zinc-900">{node.progressPercent}%</span>
               <span className="text-[10px] text-zinc-400">
                 {node.completedTasksCount}/{node.totalTasksCount} 任务

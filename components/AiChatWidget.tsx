@@ -13,7 +13,9 @@ import {
   ChevronRight,
   TrendingUp,
   Layers,
-  ListTodo
+  ListTodo,
+  Sparkles,
+  Bot
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -48,6 +50,7 @@ export function AiChatWidget() {
   const [statsData, setStatsData] = useState<any | null>(null);
   const [isStatsLoading, setIsStatsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
+  const [showHintBubble, setShowHintBubble] = useState(true);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -422,29 +425,119 @@ export function AiChatWidget() {
 
   return (
     <>
-      {/* 1. 悬浮触发按钮：Apple 风格极简设计（带有磨砂玻璃质感与炫彩 Apple Intelligence 渐变） */}
-      <div className="fixed bottom-6 right-6 z-40">
-        <button
-          id="ai-floating-trigger-btn"
-          onClick={() => setIsOpen(!isOpen)}
-          className={`flex h-12 w-12 items-center justify-center rounded-full border border-zinc-200/80 bg-white/80 shadow-[0_4px_24px_rgba(0,0,0,0.08)] backdrop-blur-xl hover:scale-[1.04] active:scale-[0.96] transition-all duration-300 relative overflow-hidden group`}
-          title="召唤 AI 智能管家"
-        >
-          {isOpen ? (
-            <X className="h-5 w-5 text-zinc-500 transition-transform duration-300" />
-          ) : (
-            <div className="relative flex items-center justify-center">
-              {/* Apple Intelligence 炫彩虹吸呼吸球 */}
-              <div className="absolute h-7 w-7 rounded-full bg-gradient-to-tr from-indigo-500/90 via-purple-500/90 via-pink-500/90 to-amber-400/90 opacity-80 blur-xs group-hover:scale-110 transition-transform duration-500 animate-spin" style={{ animationDuration: '8s' }} />
-              <div className="absolute h-5 w-5 rounded-full bg-gradient-to-bl from-blue-400 via-violet-500 to-rose-400 opacity-90 mix-blend-screen animate-pulse" />
-              
-              {/* 内敛的微标 */}
-              <div className="relative flex h-3 w-3 items-center justify-center rounded-full bg-white/90 shadow-2xs">
-                <div className="h-1.5 w-1.5 rounded-full bg-zinc-950" />
+      {/* 1. 悬浮触发按钮与进入页面动效提示 */}
+      <div className="fixed bottom-6 right-6 z-40 flex items-end">
+        {/* 登录/进入页面时的引导气泡动效（浮动提示可点击状态） */}
+        <AnimatePresence>
+          {!isOpen && showHintBubble && (
+            <motion.div
+              initial={{ opacity: 0, x: 20, scale: 0.9 }}
+              animate={{
+                opacity: 1,
+                x: 0,
+                scale: 1,
+                y: [0, -5, 0],
+              }}
+              exit={{ opacity: 0, scale: 0.8, x: 10 }}
+              transition={{
+                y: { repeat: Infinity, duration: 2.5, ease: 'easeInOut' },
+                opacity: { duration: 0.3 },
+                scale: { duration: 0.3 },
+              }}
+              className="mr-3 cursor-pointer group select-none"
+              onClick={() => {
+                setIsOpen(true);
+                setShowHintBubble(false);
+              }}
+            >
+              <div className="relative flex items-center gap-2.5 rounded-2xl border border-indigo-200/90 bg-white/95 px-3.5 py-2 shadow-[0_8px_30px_rgba(79,70,229,0.16)] backdrop-blur-xl hover:border-indigo-300 hover:shadow-[0_10px_35px_rgba(79,70,229,0.22)] transition-all">
+                <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 text-white shadow-2xs shrink-0 animate-pulse">
+                  <Sparkles className="h-3.5 w-3.5" />
+                </div>
+                <div className="flex flex-col text-left">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-zinc-900">BitQAI 智能管家</span>
+                    <span className="inline-flex items-center rounded-full bg-emerald-50 px-1.5 py-0.2 text-[9px] font-semibold text-emerald-700 border border-emerald-200/60">
+                      <span className="mr-1 h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
+                      点击咨询
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-zinc-500">
+                    诊断项目风险 · 梳理 WBS · 核查超期
+                  </span>
+                </div>
+
+                {/* 关闭气泡提示 */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowHintBubble(false);
+                  }}
+                  className="ml-0.5 rounded-full p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-colors"
+                  title="关闭提示"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+
+                {/* 指向右侧按钮的箭头三角 */}
+                <div className="absolute -right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-t border-r border-indigo-200/90 rotate-45" />
               </div>
-            </div>
+            </motion.div>
           )}
-        </button>
+        </AnimatePresence>
+
+        {/* 触发主按钮（带水波纹与脉冲光晕，明确指示可点击） */}
+        <motion.button
+          id="ai-floating-trigger-btn"
+          onClick={() => {
+            setIsOpen(!isOpen);
+            setShowHintBubble(false);
+          }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className={`relative flex items-center gap-2.5 rounded-full border shadow-[0_6px_28px_rgba(0,0,0,0.12)] backdrop-blur-xl transition-all duration-300 group cursor-pointer ${
+            isOpen
+              ? 'h-12 w-12 justify-center bg-zinc-900 text-white border-zinc-800'
+              : 'h-12 px-3.5 bg-white/95 border-indigo-200/90 hover:border-indigo-400 hover:shadow-[0_8px_32px_rgba(99,102,241,0.25)]'
+          }`}
+          title="点击唤起 BitQAI 智能管家"
+        >
+          {/* 未展开时的循环水波纹与光晕扩散动效 */}
+          {!isOpen && (
+            <>
+              <span className="absolute -inset-1 rounded-full bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 blur-xs animate-pulse pointer-events-none" />
+              <span
+                className="absolute -inset-2 rounded-full border border-indigo-400/40 animate-ping pointer-events-none"
+                style={{ animationDuration: '3s' }}
+              />
+            </>
+          )}
+
+          {isOpen ? (
+            <X className="h-5 w-5 text-white transition-transform duration-300" />
+          ) : (
+            <>
+              {/* Apple Intelligence 炫彩呼吸球 */}
+              <div className="relative flex h-7 w-7 items-center justify-center rounded-full overflow-hidden shadow-2xs shrink-0">
+                <div
+                  className="absolute inset-0 bg-gradient-to-tr from-indigo-600 via-purple-600 via-pink-500 to-amber-400 animate-spin"
+                  style={{ animationDuration: '6s' }}
+                />
+                <div className="absolute inset-[1.5px] rounded-full bg-white/95" />
+                <Sparkles className="relative h-3.5 w-3.5 text-indigo-600 animate-pulse" />
+              </div>
+
+              {/* 明确的文字标识与可点击引导 */}
+              <div className="flex flex-col text-left pr-1 select-none">
+                <div className="flex items-center gap-1">
+                  <span className="text-xs font-bold text-zinc-900 tracking-tight">AI 助手</span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                </div>
+                <span className="text-[10px] font-medium text-indigo-600">点击唤起</span>
+              </div>
+            </>
+          )}
+        </motion.button>
       </div>
 
       {/* 2. 对话弹窗：Apple 风格的高保真极简视窗 */}

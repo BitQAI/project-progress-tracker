@@ -311,14 +311,14 @@ export function TaskItem({
           : 'border-zinc-200 bg-white text-zinc-800 hover:border-zinc-300 hover:shadow-2xs'
       }`}
     >
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5 flex-1 min-w-0">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 flex-1 min-w-0 flex-wrap">
           {/* 勾选框 */}
           <button
             type="button"
             id={`checkbox-task-${task.id}`}
             onClick={handleCheckboxClick}
-            className={`shrink-0 transition-transform active:scale-90 p-0.5 rounded ${
+            className={`shrink-0 transition-transform active:scale-90 p-1 rounded-md ${
               isDone ? 'text-emerald-600' : 'text-zinc-400 hover:text-zinc-800'
             }`}
             title={
@@ -334,7 +334,7 @@ export function TaskItem({
 
           {/* 任务名称 */}
           <span
-            className={`font-medium truncate ${
+            className={`font-medium truncate max-w-[200px] sm:max-w-xs ${
               isDone ? 'line-through text-zinc-400' : 'text-zinc-800'
             }`}
           >
@@ -375,7 +375,7 @@ export function TaskItem({
           )}
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center justify-between sm:justify-end gap-2.5 sm:gap-3 shrink-0 pt-1 sm:pt-0 border-t border-zinc-100/60 sm:border-t-0">
           {/* 负责人 */}
           <span className="flex items-center gap-1 text-zinc-500">
             <User className="h-3 w-3 text-zinc-400" />

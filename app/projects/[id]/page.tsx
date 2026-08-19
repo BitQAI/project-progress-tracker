@@ -1,7 +1,5 @@
 'use client';
 
-export const dynamic = 'force-dynamic';
-
 import React, { useState, useEffect, use } from 'react';
 import { NodeTreeNode } from '@/lib/types';
 import { Navbar } from '@/components/Navbar';
