@@ -6,11 +6,11 @@ export async function POST(req: NextRequest) {
   try {
     await ensureDbLoaded();
     const body = await req.json();
-    const { parentId, name, owner, description, estimatedDuration } = body;
+    const { parentId, name, owner, description, estimatedDuration, dueDate } = body;
     if (!parentId || !name?.trim() || !owner?.trim()) {
       return NextResponse.json({ ok: false, error: '父节点ID、名称与负责人均不能为空' }, { status: 400 });
     }
-    const nodeId = await addNode(parentId, name.trim(), owner.trim(), description, estimatedDuration);
+    const nodeId = await addNode(parentId, name.trim(), owner.trim(), description, estimatedDuration, dueDate);
     return NextResponse.json({ ok: true, data: { id: nodeId } });
   } catch (error: any) {
     console.error('Add node error:', error);

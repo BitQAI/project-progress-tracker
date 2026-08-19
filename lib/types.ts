@@ -126,6 +126,7 @@ export interface NodeTreeNode extends DbNode {
   completedTasksCount: number;
   progressPercent: number;
   hasOverdueTasks: boolean;
+  maxOverdueDays?: number;
   latestDueDate: string | null;
   recentActivities?: ProjectActivityItem[];
 }
@@ -138,6 +139,11 @@ export interface ProjectSummary {
   priority: ProjectPriority;
   description?: string;
   estimated_duration?: string;
+  completedDuration?: string;
+  estimatedTimeDisplay?: string;
+  spentDays?: number;
+  spentTimeDisplay?: string;
+  earlyDays?: number;
   created_at: string;
   totalTasks: number;
   completedTasks: number;
@@ -145,6 +151,7 @@ export interface ProjectSummary {
   latestDueDate: string | null;
   isOverdue: boolean;
   overdueTasksCount: number;
+  maxOverdueDays: number;
   nodesCount: number;
   latestActivity?: string;
 }
@@ -159,6 +166,7 @@ export interface DashboardMetrics {
   overdueProjectsCount: number;
   totalTasksCount: number;
   completedTasksCount: number;
+  totalEarlyDays: number;
 }
 
 export interface TemplateWithStages extends DbTemplate {
@@ -170,3 +178,19 @@ export interface TemplateWithStages extends DbTemplate {
     deliverables: DbTemplateDeliverable[];
   }[];
 }
+
+export interface ExecutiveActivityItem {
+  id: string;
+  projectId: string;
+  projectName: string;
+  moduleName?: string;
+  type: 'deliverable' | 'milestone' | 'progress' | 'risk_resolve' | 'comment' | 'general';
+  categoryBadge: string;
+  badgeVariant: 'emerald' | 'blue' | 'purple' | 'amber';
+  headline: string;
+  summary: string;
+  owner: string;
+  timestamp: string;
+  formattedTime: string;
+}
+

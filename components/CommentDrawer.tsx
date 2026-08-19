@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { CommentWithReplies } from '@/lib/types';
+import { formatBeijingDateTime } from '@/lib/date-utils';
 import { X, MessageSquare, CornerDownRight, Send, User, Clock } from 'lucide-react';
 
 interface CommentDrawerProps {
@@ -141,7 +142,7 @@ export function CommentDrawer({
                     </div>
                     <div className="flex items-center gap-1 text-[11px] text-zinc-400">
                       <Clock className="h-3 w-3" />
-                      <span>{cmt.created_at.replace('T', ' ').substring(0, 16)}</span>
+                      <span>{formatBeijingDateTime(cmt.created_at)}</span>
                     </div>
                   </div>
                   <p className="mt-2 text-xs leading-relaxed text-zinc-700 whitespace-pre-wrap">
@@ -169,7 +170,7 @@ export function CommentDrawer({
                         <div className="flex items-center justify-between text-xs">
                           <span className="font-semibold text-zinc-800">{reply.author}</span>
                           <span className="text-[10px] text-zinc-400">
-                            {reply.created_at.replace('T', ' ').substring(0, 16)}
+                            {formatBeijingDateTime(reply.created_at)}
                           </span>
                         </div>
                         <p className="mt-1.5 text-xs text-zinc-700 whitespace-pre-wrap">{reply.content}</p>

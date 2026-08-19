@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { NodeTreeNode, DbTask, DeliverableItem } from '@/lib/types';
+import { NodeTreeNode, DbTask, DeliverableItem, ProjectPriority } from '@/lib/types';
 import { TaskItem } from './TaskItem';
-import { AddTaskForm, AddSubNodeForm } from './NodeActionForms';
+import { AddTaskForm, AddSubNodeForm, EditSubNodeForm } from './NodeActionForms';
 import {
   ChevronRight,
   ChevronDown,
@@ -18,16 +18,25 @@ import {
   AlertCircle,
   User,
   Clock,
+  Calendar,
 } from 'lucide-react';
 
 interface TreeNodeItemProps {
   node: NodeTreeNode;
   depth?: number;
+  hideCompleted?: boolean;
   onToggleTaskStatus: (task: DbTask, newStatus: 'pending' | 'done', customDoneAt?: string) => void;
   onRequestSubmitDeliverable: (task: DbTask) => void;
   onUpdateTask: (task: DbTask) => void;
   onDeleteTask: (taskId: string, taskName?: string) => void;
-  onAddSubNode: (parentId: string, name: string, owner: string, description?: string, estimatedDuration?: string) => void;
+  onAddSubNode: (
+    parentId: string,
+    name: string,
+    owner: string,
+    description?: string,
+    estimatedDuration?: string,
+    dueDate?: string
+  ) => void;
   onAddTask: (
     nodeId: string,
     name: string,
@@ -38,7 +47,15 @@ interface TreeNodeItemProps {
     estimatedDuration?: string,
     deliverableItems?: DeliverableItem[]
   ) => void;
-  onUpdateNode: (nodeId: string, name: string, owner: string, description?: string, estimatedDuration?: string) => void;
+  onUpdateNode: (
+    nodeId: string,
+    name: string,
+    owner: string,
+    description?: string,
+    estimatedDuration?: string,
+    priority?: ProjectPriority,
+    dueDate?: string | null
+  ) => void;
   onDeleteNode: (nodeId: string, name: string) => void;
   onOpenNodeComments: (node: NodeTreeNode) => void;
   onOpenTaskComments: (task: DbTask) => void;
@@ -47,6 +64,7 @@ interface TreeNodeItemProps {
 export function TreeNodeItem({
   node,
   depth = 0,
+  hideCompleted = false,
   onToggleTaskStatus,
   onRequestSubmitDeliverable,
   onUpdateTask,
@@ -58,16 +76,13 @@ export function TreeNodeItem({
   onOpenNodeComments,
   onOpenTaskComments,
 }: TreeNodeItemProps) {
-  const [isOpen, setIsOpen] = useState(true);
+  // 默认情况下收起各分组（顶层项目保持展开，子分组默认收起）
+  const [isOpen, setIsOpen] = useState(depth === 0);
+  // 默认任务列表是收起状态
+  const [showTasks, setShowTasks] = useState(false);
   const [showAddSubNode, setShowAddSubNode] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
-
   const [isEditingNode, setIsEditingNode] = useState(false);
-  const [editNodeName, setEditNodeName] = useState(node.name);
-  const [editNodeOwner, setEditNodeOwner] = useState(node.owner);
-  const [editNodeDesc, setEditNodeDesc] = useState(node.description || '');
-  const [editNodeDuration, setEditNodeDuration] = useState(node.estimated_duration || '');
-
   const [showMenu, setShowMenu] = useState(false);
 
   const hasChildren = (node.children && node.children.length > 0) || (node.tasks && node.tasks.length > 0);
@@ -76,9 +91,10 @@ export function TreeNodeItem({
     name: string,
     owner: string,
     desc?: string,
-    estimatedDuration?: string
+    estimatedDuration?: string,
+    dueDate?: string
   ) => {
-    onAddSubNode(node.id, name, owner, desc, estimatedDuration);
+    onAddSubNode(node.id, name, owner, desc, estimatedDuration, dueDate);
     setShowAddSubNode(false);
     setIsOpen(true);
   };
@@ -103,15 +119,19 @@ export function TreeNodeItem({
       deliverableItems
     );
     setShowAddTask(false);
+    setShowTasks(true); // 添加任务后自动展开当前节点任务
     setIsOpen(true);
   };
 
-  const handleSaveNodeEdit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editNodeName.trim() || !editNodeOwner.trim()) return;
-    onUpdateNode(node.id, editNodeName.trim(), editNodeOwner.trim(), editNodeDesc, editNodeDuration);
+  const handleSaveNodeEdit = (
+    name: string,
+    owner: string,
+    desc?: string,
+    estimatedDuration?: string,
+    dueDate?: string
+  ) => {
+    onUpdateNode(node.id, name, owner, desc, estimatedDuration, node.priority, dueDate);
     setIsEditingNode(false);
-    setShowMenu(false);
   };
 
   return (
@@ -119,7 +139,7 @@ export function TreeNodeItem({
       {/* 节点控制条 */}
       <div
         id={`tree-node-${node.id}`}
-        className={`group flex items-center justify-between rounded-xl border p-3 transition-all ${
+        className={`group flex items-center justify-between rounded-xl border p-2.5 sm:p-3 transition-all ${
           depth === 0
             ? 'border-zinc-200 bg-zinc-50/90 shadow-xs mb-2'
             : 'border-zinc-200/80 bg-white hover:border-zinc-300 hover:shadow-2xs my-1'
@@ -129,93 +149,52 @@ export function TreeNodeItem({
           <button
             type="button"
             onClick={() => setIsOpen(!isOpen)}
-            className="flex h-6 w-6 items-center justify-center rounded text-zinc-500 hover:bg-zinc-200/70"
+            className="flex h-6 w-6 items-center justify-center rounded text-zinc-500 hover:bg-zinc-200/70 shrink-0"
+            title={isOpen ? '收起分组' : '展开分组'}
           >
             {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </button>
 
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-100 text-zinc-700 shrink-0">
-            {isOpen ? <FolderOpen className="h-4 w-4 text-blue-600" /> : <Folder className="h-4 w-4" />}
+          <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-zinc-100 text-zinc-700 shrink-0">
+            {isOpen ? <FolderOpen className="h-3.5 w-3.5 text-blue-600" /> : <Folder className="h-3.5 w-3.5" />}
           </div>
 
-          {isEditingNode ? (
-            <form onSubmit={handleSaveNodeEdit} className="flex flex-wrap items-center gap-2 flex-1">
-              <input
-                type="text"
-                required
-                value={editNodeName}
-                onChange={(e) => setEditNodeName(e.target.value)}
-                placeholder="分组名称"
-                className="h-7 rounded-md border border-zinc-300 bg-white px-2 text-xs font-semibold text-zinc-900 focus:outline-none"
-              />
-              <input
-                type="text"
-                required
-                value={editNodeOwner}
-                onChange={(e) => setEditNodeOwner(e.target.value)}
-                className="h-7 w-20 rounded-md border border-zinc-300 bg-white px-2 text-xs text-zinc-700 focus:outline-none"
-                placeholder="负责人"
-              />
-              <input
-                type="text"
-                value={editNodeDuration}
-                onChange={(e) => setEditNodeDuration(e.target.value)}
-                className="h-7 w-24 rounded-md border border-zinc-300 bg-white px-2 text-xs text-zinc-700 focus:outline-none"
-                placeholder="预估周期(如:2周)"
-              />
-              <input
-                type="text"
-                value={editNodeDesc}
-                onChange={(e) => setEditNodeDesc(e.target.value)}
-                className="h-7 flex-1 min-w-32 rounded-md border border-zinc-300 bg-white px-2 text-xs text-zinc-700 focus:outline-none"
-                placeholder="分组描述说明..."
-              />
-              <button
-                type="button"
-                onClick={() => setIsEditingNode(false)}
-                className="rounded px-2 py-1 text-xs text-zinc-600 hover:bg-zinc-200"
-              >
-                取消
-              </button>
-              <button
-                type="submit"
-                className="rounded bg-blue-600 px-2.5 py-1 text-xs text-white hover:bg-blue-700 font-medium"
-              >
-                保存
-              </button>
-            </form>
-          ) : (
-            <div className="flex items-center gap-2 truncate flex-1 min-w-0">
-              <span className={`font-bold truncate ${depth === 0 ? 'text-sm text-zinc-900' : 'text-xs text-zinc-800'}`}>
-                {node.name}
+          <div className="flex items-center gap-2 truncate flex-1 min-w-0 flex-wrap">
+            <span className={`font-bold truncate ${depth === 0 ? 'text-sm text-zinc-900' : 'text-xs text-zinc-800'}`}>
+              {node.name}
+            </span>
+            <span className="flex items-center gap-1 text-[11px] text-zinc-500 shrink-0">
+              <User className="h-3 w-3 text-zinc-400" />
+              {node.owner}
+            </span>
+            {node.estimated_duration && (
+              <span className="inline-flex items-center gap-1 rounded bg-zinc-100 px-1.5 py-0.2 text-[10px] font-medium text-zinc-600 shrink-0 border border-zinc-200/70">
+                <Clock className="h-2.5 w-2.5 text-zinc-400" />
+                {node.estimated_duration}
               </span>
-              <span className="flex items-center gap-1 text-[11px] text-zinc-500 shrink-0">
-                <User className="h-3 w-3 text-zinc-400" />
-                {node.owner}
+            )}
+            {node.due_date && (
+              <span className="inline-flex items-center gap-1 rounded bg-blue-50/60 px-1.5 py-0.2 text-[10px] font-medium text-blue-700 shrink-0 border border-blue-200/60">
+                <Calendar className="h-2.5 w-2.5 text-blue-500" />
+                截止: {node.due_date}
               </span>
-              {node.estimated_duration && (
-                <span className="inline-flex items-center gap-1 rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600 shrink-0 border border-zinc-200">
-                  <Clock className="h-2.5 w-2.5 text-zinc-400" />
-                  {node.estimated_duration}
-                </span>
-              )}
-              {node.description && (
-                <span className="text-[11px] text-zinc-400 truncate max-w-xs hidden sm:inline" title={node.description}>
-                  · {node.description}
-                </span>
-              )}
-              {node.hasOverdueTasks && (
-                <span className="inline-flex items-center gap-0.5 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-700 shrink-0">
-                  <AlertCircle className="h-3 w-3 text-red-600" />
-                  存在超期
-                </span>
-              )}
-            </div>
-          )}
+            )}
+            {node.description && (
+              <span className="text-[11px] text-zinc-400 truncate max-w-xs hidden sm:inline" title={node.description}>
+                · {node.description}
+              </span>
+            )}
+            {node.hasOverdueTasks && (
+              <span className="inline-flex items-center gap-0.5 rounded bg-red-100 border border-red-200/80 px-1.5 py-0.2 text-[10px] font-semibold text-red-700 shrink-0">
+                <AlertCircle className="h-3 w-3 text-red-600" />
+                延期 {node.maxOverdueDays || 1} 天
+              </span>
+            )}
+          </div>
         </div>
 
         {/* 右侧递归汇总进度与操作 */}
-        <div className="flex items-center gap-4 shrink-0">
+        <div className="flex items-center gap-3 shrink-0">
           <div className="flex items-center gap-2">
             <div className="flex flex-col items-end">
               <span className="text-xs font-bold text-zinc-900">{node.progressPercent}%</span>
@@ -223,7 +202,7 @@ export function TreeNodeItem({
                 {node.completedTasksCount}/{node.totalTasksCount} 任务
               </span>
             </div>
-            <div className="h-2 w-16 overflow-hidden rounded-full bg-zinc-200">
+            <div className="h-2 w-14 sm:w-16 overflow-hidden rounded-full bg-zinc-200">
               <div
                 className={`h-full rounded-full transition-all duration-500 ${
                   node.progressPercent === 100
@@ -241,7 +220,9 @@ export function TreeNodeItem({
             <button
               onClick={() => {
                 setShowAddTask(true);
+                setShowTasks(true);
                 setShowAddSubNode(false);
+                setIsEditingNode(false);
               }}
               id={`btn-add-task-node-${node.id}`}
               className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-1 text-[11px] font-medium text-zinc-700 hover:bg-zinc-200 transition-colors"
@@ -255,6 +236,7 @@ export function TreeNodeItem({
               onClick={() => {
                 setShowAddSubNode(true);
                 setShowAddTask(false);
+                setIsEditingNode(false);
               }}
               id={`btn-add-subnode-${node.id}`}
               className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-1 text-[11px] font-medium text-zinc-700 hover:bg-zinc-200 transition-colors"
@@ -284,6 +266,8 @@ export function TreeNodeItem({
                   <button
                     onClick={() => {
                       setIsEditingNode(true);
+                      setShowAddSubNode(false);
+                      setShowAddTask(false);
                       setShowMenu(false);
                     }}
                     className="flex w-full items-center gap-1.5 px-3 py-1.5 text-left text-xs text-zinc-700 hover:bg-zinc-100"
@@ -311,6 +295,19 @@ export function TreeNodeItem({
       {/* 展开内容 */}
       {isOpen && (
         <div className="space-y-2 border-l-2 border-zinc-150 pl-3 ml-3 my-1">
+          {/* 编辑节点信息（平铺展开模式） */}
+          {isEditingNode && (
+            <EditSubNodeForm
+              initialName={node.name}
+              initialOwner={node.owner}
+              initialDesc={node.description}
+              initialDuration={node.estimated_duration}
+              initialDueDate={node.due_date}
+              onClose={() => setIsEditingNode(false)}
+              onSubmit={handleSaveNodeEdit}
+            />
+          )}
+
           {/* 新增任务表单组件 */}
           {showAddTask && (
             <AddTaskForm
@@ -330,31 +327,65 @@ export function TreeNodeItem({
             />
           )}
 
-          {/* 任务列表 */}
+          {/* 任务折叠与列表区（默认收起，按需展开，无多余边框） */}
           {node.tasks && node.tasks.length > 0 && (
-            <div className="space-y-1.5">
-              {node.tasks.map((task) => (
-                <TaskItem
-                  key={task.id}
-                  task={task}
-                  onToggleStatus={onToggleTaskStatus}
-                  onRequestSubmitDeliverable={onRequestSubmitDeliverable}
-                  onUpdateTask={onUpdateTask}
-                  onDeleteTask={onDeleteTask}
-                  onOpenComments={onOpenTaskComments}
-                />
-              ))}
+            <div className="space-y-1.5 py-0.5">
+              <button
+                type="button"
+                onClick={() => setShowTasks(!showTasks)}
+                className="flex items-center justify-between w-full py-1.5 px-2.5 rounded-lg bg-zinc-100/70 hover:bg-zinc-200/60 text-xs text-zinc-600 transition-colors"
+              >
+                <div className="flex items-center gap-1.5">
+                  <CheckSquare className="h-3.5 w-3.5 text-blue-600 shrink-0" />
+                  <span className="font-medium text-zinc-800">
+                    本组任务 ({node.tasks.length} 项)
+                  </span>
+                  <span className="text-[11px] text-zinc-400">
+                    · 已完工 {node.tasks.filter((t) => t.status === 'done').length} 项
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 text-[11px] text-blue-600 font-medium shrink-0">
+                  <span>{showTasks ? '收起任务' : '展开任务'}</span>
+                  {showTasks ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                </div>
+              </button>
+
+              {showTasks && (
+                <div className="space-y-1.5 pt-0.5">
+                  {node.tasks
+                    .filter((t) => !hideCompleted || t.status !== 'done')
+                    .map((task) => (
+                      <TaskItem
+                        key={task.id}
+                        task={task}
+                        onToggleStatus={onToggleTaskStatus}
+                        onRequestSubmitDeliverable={onRequestSubmitDeliverable}
+                        onUpdateTask={onUpdateTask}
+                        onDeleteTask={onDeleteTask}
+                        onOpenComments={onOpenTaskComments}
+                      />
+                    ))}
+                  {hideCompleted &&
+                    node.tasks.filter((t) => t.status === 'done').length > 0 &&
+                    node.tasks.filter((t) => t.status !== 'done').length === 0 && (
+                      <div className="py-1 px-2.5 text-[11px] text-zinc-400 italic bg-zinc-100/50 rounded-md">
+                        本组 {node.tasks.length} 项任务均已完工（当前处于隐藏状态）
+                      </div>
+                    )}
+                </div>
+              )}
             </div>
           )}
 
-          {/* 递归渲染子节点 */}
+          {/* 递归渲染子节点（分组与子分组直接展开展示） */}
           {node.children && node.children.length > 0 && (
-            <div className="space-y-2">
+            <div className="space-y-2 pt-0.5">
               {node.children.map((child) => (
                 <TreeNodeItem
                   key={child.id}
                   node={child}
                   depth={depth + 1}
+                  hideCompleted={hideCompleted}
                   onToggleTaskStatus={onToggleTaskStatus}
                   onRequestSubmitDeliverable={onRequestSubmitDeliverable}
                   onUpdateTask={onUpdateTask}
@@ -370,7 +401,7 @@ export function TreeNodeItem({
             </div>
           )}
 
-          {!hasChildren && !showAddTask && !showAddSubNode && (
+          {!hasChildren && !showAddTask && !showAddSubNode && !isEditingNode && (
             <div className="py-2 text-center text-xs text-zinc-400">
               暂无下级任务或分组，点击上方「加任务」或「加子分组」开始规划
             </div>

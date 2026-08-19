@@ -3,9 +3,10 @@
 export const dynamic = 'force-dynamic';
 
 import React, { useState, useEffect } from 'react';
-import { ProjectSummary, DashboardMetrics, ProjectStatus } from '@/lib/types';
+import { ProjectSummary, DashboardMetrics, ProjectStatus, ExecutiveActivityItem } from '@/lib/types';
 import { Navbar } from '@/components/Navbar';
 import { DashboardSummary } from '@/components/DashboardSummary';
+import { ExecutiveRecentActivities } from '@/components/ExecutiveRecentActivities';
 import { ProjectListTable } from '@/components/ProjectListTable';
 import { CreateProjectModal } from '@/components/CreateProjectModal';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -15,6 +16,7 @@ import { RefreshCw, Plus } from 'lucide-react';
 export default function DashboardPage() {
   const router = useRouter();
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
+  const [executiveActivities, setExecutiveActivities] = useState<ExecutiveActivityItem[]>([]);
   const [metrics, setMetrics] = useState<DashboardMetrics>({
     totalProjects: 0,
     averageProgress: 0,
@@ -25,6 +27,7 @@ export default function DashboardPage() {
     overdueProjectsCount: 0,
     totalTasksCount: 0,
     completedTasksCount: 0,
+    totalEarlyDays: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -43,6 +46,9 @@ export default function DashboardPage() {
         if (!ignore && data.ok && data.data) {
           setProjects(data.data.summaries);
           setMetrics(data.data.metrics);
+          if (Array.isArray(data.data.executiveActivities)) {
+            setExecutiveActivities(data.data.executiveActivities);
+          }
         }
       } catch (err) {
         console.error('Fetch dashboard error:', err);
@@ -139,6 +145,9 @@ export default function DashboardPage() {
             </button>
           </div>
         </div>
+
+        {/* 管理层最新 3 条关键进展速报（站在老板理解视角，不含 +/- 代码符号） */}
+        <ExecutiveRecentActivities activities={executiveActivities} />
 
         {/* 顶部汇总指标 */}
         <DashboardSummary metrics={metrics} />

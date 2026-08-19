@@ -90,11 +90,10 @@ export function formatDeliverablesToText(items: DeliverableItem[]): string {
 }
 
 const PRESET_DELIVERABLES = [
-  { name: 'PRD需求文档', requirement: '需业务方评审通过并附文档链接' },
-  { name: '交互设计稿', requirement: 'Figma高保真交互与标注链接' },
-  { name: '技术方案设计', requirement: '包含接口定义与数据库变更评审' },
-  { name: '测试用例与报告', requirement: '主流程100%覆盖并通过回归' },
-  { name: '上线发布说明', requirement: '附灰度观察数据与验收确认' },
+  { name: 'PRD文档', requirement: '附文档链接' },
+  { name: 'UI设计稿', requirement: 'Figma标注' },
+  { name: '技术方案', requirement: '接口与架构' },
+  { name: '测试用例', requirement: '回归通过' },
 ];
 
 export function DeliverableTableEditor({
@@ -136,130 +135,111 @@ export function DeliverableTableEditor({
   };
 
   return (
-    <div className="space-y-2.5 rounded-xl border border-blue-200 bg-blue-50/30 p-3 text-xs">
-      {/* 顶部标题与快捷预设 */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 pb-1 border-b border-blue-200/60">
-        <div className="flex items-center gap-1.5 font-semibold text-blue-950">
-          <FileText className="h-3.5 w-3.5 text-blue-600" />
-          <span>交付件清单规范（有序表格）</span>
-          <span className="rounded bg-blue-100/90 text-blue-700 px-1.5 py-0.2 text-[10px] font-mono">
-            共 {items.filter((i) => i.name.trim()).length} 项
+    <div className="space-y-1.5 rounded-lg border border-blue-200/80 bg-blue-50/30 p-2 text-xs">
+      {/* 紧凑标题行与预设 */}
+      <div className="flex items-center justify-between gap-2 flex-wrap pb-1 border-b border-blue-150">
+        <div className="flex items-center gap-1 font-semibold text-blue-900 text-[11px]">
+          <FileText className="h-3 w-3 text-blue-600" />
+          <span>交付件清单要求</span>
+          <span className="text-[10px] text-blue-600 bg-blue-100/80 px-1 rounded">
+            {items.filter((i) => i.name.trim()).length}项
           </span>
         </div>
 
-        {/* 常用交付件快捷预设 */}
         {!disabled && (
           <div className="flex items-center gap-1 flex-wrap">
-            <span className="text-[11px] text-zinc-500 flex items-center gap-0.5">
-              <Sparkles className="h-2.5 w-2.5 text-amber-500" /> 快捷添加:
+            <span className="text-[10px] text-zinc-400 flex items-center">
+              <Sparkles className="h-2.5 w-2.5 text-amber-500 mr-0.5" />快捷:
             </span>
-            {PRESET_DELIVERABLES.slice(0, 3).map((p) => (
+            {PRESET_DELIVERABLES.map((p) => (
               <button
                 key={p.name}
                 type="button"
                 onClick={() => handleAddItem(p)}
-                className="rounded bg-white border border-blue-200/90 px-1.5 py-0.5 text-[10px] text-blue-700 hover:bg-blue-100/80 transition-colors"
+                className="rounded bg-white border border-blue-200 px-1.5 py-0.2 text-[10px] text-blue-700 hover:bg-blue-50 transition-colors"
               >
-                + {p.name}
+                +{p.name}
               </button>
             ))}
           </div>
         )}
       </div>
 
-      {/* 有序表格 */}
-      <div className="overflow-hidden rounded-lg border border-blue-200/90 bg-white shadow-2xs">
-        <table className="w-full text-left text-xs border-collapse">
-          <thead>
-            <tr className="border-b border-zinc-200 bg-zinc-50/80 text-[11px] text-zinc-600 font-semibold select-none">
-              <th className="w-10 px-2.5 py-1.5 text-center">序号</th>
-              <th className="w-2/5 px-2.5 py-1.5">交付件名称 / 成果项 <span className="text-rose-500">*</span></th>
-              <th className="px-2.5 py-1.5">交付标准 / 验收说明 / 格式链接要求</th>
-              {!disabled && <th className="w-16 px-2 py-1.5 text-center">操作</th>}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-zinc-150">
-            {items.map((item, idx) => (
-              <tr key={item.id} className="hover:bg-blue-50/20 transition-colors">
-                <td className="px-2.5 py-1.5 text-center font-mono text-[11px] text-zinc-400 font-bold">
-                  {idx + 1}
-                </td>
-                <td className="px-2.5 py-1.5">
-                  <input
-                    type="text"
-                    disabled={disabled}
-                    value={item.name}
-                    onChange={(e) => handleUpdateItem(idx, 'name', e.target.value)}
-                    placeholder={`交付件 ${idx + 1} 名称 (如: 产品PRD / UI设计稿)`}
-                    className="w-full rounded border border-zinc-250 bg-white px-2 py-1 text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-blue-500 font-medium text-xs"
-                  />
-                </td>
-                <td className="px-2.5 py-1.5">
-                  <input
-                    type="text"
-                    disabled={disabled}
-                    value={item.requirement || ''}
-                    onChange={(e) => handleUpdateItem(idx, 'requirement', e.target.value)}
-                    placeholder="选填：验收标准或链接要求 (如: 需附飞书文档链接)"
-                    className="w-full rounded border border-zinc-250 bg-white px-2 py-1 text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-blue-500 text-xs"
-                  />
-                </td>
-                {!disabled && (
-                  <td className="px-2 py-1.5 text-center">
-                    <div className="flex items-center justify-center gap-1">
-                      {items.length > 1 && (
-                        <>
-                          <button
-                            type="button"
-                            disabled={idx === 0}
-                            onClick={() => handleMove(idx, 'up')}
-                            className="p-1 text-zinc-400 hover:text-zinc-700 disabled:opacity-30 rounded hover:bg-zinc-100"
-                            title="上移"
-                          >
-                            <ArrowUp className="h-3 w-3" />
-                          </button>
-                          <button
-                            type="button"
-                            disabled={idx === items.length - 1}
-                            onClick={() => handleMove(idx, 'down')}
-                            className="p-1 text-zinc-400 hover:text-zinc-700 disabled:opacity-30 rounded hover:bg-zinc-100"
-                            title="下移"
-                          >
-                            <ArrowDown className="h-3 w-3" />
-                          </button>
-                        </>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveItem(idx)}
-                        className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded transition-colors"
-                        title="删除此行"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </button>
-                    </div>
-                  </td>
+      {/* 极简紧凑行列表 */}
+      <div className="space-y-1">
+        {items.map((item, idx) => (
+          <div
+            key={item.id}
+            className="flex items-center gap-1.5 bg-white p-1 rounded border border-zinc-200/90 shadow-2xs"
+          >
+            <span className="w-4 text-center font-mono text-[10px] text-zinc-400 font-bold shrink-0">
+              {idx + 1}
+            </span>
+            <input
+              type="text"
+              disabled={disabled}
+              value={item.name}
+              onChange={(e) => handleUpdateItem(idx, 'name', e.target.value)}
+              placeholder="交付件名称 *"
+              className="w-1/3 min-w-[100px] rounded border border-zinc-200 bg-zinc-50/50 px-1.5 py-0.5 text-zinc-900 placeholder:text-zinc-400 focus:bg-white focus:outline-none focus:border-blue-500 text-xs font-medium"
+            />
+            <input
+              type="text"
+              disabled={disabled}
+              value={item.requirement || ''}
+              onChange={(e) => handleUpdateItem(idx, 'requirement', e.target.value)}
+              placeholder="验收标准/链接说明 (选填)"
+              className="flex-1 min-w-[120px] rounded border border-zinc-200 bg-zinc-50/50 px-1.5 py-0.5 text-zinc-900 placeholder:text-zinc-400 focus:bg-white focus:outline-none focus:border-blue-500 text-xs"
+            />
+            {!disabled && (
+              <div className="flex items-center gap-0.5 shrink-0">
+                {items.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      disabled={idx === 0}
+                      onClick={() => handleMove(idx, 'up')}
+                      className="p-0.5 text-zinc-400 hover:text-zinc-700 disabled:opacity-20 rounded"
+                      title="上移"
+                    >
+                      <ArrowUp className="h-3 w-3" />
+                    </button>
+                    <button
+                      type="button"
+                      disabled={idx === items.length - 1}
+                      onClick={() => handleMove(idx, 'down')}
+                      className="p-0.5 text-zinc-400 hover:text-zinc-700 disabled:opacity-20 rounded"
+                      title="下移"
+                    >
+                      <ArrowDown className="h-3 w-3" />
+                    </button>
+                  </>
                 )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveItem(idx)}
+                  className="p-0.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded"
+                  title="删除"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
 
-      {/* 底部新增行按钮 */}
+      {/* 底部新增行 */}
       {!disabled && (
-        <div className="flex items-center justify-between pt-0.5">
+        <div className="pt-0.5 flex justify-between items-center">
           <button
             type="button"
             onClick={() => handleAddItem()}
-            className="inline-flex items-center gap-1 rounded-lg border border-dashed border-blue-400 bg-white px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-50/80 transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1 rounded border border-dashed border-blue-400 bg-white px-2 py-0.5 text-[11px] font-medium text-blue-700 hover:bg-blue-50 transition-colors"
           >
-            <Plus className="h-3 w-3" />
-            <span>添加一行交付件</span>
+            <Plus className="h-2.5 w-2.5" />
+            <span>添加交付项</span>
           </button>
-          <span className="text-[11px] text-zinc-500">
-            完成任务时需逐一核对/归档交付件成果
-          </span>
         </div>
       )}
     </div>

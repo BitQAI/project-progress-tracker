@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { DbTask } from '@/lib/types';
+import { getTodayBeijingString } from '@/lib/date-utils';
 import { FileCheck, X, AlertCircle, Link2, Calendar, CheckCircle2, Clock } from 'lucide-react';
 
 interface DeliverableSubmitModalProps {
@@ -38,7 +39,7 @@ function DeliverableSubmitModalContent({
   onClose: () => void;
   onSubmitSuccess: (taskId: string, submissionText: string, doneDate: string) => Promise<void>;
 }) {
-  const todayStr = useMemo(() => new Date().toISOString().split('T')[0], []);
+  const todayStr = useMemo(() => getTodayBeijingString(), []);
   const [submission, setSubmission] = useState(task.deliverable_submission || '');
   const [doneDate, setDoneDate] = useState(() => {
     return task.done_at ? task.done_at.split('T')[0] : todayStr;

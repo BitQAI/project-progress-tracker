@@ -3,8 +3,9 @@
 import React, { useState } from 'react';
 import { ProjectActivityItem } from '@/lib/types';
 import { GitDiffView } from './GitDiffView';
+import { formatBeijingShortDateTime } from '@/lib/date-utils';
 import {
-  Sparkles,
+  Activity,
   FileCheck,
   CheckCircle2,
   MessageSquare,
@@ -35,7 +36,8 @@ export function ProjectActivityFeed({
   estimatedDuration,
   onAddBriefComment,
 }: ProjectActivityFeedProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  // 1. 默认收起状态
+  const [isExpanded, setIsExpanded] = useState(false);
   const [newUpdateText, setNewUpdateText] = useState('');
   const [isPosting, setIsPosting] = useState(false);
 
@@ -123,7 +125,7 @@ export function ProjectActivityFeed({
         };
       case 'briefing':
         return {
-          icon: <Sparkles className="h-3.5 w-3.5 text-violet-600" />,
+          icon: <Activity className="h-3.5 w-3.5 text-violet-600" />,
           badge: '前情速报',
           badgeClass: 'bg-violet-50 text-violet-700 border-violet-200',
         };
@@ -137,60 +139,69 @@ export function ProjectActivityFeed({
   };
 
   const formatTimestamp = (ts: string) => {
-    try {
-      const d = new Date(ts);
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      const h = String(d.getHours()).padStart(2, '0');
-      const min = String(d.getMinutes()).padStart(2, '0');
-      return `${m}-${day} ${h}:${min}`;
-    } catch {
-      return ts;
-    }
+    return formatBeijingShortDateTime(ts);
   };
+
+  const latestAct = activities[0];
 
   return (
     <div
       id="project-activity-feed"
-      className="mb-6 rounded-2xl border border-zinc-200 bg-linear-to-b from-white to-zinc-50/50 p-4 shadow-xs"
+      className="rounded-xl border border-zinc-200 bg-white px-3 py-1.5 shadow-2xs transition-all"
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-900 text-white">
-            <Sparkles className="h-3.5 w-3.5" />
+      {/* 收起时严格保持在单行 (1 行) */}
+      <div className="flex items-center justify-between gap-2.5">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-zinc-900 text-white">
+            <Activity className="h-3 w-3 text-emerald-400" />
           </div>
-          <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-900">
-              前情提要与最新进展动态
-            </h3>
-            <p className="text-[11px] text-zinc-500">
-              实时追踪增删改操作、交付成果与团队留档证据链
-            </p>
-          </div>
+
+          <span className="text-xs font-bold text-zinc-900 shrink-0">
+            前情提要与最新进展
+          </span>
+
+          {activities.length > 0 && (
+            <span className="rounded bg-zinc-100 px-1.5 py-0.2 text-[10px] font-medium text-zinc-600 shrink-0">
+              {activities.length} 条
+            </span>
+          )}
+
+          {!isExpanded && (
+            <>
+              <span className="text-zinc-300 shrink-0 hidden sm:inline">|</span>
+              <span className="text-[11px] text-zinc-500 truncate flex-1 hidden sm:inline">
+                {latestAct
+                  ? `最新：${latestAct.title}`
+                  : projectDescription || '暂无更多前情背景'}
+              </span>
+            </>
+          )}
         </div>
 
         <button
           type="button"
+          id="toggle-project-activity-feed-btn"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="flex items-center gap-1 rounded-lg border border-zinc-200 px-2.5 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-100 transition-colors"
+          className="inline-flex items-center gap-1 rounded border border-zinc-200 bg-zinc-50/80 px-2 py-0.5 text-xs font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 transition-colors shrink-0"
         >
-          <span>{isExpanded ? '收起动态' : `展开动态 (${activities.length})`}</span>
-          {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+          <span>{isExpanded ? '收起' : '展开详情'}</span>
+          {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
         </button>
       </div>
 
+      {/* 展开后的完整内容 */}
       {isExpanded && (
-        <div className="mt-3.5 space-y-3.5 pt-3 border-t border-zinc-150">
+        <div className="mt-2.5 space-y-2.5 pt-2 border-t border-zinc-100">
           {/* 前情提要基础信息 */}
           {(projectDescription || estimatedDuration) && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs bg-zinc-100/70 p-3.5 rounded-xl border border-zinc-200/80">
-              <div className="md:col-span-2 space-y-1">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs bg-zinc-50 p-2.5 rounded-lg border border-zinc-200/70">
+              <div className="md:col-span-2 space-y-0.5">
                 <span className="font-semibold text-zinc-700">项目背景与前情说明:</span>
                 <div className="text-zinc-600 leading-relaxed whitespace-pre-wrap font-sans">
                   {projectDescription || '暂无项目描述，点击上方编辑补充'}
                 </div>
               </div>
-              <div className="space-y-1 border-t md:border-t-0 md:border-l border-zinc-200 pt-2 md:pt-0 md:pl-3.5">
+              <div className="space-y-0.5 border-t md:border-t-0 md:border-l border-zinc-200/80 pt-1.5 md:pt-0 md:pl-2.5">
                 <span className="font-semibold text-zinc-700">预估交付周期:</span>
                 <p className="font-medium text-zinc-900 whitespace-pre-wrap">
                   {estimatedDuration || '未设定预估周期'}
@@ -206,12 +217,12 @@ export function ProjectActivityFeed({
               value={newUpdateText}
               onChange={(e) => setNewUpdateText(e.target.value)}
               placeholder="快速追加一条项目前情提要或今日进展结论..."
-              className="flex-1 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900"
+              className="flex-1 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900"
             />
             <button
               type="submit"
               disabled={isPosting || !newUpdateText.trim()}
-              className="inline-flex items-center gap-1 rounded-xl bg-zinc-900 px-3.5 py-2 text-xs font-semibold text-white hover:bg-zinc-800 transition-colors disabled:opacity-40"
+              className="inline-flex items-center gap-1 rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-zinc-800 transition-colors disabled:opacity-40"
             >
               <Send className="h-3 w-3" />
               <span>{isPosting ? '发布中' : '发布动态'}</span>
@@ -220,15 +231,15 @@ export function ProjectActivityFeed({
 
           {/* 动态时间流 */}
           {activities.length > 0 ? (
-            <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+            <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
               {activities.map((act) => {
                 const config = getActivityConfig(act.type);
                 return (
                   <div
                     key={act.id}
-                    className="flex items-start gap-2.5 rounded-xl border border-zinc-150 bg-white/90 p-2.5 text-xs shadow-2xs hover:border-zinc-300 transition-all"
+                    className="flex items-start gap-2 rounded-lg border border-zinc-150 bg-white p-2 text-xs shadow-2xs hover:border-zinc-300 transition-all"
                   >
-                    <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-zinc-50 border border-zinc-200">
+                    <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded bg-zinc-50 border border-zinc-200">
                       {config.icon}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -258,7 +269,7 @@ export function ProjectActivityFeed({
               })}
             </div>
           ) : (
-            <p className="py-2 text-center text-xs text-zinc-400">
+            <p className="py-1 text-center text-xs text-zinc-400">
               暂无最新动态，当团队成员新增任务、编辑信息、勾选完成或提交交付件时将自动实时记录在此。
             </p>
           )}

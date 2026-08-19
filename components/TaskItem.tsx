@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { DbTask, DeliverableItem } from '@/lib/types';
 import { DeliverableTableEditor, parseDeliverablesFromInput, formatDeliverablesToText } from './DeliverableTableEditor';
+import { getTodayBeijingString } from '@/lib/date-utils';
 import {
   CheckSquare,
   Square,
@@ -46,7 +47,7 @@ export function TaskItem({
     parseDeliverablesFromInput(task.deliverable_requirement, task.deliverable_items)
   );
   const [isDoneState, setIsDoneState] = useState(task.status === 'done');
-  const todayStr = useMemo(() => new Date().toISOString().split('T')[0], []);
+  const todayStr = useMemo(() => getTodayBeijingString(), []);
   const [editDoneDate, setEditDoneDate] = useState(() => {
     return task.done_at ? task.done_at.split('T')[0] : todayStr;
   });
@@ -54,6 +55,12 @@ export function TaskItem({
   const [showDeliverableDetail, setShowDeliverableDetail] = useState(false);
 
   const isOverdue = task.status === 'pending' && task.due_date && task.due_date < todayStr;
+  const overdueDays = useMemo(() => {
+    if (!isOverdue || !task.due_date) return 0;
+    const dDue = new Date(task.due_date.slice(0, 10) + 'T00:00:00').getTime();
+    const dToday = new Date(todayStr + 'T00:00:00').getTime();
+    return Math.max(1, Math.floor((dToday - dDue) / (1000 * 60 * 60 * 24)));
+  }, [isOverdue, task.due_date, todayStr]);
   const isDone = task.status === 'done';
 
   // 计算编辑表单中完成时间与截止日的差异
@@ -359,11 +366,11 @@ export function TaskItem({
             </button>
           )}
 
-          {/* 超期提示 */}
+          {/* 超期/延期提示 */}
           {isOverdue && (
-            <span className="inline-flex items-center gap-1 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-700 shrink-0">
+            <span className="inline-flex items-center gap-1 rounded bg-red-100 border border-red-200/80 px-1.5 py-0.5 text-[10px] font-semibold text-red-700 shrink-0">
               <AlertCircle className="h-3 w-3 text-red-600" />
-              超期
+              延期 {overdueDays} 天
             </span>
           )}
         </div>
@@ -448,43 +455,36 @@ export function TaskItem({
         </div>
       </div>
 
-      {/* 交付件展开详情 */}
+      {/* 交付件展开详情（紧凑单/双行精简视图） */}
       {showDeliverableDetail && task.has_deliverable && (
-        <div className="mt-2 pt-2 border-t border-zinc-150 text-[11px] bg-zinc-50/70 p-2.5 rounded-lg space-y-1.5">
+        <div className="mt-1.5 pt-1.5 border-t border-zinc-150 text-xs bg-zinc-50/70 p-2 rounded-md space-y-1">
           {task.deliverable_requirement && (
-            <div className="text-zinc-700 flex items-start gap-1.5">
-              <Link2 className="h-3.5 w-3.5 mt-0.5 text-zinc-400 shrink-0" />
-              <div className="flex-1 min-w-0">
-                <strong className="font-semibold text-zinc-800">交付规范要求:</strong>
-                <p className="mt-0.5 whitespace-pre-wrap leading-relaxed text-zinc-600">
-                  {task.deliverable_requirement}
-                </p>
-              </div>
+            <div className="text-zinc-600 flex items-start gap-1 text-[11px]">
+              <span className="font-semibold text-zinc-700 shrink-0">交付规范:</span>
+              <span className="text-zinc-600 leading-tight">{task.deliverable_requirement}</span>
             </div>
           )}
           {task.deliverable_submission ? (
-            <div className="text-emerald-900 bg-emerald-50/90 p-2 rounded-lg border border-emerald-200 space-y-1">
-              <div className="flex items-center justify-between">
-                <strong className="font-semibold text-emerald-800">已提交成果与验收记录:</strong>
-                {completionInfo && (
-                  <span className="text-[10px] text-emerald-700">
-                    ({completionInfo.text})
-                  </span>
-                )}
+            <div className="flex items-center justify-between text-[11px] text-emerald-800 bg-emerald-50/90 px-2 py-1 rounded border border-emerald-200/80">
+              <div className="flex items-center gap-1.5 truncate">
+                <span className="font-semibold shrink-0">已归档成果:</span>
+                <span className="truncate">{task.deliverable_submission}</span>
               </div>
-              <p className="whitespace-pre-wrap leading-relaxed text-emerald-800">
-                {task.deliverable_submission}
-              </p>
+              {completionInfo && (
+                <span className="text-[10px] text-emerald-700 shrink-0 font-medium ml-2">
+                  {completionInfo.text}
+                </span>
+              )}
             </div>
           ) : (
-            <div className="text-amber-700 flex items-center justify-between">
+            <div className="text-amber-800 bg-amber-50/70 px-2 py-1 rounded border border-amber-200/60 flex items-center justify-between text-[11px]">
               <span>暂未提交成果，勾选完成时需录入交付件</span>
               <button
                 type="button"
                 onClick={() => onRequestSubmitDeliverable(task)}
-                className="font-semibold underline hover:text-amber-900"
+                className="font-medium underline hover:text-amber-950 ml-2 shrink-0"
               >
-                立即提交交付件
+                立即提交成果
               </button>
             </div>
           )}

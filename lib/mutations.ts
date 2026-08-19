@@ -178,7 +178,8 @@ export async function addNode(
   name: string,
   owner: string,
   description?: string,
-  estimatedDuration?: string
+  estimatedDuration?: string,
+  dueDate?: string | null
 ): Promise<string> {
   const db = getDb();
   const id = generateId('node');
@@ -192,6 +193,7 @@ export async function addNode(
     owner,
     description: description?.trim() || undefined,
     estimated_duration: estimatedDuration?.trim() || undefined,
+    due_date: dueDate?.trim() || undefined,
     order: siblingCount + 1,
     status: 'in_progress',
     created_at: now,
@@ -204,6 +206,7 @@ export async function addNode(
     `+ 负责人: ${owner}`,
   ];
   if (estimatedDuration?.trim()) detailParts.push(`+ 预估周期: ${estimatedDuration.trim()}`);
+  if (dueDate?.trim()) detailParts.push(`+ 预估完成时间: ${dueDate.trim()}`);
   if (description?.trim()) detailParts.push(`+ 模块说明: ${description.trim()}`);
   if (parentNode) detailParts.push(`+ 所属父级: ${parentNode.name}`);
 

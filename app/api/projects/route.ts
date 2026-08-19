@@ -1,16 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getProjectsSummaryList, getDashboardMetrics } from '@/lib/project-service';
+import { getGlobalExecutiveActivities } from '@/lib/executive-activity-service';
 import { createProjectFromScratch, createProjectFromTemplate } from '@/lib/mutations';
 import { ensureDbLoaded } from '@/lib/db';
 
 export async function GET() {
   try {
     await ensureDbLoaded();
-    const [summaries, metrics] = await Promise.all([
+    const [summaries, metrics, executiveActivities] = await Promise.all([
       getProjectsSummaryList(),
       getDashboardMetrics(),
+      getGlobalExecutiveActivities(3),
     ]);
-    return NextResponse.json({ ok: true, data: { summaries, metrics } });
+    return NextResponse.json({
+      ok: true,
+      data: { summaries, metrics, executiveActivities },
+    });
   } catch (error: any) {
     console.error('API projects error:', error);
     return NextResponse.json({ ok: false, error: error.message || '获取项目列表失败' }, { status: 500 });

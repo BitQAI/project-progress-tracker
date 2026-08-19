@@ -142,7 +142,7 @@ export function AddTaskForm({
 interface AddSubNodeFormProps {
   defaultOwner: string;
   onClose: () => void;
-  onSubmit: (name: string, owner: string, desc?: string, estimatedDuration?: string) => void;
+  onSubmit: (name: string, owner: string, desc?: string, estimatedDuration?: string, dueDate?: string) => void;
 }
 
 export function AddSubNodeForm({
@@ -154,53 +154,88 @@ export function AddSubNodeForm({
   const [subNodeOwner, setSubNodeOwner] = useState(defaultOwner);
   const [subNodeDesc, setSubNodeDesc] = useState('');
   const [subNodeDuration, setSubNodeDuration] = useState('');
+  const [subNodeDueDate, setSubNodeDueDate] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!subNodeName.trim() || !subNodeOwner.trim()) return;
-    onSubmit(subNodeName.trim(), subNodeOwner.trim(), subNodeDesc, subNodeDuration);
+    onSubmit(
+      subNodeName.trim(),
+      subNodeOwner.trim(),
+      subNodeDesc.trim() || undefined,
+      subNodeDuration.trim() || undefined,
+      subNodeDueDate ? subNodeDueDate : undefined
+    );
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3 text-xs space-y-2.5"
+      className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3.5 text-xs space-y-3"
     >
-      <div className="font-semibold text-emerald-900">创建下级子分组/模块节点</div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-        <input
-          type="text"
-          required
-          placeholder="分组/模块名称"
-          value={subNodeName}
-          onChange={(e) => setSubNodeName(e.target.value)}
-          className="sm:col-span-2 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 focus:outline-none"
-        />
-        <input
-          type="text"
-          required
-          placeholder="负责人"
-          value={subNodeOwner}
-          onChange={(e) => setSubNodeOwner(e.target.value)}
-          className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 focus:outline-none"
-        />
+      <div className="font-semibold text-emerald-900 border-b border-emerald-200/60 pb-1.5 flex items-center justify-between">
+        <span>创建下级子分组 / 模块节点</span>
+        <span className="text-[11px] text-emerald-700 font-normal">多字段清晰平铺展开</span>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-        <input
-          type="text"
-          placeholder="预估周期(如: 2周 / 10个工作日)"
-          value={subNodeDuration}
-          onChange={(e) => setSubNodeDuration(e.target.value)}
-          className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 focus:outline-none"
-        />
-        <input
-          type="text"
-          placeholder="分组描述/说明..."
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+        <div className="sm:col-span-2">
+          <label className="block text-[11px] font-medium text-zinc-600 mb-1">分组/模块名称 <span className="text-red-500">*</span></label>
+          <input
+            type="text"
+            required
+            placeholder="如：智能 RAG 向量知识库 / 核心业务 API"
+            value={subNodeName}
+            onChange={(e) => setSubNodeName(e.target.value)}
+            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          />
+        </div>
+        <div>
+          <label className="block text-[11px] font-medium text-zinc-600 mb-1">负责人 <span className="text-red-500">*</span></label>
+          <input
+            type="text"
+            required
+            placeholder="负责人姓名"
+            value={subNodeOwner}
+            onChange={(e) => setSubNodeOwner(e.target.value)}
+            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        <div>
+          <label className="block text-[11px] font-medium text-zinc-600 mb-1">预估周期</label>
+          <input
+            type="text"
+            placeholder="如: 2周 / 10个工作日 / 3天"
+            value={subNodeDuration}
+            onChange={(e) => setSubNodeDuration(e.target.value)}
+            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          />
+        </div>
+        <div>
+          <label className="block text-[11px] font-medium text-zinc-600 mb-1">预估完成时间 (计划截止日)</label>
+          <input
+            type="date"
+            value={subNodeDueDate}
+            onChange={(e) => setSubNodeDueDate(e.target.value)}
+            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-[11px] font-medium text-zinc-600 mb-1">分组描述 / 模块说明</label>
+        <textarea
+          rows={2}
+          placeholder="补充该分组的建设目标、交付范围或关键技术要点..."
           value={subNodeDesc}
           onChange={(e) => setSubNodeDesc(e.target.value)}
-          className="sm:col-span-2 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 focus:outline-none"
+          className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-emerald-500"
         />
       </div>
+
       <div className="flex justify-end gap-2 pt-1">
         <button
           type="button"
@@ -214,6 +249,130 @@ export function AddSubNodeForm({
           className="rounded-lg bg-emerald-600 px-3 py-1 text-white font-medium hover:bg-emerald-700 shadow-xs"
         >
           创建分组
+        </button>
+      </div>
+    </form>
+  );
+}
+
+interface EditSubNodeFormProps {
+  initialName: string;
+  initialOwner: string;
+  initialDesc?: string;
+  initialDuration?: string;
+  initialDueDate?: string | null;
+  onClose: () => void;
+  onSubmit: (name: string, owner: string, desc?: string, estimatedDuration?: string, dueDate?: string) => void;
+}
+
+export function EditSubNodeForm({
+  initialName,
+  initialOwner,
+  initialDesc = '',
+  initialDuration = '',
+  initialDueDate = '',
+  onClose,
+  onSubmit,
+}: EditSubNodeFormProps) {
+  const [subNodeName, setSubNodeName] = useState(initialName);
+  const [subNodeOwner, setSubNodeOwner] = useState(initialOwner);
+  const [subNodeDesc, setSubNodeDesc] = useState(initialDesc);
+  const [subNodeDuration, setSubNodeDuration] = useState(initialDuration);
+  const [subNodeDueDate, setSubNodeDueDate] = useState(initialDueDate || '');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!subNodeName.trim() || !subNodeOwner.trim()) return;
+    onSubmit(
+      subNodeName.trim(),
+      subNodeOwner.trim(),
+      subNodeDesc.trim() || undefined,
+      subNodeDuration.trim() || undefined,
+      subNodeDueDate ? subNodeDueDate : undefined
+    );
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="rounded-xl border border-blue-200 bg-blue-50/50 p-3.5 text-xs space-y-3"
+    >
+      <div className="font-semibold text-blue-900 border-b border-blue-200/60 pb-1.5 flex items-center justify-between">
+        <span>编辑分组 / 模块信息</span>
+        <span className="text-[11px] text-blue-700 font-normal">多字段清晰平铺展开</span>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+        <div className="sm:col-span-2">
+          <label className="block text-[11px] font-medium text-zinc-600 mb-1">分组/模块名称 <span className="text-red-500">*</span></label>
+          <input
+            type="text"
+            required
+            placeholder="分组/模块名称"
+            value={subNodeName}
+            onChange={(e) => setSubNodeName(e.target.value)}
+            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 font-medium focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label className="block text-[11px] font-medium text-zinc-600 mb-1">负责人 <span className="text-red-500">*</span></label>
+          <input
+            type="text"
+            required
+            placeholder="负责人姓名"
+            value={subNodeOwner}
+            onChange={(e) => setSubNodeOwner(e.target.value)}
+            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        <div>
+          <label className="block text-[11px] font-medium text-zinc-600 mb-1">预估周期</label>
+          <input
+            type="text"
+            placeholder="如: 2周 / 10个工作日 / 3天"
+            value={subNodeDuration}
+            onChange={(e) => setSubNodeDuration(e.target.value)}
+            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label className="block text-[11px] font-medium text-zinc-600 mb-1">预估完成时间 (计划截止日)</label>
+          <input
+            type="date"
+            value={subNodeDueDate}
+            onChange={(e) => setSubNodeDueDate(e.target.value)}
+            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-[11px] font-medium text-zinc-600 mb-1">分组描述 / 模块说明</label>
+        <textarea
+          rows={2}
+          placeholder="补充该分组的建设目标、交付范围或关键技术要点..."
+          value={subNodeDesc}
+          onChange={(e) => setSubNodeDesc(e.target.value)}
+          className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        />
+      </div>
+
+      <div className="flex justify-end gap-2 pt-1">
+        <button
+          type="button"
+          onClick={onClose}
+          className="rounded px-2.5 py-1 text-zinc-600 hover:bg-zinc-200"
+        >
+          取消
+        </button>
+        <button
+          type="submit"
+          className="rounded-lg bg-blue-600 px-3 py-1 text-white font-medium hover:bg-blue-700 shadow-xs"
+        >
+          保存修改
         </button>
       </div>
     </form>

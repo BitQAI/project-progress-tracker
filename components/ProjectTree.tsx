@@ -18,6 +18,7 @@ interface ProjectTreeProps {
 
 export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
   const [tree, setTree] = useState<NodeTreeNode>(initialTree);
+  const [hideCompleted, setHideCompleted] = useState(true);
   const [commentTarget, setCommentTarget] = useState<{
     isOpen: boolean;
     title: string;
@@ -144,13 +145,14 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
     name: string,
     owner: string,
     description?: string,
-    estimatedDuration?: string
+    estimatedDuration?: string,
+    dueDate?: string
   ) => {
     try {
       await fetch('/api/nodes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ parentId, name, owner, description, estimatedDuration }),
+        body: JSON.stringify({ parentId, name, owner, description, estimatedDuration, dueDate }),
       });
       reloadTree();
     } catch (err) {
@@ -283,7 +285,7 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2.5 sm:space-y-3">
       {/* 顶部面包屑与项目概览面板 */}
       <ProjectHeader
         tree={tree}
@@ -301,22 +303,39 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
       />
 
       {/* 递归树展示区 */}
-      <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-xs">
-        <div className="flex items-center justify-between border-b border-zinc-150 pb-4 mb-4">
+      <div className="rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-150 pb-3.5 mb-3.5">
           <div className="flex items-center gap-2">
-            <ListTree className="h-5 w-5 text-zinc-700" />
+            <ListTree className="h-4 w-4 text-zinc-700" />
             <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-900">
               项目分解结构树 (WBS)
             </h2>
           </div>
-          <span className="text-xs text-zinc-500">
-            任务勾选驱动各级进度；若设置交付件要求，勾选时需提交交付成果
-          </span>
+
+          <div className="flex items-center gap-3">
+            {/* 隐藏/折叠已完工项的快速切换开关 */}
+            <label className="flex items-center gap-1.5 cursor-pointer text-xs font-medium text-zinc-600 hover:text-zinc-900 transition-colors select-none">
+              <input
+                type="checkbox"
+                id="toggle-hide-completed-tasks"
+                checked={hideCompleted}
+                onChange={(e) => setHideCompleted(e.target.checked)}
+                className="h-3.5 w-3.5 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900/20"
+              />
+              <span>隐藏已完成任务</span>
+              {tree.completedTasksCount > 0 && (
+                <span className="rounded bg-zinc-100 px-1.5 py-0.2 text-[10px] text-zinc-500">
+                  {tree.completedTasksCount} 项已完工
+                </span>
+              )}
+            </label>
+          </div>
         </div>
 
         <TreeNodeItem
           node={tree}
           depth={0}
+          hideCompleted={hideCompleted}
           onToggleTaskStatus={handleToggleTaskStatus}
           onRequestSubmitDeliverable={(t) => setDeliverableTask(t)}
           onUpdateTask={handleUpdateTask}

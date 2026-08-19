@@ -7,13 +7,192 @@ import {
   DashboardMetrics,
   ProjectActivityItem,
 } from './types';
+import { getTodayBeijingString } from './date-utils';
 
 function getTodayString(): string {
-  const d = new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  return getTodayBeijingString();
+}
+
+export function parseDurationToDays(durationStr?: string | null): number {
+  if (!durationStr || !durationStr.trim()) return 1;
+  const s = durationStr.trim().toLowerCase();
+  const numMatch = s.match(/([0-9]+(?:\.[0-9]+)?)/);
+  const num = numMatch ? parseFloat(numMatch[1]) : 1;
+  if (isNaN(num)) return 1;
+
+  if (s.includes('周') || s.includes('week') || s.includes('w')) {
+    return num * 5;
+  } else if (s.includes('月') || s.includes('month') || s.includes('m')) {
+    return num * 20;
+  } else if (s.includes('小时') || s.includes('hour') || s.includes('h')) {
+    return Math.round((num / 8) * 10) / 10;
+  }
+  return num;
+}
+
+export function calculateSpentDuration(
+  tasks: DbTask[],
+  projectDueDate?: string | null,
+  projectStatus?: string
+): { spentDays: number; spentTimeDisplay: string; completedEstimatedDays: number } {
+  const completedTasks = tasks.filter((t) => t.status === 'done');
+  if (completedTasks.length === 0) {
+    return { spentDays: 0, spentTimeDisplay: '0天', completedEstimatedDays: 0 };
+  }
+
+  let completedEstimatedDays = 0;
+  for (const t of completedTasks) {
+    completedEstimatedDays += parseDurationToDays(t.estimated_duration);
+  }
+
+  const earlyDays = calculateProjectEarlyDays(tasks, projectDueDate, projectStatus);
+  // 耗时 = 已完成任务的预计周期 - 提前的时间
+  const rawSpentDays = completedEstimatedDays - earlyDays;
+  const spentDays = Math.max(0, Math.round(rawSpentDays * 10) / 10);
+
+  return {
+    spentDays,
+    spentTimeDisplay: `${spentDays}天`,
+    completedEstimatedDays: Math.round(completedEstimatedDays * 10) / 10,
+  };
+}
+
+export function calculateMaxOverdueDays(
+  tasks: DbTask[],
+  projectDueDate: string | null | undefined,
+  projectStatus: string | undefined,
+  todayStr: string
+): number {
+  let maxDays = 0;
+  for (const t of tasks) {
+    if (t.status === 'pending' && t.due_date && t.due_date < todayStr) {
+      const dDue = new Date(t.due_date.slice(0, 10) + 'T00:00:00').getTime();
+      const dToday = new Date(todayStr + 'T00:00:00').getTime();
+      const diff = Math.floor((dToday - dDue) / (1000 * 60 * 60 * 24));
+      if (diff > maxDays) maxDays = diff;
+    }
+  }
+
+  if (projectStatus !== 'done' && projectDueDate && projectDueDate < todayStr) {
+    const dDue = new Date(projectDueDate.slice(0, 10) + 'T00:00:00').getTime();
+    const dToday = new Date(todayStr + 'T00:00:00').getTime();
+    const diff = Math.floor((dToday - dDue) / (1000 * 60 * 60 * 24));
+    if (diff > maxDays) maxDays = diff;
+  }
+
+  return maxDays;
+}
+
+export function calculateProjectEarlyDays(
+  tasks: DbTask[],
+  projectDueDate?: string | null,
+  projectStatus?: string
+): number {
+  let earlyDaysSum = 0;
+
+  // 1. 汇总所有已完成任务的提前天数
+  for (const t of tasks) {
+    if (t.status === 'done' && t.due_date && t.done_at) {
+      const dueDateStr = t.due_date.slice(0, 10);
+      const doneAtStr = t.done_at.slice(0, 10);
+      if (doneAtStr < dueDateStr) {
+        const dDue = new Date(dueDateStr + 'T00:00:00').getTime();
+        const dDone = new Date(doneAtStr + 'T00:00:00').getTime();
+        const diff = Math.floor((dDue - dDone) / (1000 * 60 * 60 * 24));
+        if (diff > 0) {
+          earlyDaysSum += diff;
+        }
+      }
+    }
+  }
+
+  // 2. 如果项目整体已结项且有明确的项目计划截止日
+  if (projectStatus === 'done' && projectDueDate) {
+    const completedTasksWithDate = tasks.filter((t) => t.status === 'done' && t.done_at);
+    if (completedTasksWithDate.length > 0) {
+      const latestDoneTimestamp = Math.max(
+        ...completedTasksWithDate.map((t) => new Date(t.done_at!.slice(0, 10) + 'T00:00:00').getTime())
+      );
+      const projectDueTimestamp = new Date(projectDueDate.slice(0, 10) + 'T00:00:00').getTime();
+      const projDiff = Math.floor((projectDueTimestamp - latestDoneTimestamp) / (1000 * 60 * 60 * 24));
+      if (projDiff > earlyDaysSum) {
+        earlyDaysSum = projDiff;
+      }
+    }
+  }
+
+  return earlyDaysSum;
+}
+
+export function calculateEstimatedTimeDisplay(
+  nodeEstimatedDuration?: string,
+  tasks: DbTask[] = []
+): string {
+  if (nodeEstimatedDuration && nodeEstimatedDuration.trim()) {
+    return nodeEstimatedDuration.trim();
+  }
+
+  let totalDays = 0;
+  for (const t of tasks) {
+    if (t.estimated_duration && t.estimated_duration.trim()) {
+      const s = t.estimated_duration.trim().toLowerCase();
+      const numMatch = s.match(/([0-9]+(?:\.[0-9]+)?)/);
+      const num = numMatch ? parseFloat(numMatch[1]) : null;
+      if (num !== null && !isNaN(num)) {
+        if (s.includes('周') || s.includes('week') || s.includes('w')) {
+          totalDays += num * 5;
+        } else if (s.includes('月') || s.includes('month') || s.includes('m')) {
+          totalDays += num * 20;
+        } else if (s.includes('小时') || s.includes('hour') || s.includes('h')) {
+          totalDays += num / 8;
+        } else {
+          totalDays += num;
+        }
+      }
+    } else {
+      totalDays += 2; // 默认每个任务 2 个工作日
+    }
+  }
+
+  if (totalDays > 0) {
+    const rounded = Math.round(totalDays * 10) / 10;
+    return `${rounded}天`;
+  }
+  return '未设定';
+}
+
+export function calculateCompletedDuration(tasks: DbTask[]): string {
+  const completedTasks = tasks.filter((t) => t.status === 'done');
+  if (completedTasks.length === 0) return '0天';
+
+  let totalDays = 0;
+
+  for (const t of completedTasks) {
+    if (t.estimated_duration && t.estimated_duration.trim()) {
+      const s = t.estimated_duration.trim().toLowerCase();
+      const numMatch = s.match(/([0-9]+(?:\.[0-9]+)?)/);
+      const num = numMatch ? parseFloat(numMatch[1]) : null;
+
+      if (num !== null && !isNaN(num)) {
+        if (s.includes('周') || s.includes('week') || s.includes('w')) {
+          totalDays += num * 5;
+        } else if (s.includes('月') || s.includes('month') || s.includes('m')) {
+          totalDays += num * 20;
+        } else if (s.includes('小时') || s.includes('hour') || s.includes('h')) {
+          totalDays += num / 8;
+        } else {
+          totalDays += num;
+        }
+      }
+    } else {
+      // 默认已完成任务按标准1个工作日折算
+      totalDays += 1;
+    }
+  }
+
+  if (totalDays === 0) return '0天';
+  const rounded = Math.round(totalDays * 10) / 10;
+  return `${rounded}天`;
 }
 
 export function getSubtreeNodeIds(db: AppDatabase, rootId: string): string[] {
@@ -46,6 +225,7 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
       overdueProjectsCount: 0,
       totalTasksCount: 0,
       completedTasksCount: 0,
+      totalEarlyDays: 0,
     };
   }
 
@@ -56,6 +236,7 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
   let overdueProjectsCount = 0;
   let totalTasksCount = 0;
   let completedTasksCount = 0;
+  let totalEarlyDays = 0;
 
   for (const p of summaries) {
     if (p.status === 'in_progress') {
@@ -68,6 +249,10 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
       unstartedCount++;
     }
 
+    if (p.earlyDays && p.earlyDays > 0) {
+      totalEarlyDays += p.earlyDays;
+    }
+
     if (p.isOverdue) overdueProjectsCount++;
     totalTasksCount += p.totalTasks;
     completedTasksCount += p.completedTasks;
@@ -75,7 +260,7 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
 
   const activeProjectsCount = inProgressCount + doneCount;
   const averageProgress =
-    activeProjectsCount > 0 ? Math.round(activeProgressSum / activeProjectsCount) : 0;
+    totalTasksCount > 0 ? Math.round((completedTasksCount / totalTasksCount) * 100) : 0;
 
   return {
     totalProjects: total,
@@ -87,6 +272,7 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
     overdueProjectsCount,
     totalTasksCount,
     completedTasksCount,
+    totalEarlyDays,
   };
 }
 
@@ -160,6 +346,11 @@ export async function getProjectsSummaryList(): Promise<ProjectSummary[]> {
     const recentActivities = getProjectRecentActivities(db, node.id, subtreeIds, taskIds, 1);
     const latestActivity = recentActivities.length > 0 ? recentActivities[0].title : undefined;
 
+    const earlyDays = calculateProjectEarlyDays(tasks, node.due_date, node.status);
+    const estimatedTimeDisplay = calculateEstimatedTimeDisplay(node.estimated_duration, tasks);
+    const spentInfo = calculateSpentDuration(tasks, node.due_date, node.status);
+    const maxOverdueDays = calculateMaxOverdueDays(tasks, node.due_date, node.status, todayStr);
+
     summaries.push({
       id: node.id,
       name: node.name,
@@ -168,13 +359,19 @@ export async function getProjectsSummaryList(): Promise<ProjectSummary[]> {
       priority: node.priority || 'P1',
       description: node.description,
       estimated_duration: node.estimated_duration,
+      completedDuration: calculateCompletedDuration(tasks),
+      estimatedTimeDisplay,
+      spentDays: spentInfo.spentDays,
+      spentTimeDisplay: spentInfo.spentTimeDisplay,
+      earlyDays,
       created_at: node.created_at,
       totalTasks,
       completedTasks,
       progress,
       latestDueDate,
-      isOverdue: overdueTasksCount > 0,
+      isOverdue: maxOverdueDays > 0 || overdueTasksCount > 0,
       overdueTasksCount,
+      maxOverdueDays,
       nodesCount: subtreeIds.size,
       latestActivity,
     });
@@ -300,9 +497,17 @@ function buildNodeTreeRecursively(db: AppDatabase, node: DbNode, todayStr: strin
   // 3. 递归汇总任务指标
   let totalTasksCount = tasks.length;
   let completedTasksCount = tasks.filter((t) => t.status === 'done').length;
-  let hasOverdueTasks = tasks.some(
-    (t) => t.status === 'pending' && t.due_date && t.due_date < todayStr
-  );
+  let maxOverdueDays = 0;
+  for (const t of tasks) {
+    if (t.status === 'pending' && t.due_date && t.due_date < todayStr) {
+      const dDue = new Date(t.due_date.slice(0, 10) + 'T00:00:00').getTime();
+      const dToday = new Date(todayStr + 'T00:00:00').getTime();
+      const diff = Math.floor((dToday - dDue) / (1000 * 60 * 60 * 24));
+      if (diff > maxOverdueDays) maxOverdueDays = diff;
+    }
+  }
+
+  let hasOverdueTasks = maxOverdueDays > 0;
   let latestDueDate: string | null = node.due_date || null;
 
   if (!node.due_date) {
@@ -319,11 +524,18 @@ function buildNodeTreeRecursively(db: AppDatabase, node: DbNode, todayStr: strin
     totalTasksCount += child.totalTasksCount;
     completedTasksCount += child.completedTasksCount;
     if (child.hasOverdueTasks) hasOverdueTasks = true;
+    if (child.maxOverdueDays && child.maxOverdueDays > maxOverdueDays) {
+      maxOverdueDays = child.maxOverdueDays;
+    }
     if (!node.due_date && child.latestDueDate) {
       if (!latestDueDate || child.latestDueDate > latestDueDate) {
         latestDueDate = child.latestDueDate;
       }
     }
+  }
+
+  if (maxOverdueDays > 0) {
+    hasOverdueTasks = true;
   }
 
   const progressPercent =
@@ -337,6 +549,7 @@ function buildNodeTreeRecursively(db: AppDatabase, node: DbNode, todayStr: strin
     completedTasksCount,
     progressPercent,
     hasOverdueTasks,
+    maxOverdueDays,
     latestDueDate,
   };
 }
