@@ -16,6 +16,20 @@ import {
   ListTodo
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
 
 interface ChatMessage {
   id: string;
@@ -27,19 +41,76 @@ interface ChatMessage {
 export function AiChatWidget() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 'welcome',
-      role: 'assistant',
-      content: '您好！我是您的项目进度管理系统智能助理 **BitQAI**。\n\n我拥有系统的**全局只读权限**。无论是关于某个具体项目的 WBS 拆解，还是想了解当前有哪些项目超期、谁的进度滞后、或者需要全局的风险诊断，我都能基于**系统中的实时真实数据**为您解答。有什么我可以帮您的？',
-      timestamp: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [projectContext, setProjectContext] = useState<any | null>(null);
+  const [statsData, setStatsData] = useState<any | null>(null);
+  const [isStatsLoading, setIsStatsLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // 1. 初始化拉取系统实时项目统计数据与进度趋势
+  useEffect(() => {
+    setIsMounted(true);
+
+    fetch('/api/ai/stats')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.ok) {
+          setStatsData(data);
+          const { metrics, criticalPendingTasks } = data;
+
+          const statusText = metrics.isStagnating
+            ? `⚠️ **进度停滞风险预警**：过去一周整体进度增长率为 **${metrics.growthRate}%** (日均 ${metrics.averageWeeklyGrowth}%)，项目近期几乎无交付进展，进度陷入停滞状态。`
+            : `📈 **工作推进顺利**：过去一周整体进度增加了 **${metrics.growthRate}%** (日均 ${metrics.averageWeeklyGrowth}%)，各项工作稳步向前推进。`;
+
+          let criticalTasksText = '';
+          if (criticalPendingTasks && criticalPendingTasks.length > 0) {
+            criticalTasksText = `\n\n**🔍 当前极需关注的临期/逾期任务**：\n` +
+              criticalPendingTasks
+                .map(
+                  (t: any) =>
+                    `- **${t.name}** (负责人: ${t.owner} | 截止日: ${t.dueDate}${
+                      t.isOverdue ? ' | ⚠️ 已逾期' : ''
+                    })`
+                )
+                .join('\n');
+          } else {
+            criticalTasksText = `\n\n**✅ 棒！当前系统内无紧急或逾期的关键待办任务。**`;
+          }
+
+          const welcomeMsg = `您好！我是您的项目进度管理系统智能助理 **BitQAI**。\n\n我已为您自动拉取了**当前系统项目数据的最新分析摘要**：\n\n- **项目整体完成度**：**${metrics.overallProgress}%** (共 ${metrics.totalProjects} 个项目)\n- **任务状态分布**：已完成 **${metrics.completedTasksCount}** 项，进行中 **${metrics.pendingTasksCount}** 项，已逾期 **${metrics.overdueTasksCount}** 项\n- ${statusText}${criticalTasksText}\n\n[CHART:TREND]\n\n作为您的项目管家，我随时为您诊断项目风险、分析发展趋势或协助梳理 WBS。您今天想看哪个项目？`;
+
+          setMessages([
+            {
+              id: 'welcome',
+              role: 'assistant',
+              content: welcomeMsg,
+              timestamp: new Date(),
+            },
+          ]);
+        } else {
+          throw new Error('Stats api error');
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load stats welcome message:', err);
+        setMessages([
+          {
+            id: 'welcome',
+            role: 'assistant',
+            content:
+              '您好！我是您的项目进度管理系统智能助理 **BitQAI**。\n\n我拥有系统的**全局只读权限**。无论是关于某个具体项目的 WBS 拆解，还是想了解当前有哪些项目超期、谁的进度滞后、或者需要全局的风险诊断，我都能基于**系统中的实时真实数据**为您解答。有什么我可以帮您的？',
+            timestamp: new Date(),
+          },
+        ]);
+      })
+      .finally(() => {
+        setIsStatsLoading(false);
+      });
+  }, []);
 
   // 提取项目 ID
   const projectId = pathname?.startsWith('/projects/') ? pathname.split('/')[2] : null;
@@ -212,6 +283,133 @@ export function AiChatWidget() {
     });
   };
 
+  // 内置的可视化图表组件，完美融合苹果极简质感与系统实时统计数据
+  const renderChatChart = (type: 'trend' | 'projects' | 'tasks') => {
+    if (!statsData) return <div className="h-36 w-full flex items-center justify-center text-[10px] text-zinc-400 bg-zinc-50/50 rounded-lg animate-pulse border border-dashed border-zinc-200 mt-2">正在同步系统实时趋势数据...</div>;
+    if (!isMounted) return <div className="h-36 w-full bg-zinc-50 rounded-lg animate-pulse mt-2" />;
+
+    const COLORS = ['#10b981', '#3b82f6', '#ef4444']; // 已完成, 进行中, 已逾期
+
+    try {
+      if (type === 'trend') {
+        return (
+          <div className="mt-3.5 p-3.5 bg-zinc-50/50 border border-zinc-100 rounded-xl shadow-[inset_0_1px_2px_rgba(0,0,0,0.01)]">
+            <p className="text-[11px] font-semibold text-zinc-900 mb-2.5 flex items-center gap-1.5">
+              <TrendingUp className="h-3.5 w-3.5 text-zinc-600" />
+              过去一周项目进度趋势 (累计 %)
+            </p>
+            <div className="h-36 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={statsData.trendData} margin={{ top: 5, right: 10, left: -25, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f4f5" />
+                  <XAxis dataKey="name" stroke="#a1a1aa" fontSize={9} tickLine={false} axisLine={false} />
+                  <YAxis domain={[0, 100]} stroke="#a1a1aa" fontSize={9} tickLine={false} axisLine={false} />
+                  <Tooltip
+                    contentStyle={{
+                      background: 'rgba(255,255,255,0.95)',
+                      border: '1px solid #e4e4e7',
+                      borderRadius: '8px',
+                      fontSize: '10px',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                    }}
+                  />
+                  <Line type="monotone" dataKey="进度" stroke="#18181b" strokeWidth={2} dot={{ r: 3, fill: '#18181b' }} activeDot={{ r: 5 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        );
+      }
+
+      if (type === 'projects') {
+        return (
+          <div className="mt-3.5 p-3.5 bg-zinc-50/50 border border-zinc-100 rounded-xl shadow-[inset_0_1px_2px_rgba(0,0,0,0.01)]">
+            <p className="text-[11px] font-semibold text-zinc-900 mb-2.5 flex items-center gap-1.5">
+              <Layers className="h-3.5 w-3.5 text-zinc-600" />
+              各个项目当前完成进度百分比 (%)
+            </p>
+            <div className="h-36 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={statsData.projectProgressData} margin={{ top: 5, right: 10, left: -25, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f4f5" />
+                  <XAxis dataKey="name" stroke="#a1a1aa" fontSize={8} tickLine={false} axisLine={false} />
+                  <YAxis domain={[0, 100]} stroke="#a1a1aa" fontSize={9} tickLine={false} axisLine={false} />
+                  <Tooltip
+                    contentStyle={{
+                      background: 'rgba(255,255,255,0.95)',
+                      border: '1px solid #e4e4e7',
+                      borderRadius: '8px',
+                      fontSize: '10px',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                    }}
+                  />
+                  <Bar dataKey="进度" fill="#27272a" radius={[3, 3, 0, 0]} maxBarSize={22} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        );
+      }
+
+      if (type === 'tasks') {
+        return (
+          <div className="mt-3.5 p-3.5 bg-zinc-50/50 border border-zinc-100 rounded-xl flex flex-col items-center shadow-[inset_0_1px_2px_rgba(0,0,0,0.01)]">
+            <p className="text-[11px] font-semibold text-zinc-900 mb-1.5 w-full text-left flex items-center gap-1.5">
+              <ListTodo className="h-3.5 w-3.5 text-zinc-600" />
+              系统任务完成状态比例分布 (个)
+            </p>
+            <div className="h-32 w-full relative flex items-center justify-center">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={statsData.taskStatusData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={28}
+                    outerRadius={45}
+                    paddingAngle={3}
+                    dataKey="value"
+                  >
+                    {statsData.taskStatusData.map((entry: any, index: number) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      background: 'rgba(255,255,255,0.95)',
+                      border: '1px solid #e4e4e7',
+                      borderRadius: '8px',
+                      fontSize: '10px',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span className="text-[12px] font-bold text-zinc-900">
+                  {statsData.metrics.completedTasksCount + statsData.metrics.pendingTasksCount + statsData.metrics.overdueTasksCount}
+                </span>
+                <span className="text-[8px] text-zinc-400 font-medium">总任务</span>
+              </div>
+            </div>
+            <div className="flex gap-4 mt-1.5 justify-center w-full">
+              {statsData.taskStatusData.map((item: any, index: number) => (
+                <div key={index} className="flex items-center gap-1.5 text-[9px] font-medium text-zinc-500">
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index] }} />
+                  <span>{item.name}: {item.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      }
+    } catch (e) {
+      console.error('Error rendering chart in bubble:', e);
+      return <div className="h-36 w-full flex items-center justify-center text-[10px] text-zinc-400 bg-zinc-50 rounded-lg">图表渲染出错</div>;
+    }
+    return null;
+  };
+
   // 快捷 Prompt 提示
   const quickPrompts = [
     { id: 'risk', label: '诊断风险', prompt: '请帮我诊断一下当前系统里所有正在推进的项目，有哪些项目存在超期风险？谁的任务比较滞后？给出具体的红色警报和纠偏方案。' },
@@ -318,11 +516,33 @@ export function AiChatWidget() {
                         : 'bg-white text-zinc-800 border border-zinc-200/60 rounded-bl-none'
                     }`}
                   >
-                    {m.role === 'assistant' ? (
-                      renderMessageContent(m.content)
-                    ) : (
-                      <p className="text-xs sm:text-[13px] whitespace-pre-wrap leading-relaxed">{m.content}</p>
-                    )}
+                    {(() => {
+                      const trendMatch = m.content.includes('[CHART:TREND]');
+                      const projectsMatch = m.content.includes('[CHART:PROJECTS]');
+                      const tasksMatch = m.content.includes('[CHART:TASKS]');
+
+                      let cleanContent = m.content;
+                      cleanContent = cleanContent
+                        .replace('[CHART:TREND]', '')
+                        .replace('[CHART:PROJECTS]', '')
+                        .replace('[CHART:TASKS]', '')
+                        .trim();
+
+                      return (
+                        <>
+                          {m.role === 'assistant' ? (
+                            renderMessageContent(cleanContent)
+                          ) : (
+                            <p className="text-xs sm:text-[13px] whitespace-pre-wrap leading-relaxed">{cleanContent}</p>
+                          )}
+
+                          {/* 渲染对应 Recharts 可视化图表 */}
+                          {trendMatch && renderChatChart('trend')}
+                          {projectsMatch && renderChatChart('projects')}
+                          {tasksMatch && renderChatChart('tasks')}
+                        </>
+                      );
+                    })()}
 
                     {/* 如果是初始欢迎消息，且对话尚未正式开始，则在初始对话文本的气泡内部末尾展示快捷胶囊按钮 */}
                     {m.id === 'welcome' && messages.length <= 1 && (
