@@ -1,5 +1,6 @@
 import type {Metadata} from 'next';
 import './globals.css'; // Global styles
+import { AiChatWidget } from '@/components/AiChatWidget';
 
 export const metadata: Metadata = {
   title: '项目进度管理系统 (Project Progress Tracker)',
@@ -45,7 +46,10 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
           }}
         />
       </head>
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        {children}
+        <AiChatWidget />
+      </body>
     </html>
   );
 }
