@@ -27,6 +27,14 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
   const list: ExecutiveActivityItem[] = [];
   const seenIds = new Set<string>();
 
+  const isImage = (url?: string | null) => {
+    if (!url) return false;
+    return url.startsWith('http') && (
+      !!url.match(/\.(jpeg|jpg|gif|png|webp)($|\?)/i) || 
+      url.includes('files.bitqai.com/protrack/')
+    );
+  };
+
   const projectMap = new Map<string, DbNode>();
   db.nodes.forEach((n) => {
     if (!n.parent_id) {
@@ -56,6 +64,19 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
       const moduleName = getParentModule(act.node_id);
       const cleanSummary = cleanExecutiveText(act.detail);
 
+      let actImageUrl: string | null = act.image_url || null;
+      if (!actImageUrl && act.type === 'comment_added' && act.detail) {
+        const relatedCmt = db.comments.find(
+          (c) => c.content === act.detail && c.author === act.author
+        );
+        if (relatedCmt) {
+          actImageUrl = relatedCmt.image_url || null;
+        }
+      }
+      if (!actImageUrl && act.type === 'deliverable_submitted' && act.detail && isImage(act.detail)) {
+        actImageUrl = act.detail;
+      }
+
       let item: ExecutiveActivityItem | null = null;
 
       if (act.type === 'deliverable_submitted') {
@@ -72,6 +93,7 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
           owner: act.author,
           timestamp: act.timestamp,
           formattedTime: formatExecutiveTime(act.timestamp),
+          imageUrl: actImageUrl || undefined,
         };
       } else if (act.type === 'task_done') {
         const doneMatch = act.title.match(/「([^」]+)」/);
@@ -82,7 +104,7 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
           projectName: pName,
           moduleName,
           type: 'milestone',
-          categoryBadge: '关键节点完工',
+          categoryBadge: '节点完工',
           badgeVariant: 'blue',
           headline: `${act.author} 顺利推进完成 ${doneItemName}`,
           summary: cleanSummary || '该执行任务已达成验收标准并按期闭环，项目整体进度正常受控。',
@@ -97,13 +119,14 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
           projectName: pName,
           moduleName,
           type: 'comment',
-          categoryBadge: '管理留档与推进',
+          categoryBadge: '管理留档',
           badgeVariant: 'purple',
           headline: `${act.author} 记录了关键业务进展与工作指示`,
           summary: cleanSummary || act.title,
           owner: act.author,
           timestamp: act.timestamp,
           formattedTime: formatExecutiveTime(act.timestamp),
+          imageUrl: actImageUrl || undefined,
         };
       } else if (act.type === 'task_updated' || act.type === 'node_updated') {
         const updateMatch = act.title.match(/「([^」]+)」/);
@@ -114,7 +137,7 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
           projectName: pName,
           moduleName,
           type: 'progress',
-          categoryBadge: '进度排期同步',
+          categoryBadge: '进度同步',
           badgeVariant: 'amber',
           headline: `${act.author} 更新了 ${updateItemName} 的执行细节`,
           summary: cleanSummary || '已根据业务最新协同诉求完成排期调整与资源对齐。',
@@ -129,7 +152,7 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
           projectName: pName,
           moduleName,
           type: 'milestone',
-          categoryBadge: '新增攻坚计划',
+          categoryBadge: '攻坚计划',
           badgeVariant: 'blue',
           headline: `${act.author} 规划并启动了新的交付任务`,
           summary: cleanSummary || act.title,
@@ -155,19 +178,21 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
     const timeStr = t.deliverable_submitted_at || t.done_at || t.created_at;
 
     if (t.has_deliverable && t.deliverable_submission) {
+      const submissionUrl = t.deliverable_submission;
       list.push({
         id: actId,
         projectId: pId,
         projectName: pName,
         moduleName: node?.name,
         type: 'deliverable',
-        categoryBadge: '成果交付归档',
+        categoryBadge: '成果交付',
         badgeVariant: 'emerald',
         headline: `${t.owner} 交付并验收了「${t.name}」`,
         summary: cleanExecutiveText(t.deliverable_submission),
         owner: t.owner,
         timestamp: timeStr,
         formattedTime: formatExecutiveTime(timeStr),
+        imageUrl: isImage(submissionUrl) ? submissionUrl : undefined,
       });
       seenIds.add(actId);
     } else {
@@ -177,7 +202,7 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
         projectName: pName,
         moduleName: node?.name,
         type: 'milestone',
-        categoryBadge: '关键节点完工',
+        categoryBadge: '节点完工',
         badgeVariant: 'blue',
         headline: `${t.owner} 攻坚完成了「${t.name}」`,
         summary: `所属模块【${node?.name || pName}】核心工作已全部通过验证并顺利结项。`,
@@ -216,13 +241,14 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
       projectName: pName,
       moduleName: moduleName || undefined,
       type: 'comment',
-      categoryBadge: '管理留档与推进',
+      categoryBadge: '管理留档',
       badgeVariant: 'purple',
       headline: `${c.author} 发布了关键指示与进展复盘`,
       summary: cleanExecutiveText(c.content),
       owner: c.author,
       timestamp: c.created_at,
       formattedTime: formatExecutiveTime(c.created_at),
+      imageUrl: c.image_url || undefined,
     });
     seenIds.add(actId);
   }

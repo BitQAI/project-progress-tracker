@@ -74,7 +74,7 @@ export function EditProjectModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/50 backdrop-blur-2xs">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl space-y-4 text-xs"
+        className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl space-y-4 text-xs max-h-[95vh] overflow-y-auto"
       >
         <div className="flex items-center justify-between border-b pb-3">
           <h3 className="text-base font-bold text-zinc-900">编辑项目基本信息与周期</h3>

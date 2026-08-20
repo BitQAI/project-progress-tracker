@@ -25,8 +25,8 @@ export function Navbar({ onOpenCreateModal }: NavbarProps) {
               <Activity className="h-5 w-5 text-emerald-400" />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold tracking-tight text-zinc-900">项目进度管理系统</span>
-              <span className="text-xs text-zinc-600">Progress Tracker</span>
+              <span className="font-bold tracking-tight text-zinc-900 text-sm sm:text-base">项目进度管理系统</span>
+              <span className="text-[10px] text-zinc-600 hidden sm:inline">Progress Tracker</span>
             </div>
           </Link>
 
@@ -58,7 +58,7 @@ export function Navbar({ onOpenCreateModal }: NavbarProps) {
           </nav>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <Link
             href="/templates"
             id="nav-mobile-templates-link"
@@ -71,10 +71,11 @@ export function Navbar({ onOpenCreateModal }: NavbarProps) {
             <Link
               href="/"
               id="nav-back-home-btn"
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-zinc-900 px-3.5 py-2 text-sm font-medium text-white shadow-xs transition-all hover:bg-zinc-800"
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-zinc-900 px-2.5 sm:px-3.5 py-2 text-sm font-medium text-white shadow-xs transition-all hover:bg-zinc-800"
+              title="返回所有项目仪表盘"
             >
               <LayoutDashboard className="h-4 w-4" />
-              <span>返回仪表盘</span>
+              <span className="hidden sm:inline">返回仪表盘</span>
             </Link>
           )}
         </div>

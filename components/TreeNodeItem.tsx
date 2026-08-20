@@ -138,8 +138,11 @@ export function TreeNodeItem({
 
   return (
     <div
-      className="flex flex-col select-none"
-      style={{ paddingLeft: depth > 0 ? `${Math.min(depth * 14, 28)}px` : '0px' }}
+      className="flex flex-col select-none pl-[var(--indent-mobile)] sm:pl-[var(--indent-desktop)]"
+      style={{
+        '--indent-mobile': depth > 0 ? `${Math.min(depth * 6, 12)}px` : '0px',
+        '--indent-desktop': depth > 0 ? `${Math.min(depth * 14, 28)}px` : '0px',
+      } as React.CSSProperties}
     >
       {/* 节点控制条 */}
       <div
@@ -234,7 +237,7 @@ export function TreeNodeItem({
               title="在此节点添加任务"
             >
               <CheckSquare className="h-3 w-3 text-blue-600" />
-              <span>加任务</span>
+              <span className="hidden xs:inline">加任务</span>
             </button>
 
             <button
@@ -248,7 +251,7 @@ export function TreeNodeItem({
               title="在此节点添加子节点"
             >
               <Plus className="h-3 w-3 text-emerald-600" />
-              <span>加子分组</span>
+              <span className="hidden xs:inline">加子分组</span>
             </button>
 
             <button

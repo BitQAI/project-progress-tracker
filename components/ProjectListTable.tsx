@@ -60,11 +60,11 @@ export function ProjectListTable({
           />
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+        <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto pb-1 sm:pb-0">
           <Filter className="h-3.5 w-3.5 text-zinc-400 hidden sm:inline" />
           <button
             onClick={() => setStatusFilter('all')}
-            className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
+            className={`rounded-lg px-2 py-1.5 sm:px-2.5 sm:py-1.5 text-[10px] xs:text-[11px] sm:text-xs font-medium whitespace-nowrap transition-colors ${
               statusFilter === 'all'
                 ? 'bg-zinc-900 text-white'
                 : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
@@ -74,7 +74,7 @@ export function ProjectListTable({
           </button>
           <button
             onClick={() => setStatusFilter('in_progress')}
-            className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
+            className={`rounded-lg px-2 py-1.5 sm:px-2.5 sm:py-1.5 text-[10px] xs:text-[11px] sm:text-xs font-medium whitespace-nowrap transition-colors ${
               statusFilter === 'in_progress'
                 ? 'bg-blue-600 text-white'
                 : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
@@ -84,7 +84,7 @@ export function ProjectListTable({
           </button>
           <button
             onClick={() => setStatusFilter('overdue')}
-            className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
+            className={`rounded-lg px-2 py-1.5 sm:px-2.5 sm:py-1.5 text-[10px] xs:text-[11px] sm:text-xs font-medium whitespace-nowrap transition-colors ${
               statusFilter === 'overdue'
                 ? 'bg-red-600 text-white'
                 : 'bg-red-50 text-red-700 hover:bg-red-100'
@@ -94,7 +94,7 @@ export function ProjectListTable({
           </button>
           <button
             onClick={() => setStatusFilter('done')}
-            className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
+            className={`rounded-lg px-2 py-1.5 sm:px-2.5 sm:py-1.5 text-[10px] xs:text-[11px] sm:text-xs font-medium whitespace-nowrap transition-colors ${
               statusFilter === 'done'
                 ? 'bg-emerald-600 text-white'
                 : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
@@ -104,7 +104,7 @@ export function ProjectListTable({
           </button>
           <button
             onClick={() => setStatusFilter('unstarted')}
-            className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
+            className={`rounded-lg px-2 py-1.5 sm:px-2.5 sm:py-1.5 text-[10px] xs:text-[11px] sm:text-xs font-medium whitespace-nowrap transition-colors ${
               statusFilter === 'unstarted'
                 ? 'bg-zinc-700 text-white'
                 : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'

@@ -22,43 +22,43 @@ export function ProjectHeader({ tree, onEditClick, onStatusChange }: ProjectHead
   return (
     <div
       id="project-detail-compact-header"
-      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 rounded-xl border border-zinc-200 bg-white p-2.5 sm:px-3 sm:py-1.5 shadow-2xs"
+      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2 rounded-xl border border-zinc-200 bg-white p-1.5 sm:px-3 sm:py-1.5 shadow-2xs"
     >
       {/* 左侧：返回仪表盘 + 分隔符 + 项目名称 + 进度条与指标 + 预估周期 */}
-      <div className="flex items-center gap-2 min-w-0 flex-1 flex-wrap">
+      <div className="flex items-center gap-1.5 min-w-0 flex-1 flex-wrap text-[11px] sm:text-xs">
         <Link
           id="back-to-dashboard-btn"
           href="/"
-          className="inline-flex items-center gap-0.5 text-xs font-semibold text-zinc-500 hover:text-zinc-900 transition-colors shrink-0"
+          className="inline-flex items-center gap-0.5 font-semibold text-zinc-500 hover:text-zinc-900 transition-colors shrink-0"
           title="返回所有项目仪表盘"
         >
-          <ChevronLeft className="h-4 w-4" />
-          <span>返回仪表盘</span>
+          <ChevronLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          <span className="hidden xs:inline">返回仪表盘</span>
         </Link>
 
-        <span className="text-zinc-250 shrink-0">|</span>
+        <span className="text-zinc-200 shrink-0">|</span>
 
-        <div className="flex items-center gap-1.5 min-w-0 shrink-0">
-          <div className="flex h-5 w-5 items-center justify-center rounded bg-zinc-900 text-emerald-400 shrink-0">
-            <FolderGit2 className="h-3 w-3" />
+        <div className="flex items-center gap-1 min-w-0 shrink-0">
+          <div className="flex h-4.5 w-4.5 sm:h-5 sm:w-5 items-center justify-center rounded bg-zinc-900 text-emerald-400 shrink-0">
+            <FolderGit2 className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
           </div>
-          <h1 className="text-xs sm:text-sm font-bold tracking-tight text-zinc-900 truncate max-w-[180px] sm:max-w-xs">
+          <h1 className="text-xs sm:text-sm font-bold tracking-tight text-zinc-900 truncate max-w-[80px] xs:max-w-[120px] sm:max-w-xs">
             {tree.name}
           </h1>
         </div>
 
         {tree.hasOverdueTasks && (
-          <span className="inline-flex items-center gap-0.5 rounded bg-red-50 border border-red-200/80 px-1.5 py-0.2 text-[10px] font-semibold text-red-700 shrink-0">
-            <AlertCircle className="h-2.5 w-2.5 text-red-600" />
-            延期 {tree.maxOverdueDays || 1} 天
+          <span className="inline-flex items-center gap-0.5 rounded bg-red-50 border border-red-200/80 px-1 py-0.2 text-[9px] sm:text-[10px] font-semibold text-red-700 shrink-0">
+            <AlertCircle className="h-2 w-2 sm:h-2.5 sm:w-2.5 text-red-600" />
+            延期 {tree.maxOverdueDays || 1}d
           </span>
         )}
 
-        <span className="text-zinc-250 shrink-0 hidden md:inline">|</span>
+        <span className="text-zinc-200 shrink-0 hidden md:inline">|</span>
 
         {/* 紧凑内联进度条 */}
-        <div className="flex items-center gap-1.5 shrink-0 text-xs">
-          <div className="h-1.5 w-16 sm:w-24 overflow-hidden rounded-full bg-zinc-100 border border-zinc-200/60">
+        <div className="flex items-center gap-1 shrink-0">
+          <div className="h-1.5 w-10 sm:w-24 overflow-hidden rounded-full bg-zinc-100 border border-zinc-200/60">
             <div
               className={`h-full rounded-full transition-all duration-500 ${
                 tree.progressPercent === 100
@@ -70,14 +70,14 @@ export function ProjectHeader({ tree, onEditClick, onStatusChange }: ProjectHead
               style={{ width: `${tree.progressPercent}%` }}
             />
           </div>
-          <span className="font-bold text-zinc-900 text-xs">{tree.progressPercent}%</span>
-          <span className="text-[10px] text-zinc-400 hidden sm:inline">
+          <span className="font-bold text-zinc-900 text-[10px] sm:text-xs">{tree.progressPercent}%</span>
+          <span className="text-[9px] sm:text-[10px] text-zinc-400 hidden sm:inline">
             ({tree.completedTasksCount}/{tree.totalTasksCount})
           </span>
         </div>
 
         {tree.estimated_duration && (
-          <div className="flex items-center gap-1 text-[11px] text-zinc-500 shrink-0 hidden lg:flex">
+          <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-zinc-500 shrink-0 hidden lg:flex">
             <Clock className="h-3 w-3 text-zinc-400" />
             <span>{tree.estimated_duration}</span>
           </div>
@@ -85,10 +85,10 @@ export function ProjectHeader({ tree, onEditClick, onStatusChange }: ProjectHead
       </div>
 
       {/* 右侧：编辑信息与状态切换 */}
-      <div className="flex items-center justify-between sm:justify-end gap-1.5 shrink-0 border-t border-zinc-100 sm:border-t-0 pt-1.5 sm:pt-0">
+      <div className="flex items-center justify-between sm:justify-end gap-1.5 shrink-0 pt-1 sm:pt-0 border-t border-zinc-100 sm:border-t-0">
         <button
           onClick={onEditClick}
-          className="inline-flex items-center gap-1 rounded-md border border-zinc-200 bg-zinc-50/60 px-2.5 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 transition-colors"
+          className="inline-flex items-center gap-0.5 sm:gap-1 rounded bg-zinc-50/60 border border-zinc-200 px-1.5 sm:px-2.5 py-0.5 text-[11px] sm:text-xs font-medium text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 transition-colors"
         >
           <Edit2 className="h-3 w-3 text-zinc-500" />
           <span>编辑项目</span>
@@ -99,7 +99,7 @@ export function ProjectHeader({ tree, onEditClick, onStatusChange }: ProjectHead
             aria-label="切换项目状态"
             value={tree.status}
             onChange={(e) => onStatusChange(e.target.value as ProjectStatus)}
-            className={`appearance-none cursor-pointer rounded-md pl-4.5 pr-5 py-1 text-xs font-semibold border transition-all focus:outline-none focus:ring-1 focus:ring-zinc-900 shadow-2xs ${
+            className={`appearance-none cursor-pointer rounded-md pl-3.5 pr-3.5 py-0.5 text-[11px] sm:text-xs font-semibold border transition-all focus:outline-none focus:ring-1 focus:ring-zinc-900 shadow-2xs ${
               tree.status === 'done'
                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100/80'
                 : tree.status === 'in_progress'

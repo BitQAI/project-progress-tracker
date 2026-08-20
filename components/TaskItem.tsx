@@ -333,7 +333,7 @@ export function TaskItem({
   return (
     <div
       id={`task-row-${task.id}`}
-      className={`group flex flex-col rounded-xl border p-2.5 text-xs transition-all ${
+      className={`group flex flex-col rounded-xl border p-2 sm:p-2.5 text-xs transition-all ${
         isDone
           ? 'border-emerald-150 bg-emerald-50/35 text-zinc-600'
           : isOverdue
@@ -342,7 +342,7 @@ export function TaskItem({
       }`}
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
-        <div className="flex items-center gap-2 flex-1 min-w-0 flex-wrap">
+        <div className="flex items-center gap-1.5 flex-1 min-w-0 flex-wrap">
           {/* 勾选框 */}
           <button
             type="button"
@@ -364,7 +364,7 @@ export function TaskItem({
 
           {/* 任务名称 */}
           <span
-            className={`font-medium truncate max-w-[200px] sm:max-w-xs ${
+            className={`font-medium truncate max-w-[120px] xs:max-w-[180px] sm:max-w-xs ${
               isDone ? 'line-through text-zinc-400' : 'text-zinc-800'
             }`}
           >
@@ -392,7 +392,8 @@ export function TaskItem({
               title={task.deliverable_submission ? '已归档交付件，点击查看' : '需交付件成果'}
             >
               <FileCheck className="h-3 w-3" />
-              <span>{task.deliverable_submission ? '交付件已归档' : '需交付件'}</span>
+              <span className="hidden xs:inline">{task.deliverable_submission ? '交付件已归档' : '需交付件'}</span>
+              <span className="inline xs:hidden">{task.deliverable_submission ? '已归档' : '需交付'}</span>
             </button>
           )}
 
@@ -496,13 +497,15 @@ export function TaskItem({
             </div>
           )}
           {task.deliverable_submission ? (
-            <div className="flex items-center justify-between text-[11px] text-emerald-800 bg-emerald-50/90 px-2 py-1 rounded border border-emerald-200/80">
-              <div className="flex items-center gap-1.5 truncate">
+            <div className="flex items-center justify-between text-[11px] text-emerald-800 bg-emerald-50/90 px-2 py-1 rounded border border-emerald-200/80 w-full min-w-0 gap-2">
+              <div className="flex items-center gap-1.5 min-w-0 flex-1">
                 <span className="font-semibold shrink-0">已归档成果:</span>
-                <span className="truncate">{task.deliverable_submission}</span>
+                <span className="truncate break-all flex-1 min-w-0" title={task.deliverable_submission}>
+                  {task.deliverable_submission}
+                </span>
               </div>
               {completionInfo && (
-                <span className="text-[10px] text-emerald-700 shrink-0 font-medium ml-2">
+                <span className="text-[10px] text-emerald-700 shrink-0 font-medium ml-1">
                   {completionInfo.text}
                 </span>
               )}

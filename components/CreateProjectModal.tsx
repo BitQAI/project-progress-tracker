@@ -214,7 +214,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
             <label className="block text-xs font-medium uppercase tracking-wider text-zinc-700 mb-1.5">
               初始化方式
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
                 type="button"
                 id="btn-mode-template"

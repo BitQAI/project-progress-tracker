@@ -20,6 +20,8 @@ import {
   Send,
   ChevronDown,
   ChevronUp,
+  Image as ImageIcon,
+  X,
 } from 'lucide-react';
 
 interface ProjectActivityFeedProps {
@@ -40,6 +42,7 @@ export function ProjectActivityFeed({
   const [isExpanded, setIsExpanded] = useState(false);
   const [newUpdateText, setNewUpdateText] = useState('');
   const [isPosting, setIsPosting] = useState(false);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   const handlePostUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,32 +150,44 @@ export function ProjectActivityFeed({
   return (
     <div
       id="project-activity-feed"
-      className="rounded-xl border border-zinc-200 bg-white px-3 py-1.5 shadow-2xs transition-all"
+      className="rounded-xl border border-zinc-200 bg-white px-2 sm:px-3 py-1 sm:py-1.5 shadow-2xs transition-all"
     >
       {/* 收起时严格保持在单行 (1 行) */}
-      <div className="flex items-center justify-between gap-2.5">
-        <div className="flex items-center gap-2 min-w-0 flex-1">
-          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-zinc-900 text-white">
-            <Activity className="h-3 w-3 text-emerald-400" />
+      <div className="flex items-center justify-between gap-1.5 sm:gap-2.5">
+        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
+          <div className="flex h-4.5 w-4.5 sm:h-5 sm:w-5 shrink-0 items-center justify-center rounded bg-zinc-900 text-white">
+            <Activity className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-emerald-400" />
           </div>
 
-          <span className="text-xs font-bold text-zinc-900 shrink-0">
-            前情提要与最新进展
+          <span className="text-[11px] sm:text-xs font-bold text-zinc-900 shrink-0">
+            <span className="hidden xs:inline">前情提要与最新进展</span>
+            <span className="inline xs:hidden">最新进展</span>
           </span>
 
           {activities.length > 0 && (
-            <span className="rounded bg-zinc-100 px-1.5 py-0.2 text-[10px] font-medium text-zinc-600 shrink-0">
+            <span className="rounded bg-zinc-100 px-1 sm:px-1.5 py-0.2 text-[9px] sm:text-[10px] font-medium text-zinc-600 shrink-0">
               {activities.length} 条
             </span>
           )}
 
           {!isExpanded && (
             <>
-              <span className="text-zinc-300 shrink-0 hidden sm:inline">|</span>
-              <span className="text-[11px] text-zinc-500 truncate flex-1 hidden sm:inline">
-                {latestAct
-                  ? `最新：${latestAct.title}`
-                  : projectDescription || '暂无更多前情背景'}
+              <span className="text-zinc-200 shrink-0 hidden sm:inline">|</span>
+              <span className="text-[11px] text-zinc-500 truncate flex-1 hidden sm:inline-flex items-center gap-1.5">
+                <span className="truncate">
+                  {latestAct
+                    ? `最新：${latestAct.title}`
+                    : projectDescription || '暂无更多前情背景'}
+                </span>
+                {latestAct?.image_url && (
+                  <span
+                    className="relative inline-flex items-center justify-center shrink-0 rounded bg-blue-50 border border-blue-200 p-0.5"
+                    title="包含附图证据"
+                  >
+                    <ImageIcon className="h-3 w-3 text-blue-500" />
+                    <span className="absolute -top-0.5 -right-0.5 flex h-1 w-1 rounded-full bg-blue-500"></span>
+                  </span>
+                )}
               </span>
             </>
           )}
@@ -182,9 +197,9 @@ export function ProjectActivityFeed({
           type="button"
           id="toggle-project-activity-feed-btn"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="inline-flex items-center gap-1 rounded border border-zinc-200 bg-zinc-50/80 px-2 py-0.5 text-xs font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 transition-colors shrink-0"
+          className="inline-flex items-center gap-0.5 sm:gap-1 rounded border border-zinc-200 bg-zinc-50/80 px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 transition-colors shrink-0"
         >
-          <span>{isExpanded ? '收起' : '展开详情'}</span>
+          <span>{isExpanded ? '收起' : '展开'}</span>
           {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
         </button>
       </div>
@@ -211,7 +226,7 @@ export function ProjectActivityFeed({
           )}
 
           {/* 快速追加动态输入框 */}
-          <form onSubmit={handlePostUpdate} className="flex items-center gap-2">
+          <form onSubmit={handlePostUpdate} className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2">
             <input
               type="text"
               value={newUpdateText}
@@ -243,18 +258,90 @@ export function ProjectActivityFeed({
                       {config.icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2 flex-wrap">
-                        <div className="flex items-center gap-1.5 min-w-0">
+                      {/* 移动端与窄屏专属多行排版 (sm:hidden) */}
+                      <div className="flex sm:hidden flex-col gap-1.5 w-full">
+                        <div className="flex items-start gap-1.5 flex-wrap">
+                          <span
+                            className={`inline-flex items-center rounded border px-1.5 py-0.2 text-[10px] font-semibold shrink-0 ${config.badgeClass}`}
+                          >
+                            {config.badge}
+                          </span>
+                          <span className="font-medium text-zinc-900 break-words leading-relaxed">{act.title}</span>
+                        </div>
+                        
+                        {/* 移动端专属大缩略图 (若有) */}
+                        {act.image_url && (
+                          <div className="mt-1 flex items-start">
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setLightboxUrl(act.image_url || null);
+                              }}
+                              className="relative group/thumb inline-flex h-12 w-20 shrink-0 items-center justify-center rounded border border-blue-200 bg-blue-50/50 hover:border-blue-400 transition-all cursor-pointer shadow-3xs"
+                              title="点击预览高清图证"
+                            >
+                              <div className="h-full w-full rounded-xs overflow-hidden">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={act.image_url}
+                                  alt="附图证据"
+                                  className="h-full w-full object-cover"
+                                />
+                              </div>
+                              <span className="absolute -top-1 -right-1 flex h-1.5 w-1.5 z-10">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500"></span>
+                              </span>
+                            </button>
+                          </div>
+                        )}
+
+                        <div className="text-[10px] text-zinc-400 pt-0.5 border-t border-zinc-100/30">
+                          {formatTimestamp(act.timestamp)}
+                        </div>
+                      </div>
+
+                      {/* 网页端专属布局 (hidden sm:flex) - 维持单行极致空间利用 */}
+                      <div className="hidden sm:flex items-center justify-between gap-2 w-full">
+                        <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
                           <span
                             className={`inline-flex items-center rounded border px-1.5 py-0.2 text-[10px] font-semibold shrink-0 ${config.badgeClass}`}
                           >
                             {config.badge}
                           </span>
                           <span className="font-medium text-zinc-900 break-words">{act.title}</span>
+
+                          {/* 附图证据标识 */}
+                          {act.image_url && (
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setLightboxUrl(act.image_url || null);
+                              }}
+                              className="relative group/thumb inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm border border-blue-200 bg-blue-50/50 overflow-visible hover:scale-115 hover:border-blue-500 transition-all cursor-pointer shadow-3xs"
+                              title="点击预览高清图证"
+                            >
+                              <div className="h-full w-full rounded-sm overflow-hidden">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={act.image_url}
+                                  alt="附图证据"
+                                  className="h-full w-full object-cover group-hover/thumb:scale-110 transition-transform duration-200"
+                                />
+                              </div>
+                              {/* 呼吸状态光环与指示蓝点 */}
+                              <span className="absolute -top-0.5 -right-0.5 flex h-1.5 w-1.5">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500"></span>
+                              </span>
+                            </button>
+                          )}
                         </div>
-                        <span className="text-[10px] text-zinc-400 shrink-0">
-                          {formatTimestamp(act.timestamp)}
-                        </span>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <span className="text-[10px] text-zinc-400">
+                            {formatTimestamp(act.timestamp)}
+                          </span>
+                        </div>
                       </div>
                       {act.detail && (
                         <GitDiffView
@@ -273,6 +360,33 @@ export function ProjectActivityFeed({
               暂无最新动态，当团队成员新增任务、编辑信息、勾选完成或提交交付件时将自动实时记录在此。
             </p>
           )}
+        </div>
+      )}
+
+      {/* 磨砂玻璃超清 Lightbox */}
+      {lightboxUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md transition-opacity duration-300"
+          onClick={() => setLightboxUrl(null)}
+        >
+          <div className="relative max-w-5xl max-h-[90vh] p-4 flex flex-col items-center justify-center" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setLightboxUrl(null)}
+              className="absolute -top-10 right-4 md:top-4 md:right-4 text-white hover:text-zinc-300 bg-black/50 hover:bg-black/80 rounded-full p-2 transition-colors focus:outline-hidden"
+              title="关闭"
+            >
+              <X className="h-6 w-6" />
+            </button>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={lightboxUrl}
+              alt="超清原图"
+              className="max-w-full max-h-[80vh] rounded-md object-contain shadow-2xl border border-zinc-800"
+            />
+            <div className="mt-4 text-xs text-zinc-400 select-none bg-black/40 px-3 py-1 rounded-full">
+              再次点击任意空白处或按钮退出预览
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -11,6 +11,7 @@ import {
   Clock3,
   ChevronRight,
   FolderGit2,
+  X,
 } from 'lucide-react';
 
 interface ExecutiveRecentActivitiesProps {
@@ -18,6 +19,8 @@ interface ExecutiveRecentActivitiesProps {
 }
 
 export function ExecutiveRecentActivities({ activities }: ExecutiveRecentActivitiesProps) {
+  const [lightboxUrl, setLightboxUrl] = React.useState<string | null>(null);
+
   if (!activities || activities.length === 0) {
     return null;
   }
@@ -78,10 +81,85 @@ export function ExecutiveRecentActivities({ activities }: ExecutiveRecentActivit
             <div
               key={item.id || index}
               id={`executive-activity-row-${index + 1}`}
-              className="group flex flex-col md:flex-row md:items-center justify-between gap-2 py-2 px-1.5 rounded-lg hover:bg-zinc-50 transition-colors"
+              className="group flex flex-col md:flex-row md:items-center justify-between gap-2.5 md:gap-2 py-3 md:py-2 px-1.5 rounded-lg hover:bg-zinc-50 transition-colors"
             >
-              {/* 左侧：标签 + 项目 + 老板视角业务结论 */}
-              <div className="flex items-center gap-2 min-w-0 flex-1">
+              {/* 移动端与窄屏专属多行布局 (md:hidden) */}
+              <div className="flex md:hidden flex-col gap-2 w-full">
+                {/* 第一行：状态徽章与项目归属名称 */}
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-medium shrink-0 ${style.badgeClass}`}
+                  >
+                    {style.icon}
+                    <span>{item.categoryBadge}</span>
+                  </span>
+
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-zinc-600 truncate max-w-[180px] xs:max-w-xs">
+                    <FolderGit2 className="h-3 w-3 text-zinc-400 shrink-0" />
+                    <span className="truncate">{item.projectName}</span>
+                  </span>
+                </div>
+
+                {/* 第二行：核心业务进展结论 (无强制水平单行截断，允许完美折行) */}
+                <div className="text-xs text-zinc-900 font-medium leading-relaxed">
+                  {item.headline}
+                </div>
+
+                {/* 第三行：移动端专项多行缩略图预览与备注重构 (若存在) */}
+                {(item.summary || item.imageUrl) && (
+                  <div className="flex items-start gap-2 bg-zinc-50/60 p-2 rounded-lg border border-zinc-150">
+                    {item.imageUrl && (
+                      <div className="relative inline-flex items-center justify-center shrink-0">
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setLightboxUrl(item.imageUrl || null);
+                          }}
+                          className="relative group/thumb inline-flex h-12 w-20 shrink-0 items-center justify-center rounded border border-blue-200 bg-blue-50/50 hover:border-blue-400 transition-all cursor-pointer shadow-3xs"
+                          title="点击预览附图"
+                        >
+                          <div className="h-full w-full rounded-xs overflow-hidden">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={item.imageUrl}
+                              alt="附图证据"
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                          {/* 呼吸状态光环与指示蓝点 */}
+                          <span className="absolute -top-1 -right-1 flex h-1.5 w-1.5 z-10">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500"></span>
+                          </span>
+                        </button>
+                      </div>
+                    )}
+                    {item.summary && (
+                      <span className="text-[11px] text-zinc-500 leading-relaxed min-w-0 break-words flex-1">
+                        {item.summary}
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {/* 第四行：时间与直达详情 */}
+                <div className="flex items-center justify-between text-[11px] text-zinc-400 border-t border-zinc-100/50 pt-2 mt-0.5">
+                  <span>{item.formattedTime}</span>
+                  {item.projectId && (
+                    <Link
+                      id={`executive-activity-row-link-mobile-${index + 1}`}
+                      href={`/projects/${item.projectId}`}
+                      className="inline-flex items-center gap-0.5 text-zinc-700 hover:text-blue-600 font-semibold transition-colors"
+                    >
+                      <span>查看详情</span>
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </Link>
+                  )}
+                </div>
+              </div>
+
+              {/* 网页端专属布局 (hidden md:flex) - 保持原有横向单行紧凑美学 */}
+              <div className="hidden md:flex items-center gap-2 min-w-0 flex-1">
                 {/* 状态徽章 */}
                 <span
                   className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-medium shrink-0 ${style.badgeClass}`}
@@ -91,27 +169,80 @@ export function ExecutiveRecentActivities({ activities }: ExecutiveRecentActivit
                 </span>
 
                 {/* 项目归属 */}
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-zinc-600 shrink-0 max-w-[140px] truncate">
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-zinc-600 shrink-0 max-w-[100px] xs:max-w-[150px] sm:max-w-xs lg:max-w-none truncate">
                   <FolderGit2 className="h-3 w-3 text-zinc-400 shrink-0" />
                   <span className="truncate">{item.projectName}</span>
                 </span>
 
-                <span className="text-zinc-300 shrink-0 hidden sm:inline">|</span>
+                <span className="text-zinc-300 shrink-0">|</span>
 
-                {/* 老板视角的进展与业务价值描述 (无 + - 符号) */}
-                <div className="min-w-0 flex-1 text-xs text-zinc-800 truncate">
-                  <span className="font-medium text-zinc-900">{item.headline}</span>
-                  {item.summary && (
-                    <span className="text-zinc-500 ml-1.5 hidden lg:inline truncate">
-                      — {item.summary}
-                    </span>
+                {/* 老板视角的进展与业务价值描述 */}
+                <div className="min-w-0 flex-1 text-xs text-zinc-800 flex items-center gap-1.5 overflow-visible">
+                  <span className="font-medium text-zinc-900 truncate max-w-[110px] xs:max-w-[160px] sm:max-w-xs md:max-w-sm shrink-0">{item.headline}</span>
+                  {item.summary ? (
+                    <div className="text-zinc-500 ml-1.5 flex items-center gap-1.5 min-w-0 overflow-visible">
+                      <span className="shrink-0">—</span>
+                      {item.imageUrl && (
+                        <div className="relative inline-flex items-center justify-center overflow-visible shrink-0 mx-0.5">
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setLightboxUrl(item.imageUrl || null);
+                            }}
+                            className="relative group/thumb inline-flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-sm border border-blue-200 bg-blue-50/50 hover:scale-115 hover:border-blue-500 transition-all cursor-pointer shadow-3xs"
+                            title="有附图证据：点击预览"
+                          >
+                            <div className="h-full w-full rounded-sm overflow-hidden">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={item.imageUrl}
+                                alt="附图证据"
+                                className="h-full w-full object-cover group-hover/thumb:scale-110 transition-transform duration-200"
+                              />
+                            </div>
+                            {/* 呼吸状态光环与指示蓝点 */}
+                            <span className="absolute -top-0.5 -right-0.5 flex h-1.5 w-1.5 z-10">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500"></span>
+                            </span>
+                          </button>
+                        </div>
+                      )}
+                      <span className="truncate min-w-0">{item.summary}</span>
+                    </div>
+                  ) : (
+                    item.imageUrl && (
+                      <div className="relative inline-flex items-center justify-center overflow-visible shrink-0 mx-0.5">
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setLightboxUrl(item.imageUrl || null);
+                          }}
+                          className="relative group/thumb inline-flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-sm border border-blue-200 bg-blue-50/50 hover:scale-115 hover:border-blue-500 transition-all cursor-pointer shadow-3xs"
+                          title="有附图证据：点击预览"
+                        >
+                          <div className="h-full w-full rounded-sm overflow-hidden">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={item.imageUrl}
+                              alt="附图证据"
+                              className="h-full w-full object-cover group-hover/thumb:scale-110 transition-transform duration-200"
+                            />
+                          </div>
+                          {/* 呼吸状态光环与指示蓝点 */}
+                          <span className="absolute -top-0.5 -right-0.5 flex h-1.5 w-1.5 z-10">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500"></span>
+                          </span>
+                        </button>
+                      </div>
+                    )
                   )}
                 </div>
               </div>
 
-              {/* 右侧：责任人 + 时间 + 直达链接 */}
-              <div className="flex items-center gap-3 text-[11px] text-zinc-400 shrink-0 pl-1 md:pl-0">
-                <span className="text-zinc-600 font-medium">{item.owner}</span>
+              {/* 网页端专属布局右侧部分 (hidden md:flex) */}
+              <div className="hidden md:flex items-center gap-3 text-[11px] text-zinc-400 shrink-0">
                 <span>{item.formattedTime}</span>
 
                 {item.projectId && (
@@ -130,6 +261,33 @@ export function ExecutiveRecentActivities({ activities }: ExecutiveRecentActivit
           );
         })}
       </div>
+
+      {/* 磨砂玻璃超清 Lightbox */}
+      {lightboxUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md transition-opacity duration-300"
+          onClick={() => setLightboxUrl(null)}
+        >
+          <div className="relative max-w-5xl max-h-[90vh] p-4 flex flex-col items-center justify-center" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setLightboxUrl(null)}
+              className="absolute -top-10 right-4 md:top-4 md:right-4 text-white hover:text-zinc-300 bg-black/50 hover:bg-black/80 rounded-full p-2 transition-colors focus:outline-hidden"
+              title="关闭"
+            >
+              <X className="h-6 w-6" />
+            </button>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={lightboxUrl}
+              alt="超清原图"
+              className="max-w-full max-h-[80vh] rounded-md object-contain shadow-2xl border border-zinc-800"
+            />
+            <div className="mt-4 text-xs text-zinc-400 select-none bg-black/40 px-3 py-1 rounded-full">
+              再次点击任意空白处或按钮退出预览
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

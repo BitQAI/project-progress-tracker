@@ -108,7 +108,7 @@ function DeliverableSubmitModalContent({
         id="modal-submit-deliverable"
         role="dialog"
         aria-modal="true"
-        className="w-full max-w-lg rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl space-y-4"
+        className="w-full max-w-lg rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl space-y-4 max-h-[95vh] overflow-y-auto"
       >
         <div className="flex items-start justify-between border-b border-zinc-150 pb-3">
           <div className="flex items-center gap-2.5">

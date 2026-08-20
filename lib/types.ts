@@ -97,6 +97,7 @@ export interface DbActivityLog {
   detail?: string;
   author: string;
   timestamp: string;
+  image_url?: string | null;
 }
 
 export interface AppDatabase {
@@ -128,6 +129,7 @@ export interface ProjectActivityItem {
   detail?: string;
   author: string;
   timestamp: string;
+  image_url?: string | null;
 }
 
 export interface NodeTreeNode extends DbNode {
@@ -203,5 +205,6 @@ export interface ExecutiveActivityItem {
   owner: string;
   timestamp: string;
   formattedTime: string;
+  imageUrl?: string | null;
 }
 

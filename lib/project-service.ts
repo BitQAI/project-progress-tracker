@@ -405,6 +405,14 @@ function getProjectRecentActivities(
   const activities: ProjectActivityItem[] = [];
   const seenIds = new Set<string>();
 
+  const isImage = (url?: string | null) => {
+    if (!url) return false;
+    return url.startsWith('http') && (
+      !!url.match(/\.(jpeg|jpg|gif|png|webp)($|\?)/i) || 
+      url.includes('files.bitqai.com/protrack/')
+    );
+  };
+
   // 1. 读取专属操作日志表（新增任务、编辑任务/模块、交付件提交、删除、状态流转）
   if (Array.isArray(db.activities)) {
     for (const act of db.activities) {
@@ -415,6 +423,20 @@ function getProjectRecentActivities(
       if (matchProject || matchNode || matchTask) {
         if (!seenIds.has(act.id)) {
           seenIds.add(act.id);
+
+          let actImageUrl: string | null = act.image_url || null;
+          if (!actImageUrl && act.type === 'comment_added' && act.detail) {
+            const relatedCmt = db.comments.find(
+              (c) => c.content === act.detail && c.author === act.author
+            );
+            if (relatedCmt) {
+              actImageUrl = relatedCmt.image_url || null;
+            }
+          }
+          if (!actImageUrl && act.type === 'deliverable_submitted' && act.detail && isImage(act.detail)) {
+            actImageUrl = act.detail;
+          }
+
           activities.push({
             id: act.id,
             type: act.type,
@@ -422,6 +444,7 @@ function getProjectRecentActivities(
             detail: act.detail,
             author: act.author,
             timestamp: act.timestamp,
+            image_url: actImageUrl,
           });
         }
       }
@@ -435,6 +458,7 @@ function getProjectRecentActivities(
     if (!seenIds.has(actId) && !activities.some((a) => a.title.includes(`「${t.name}」`))) {
       seenIds.add(actId);
       if (t.has_deliverable && t.deliverable_submission) {
+        const submissionUrl = t.deliverable_submission;
         activities.push({
           id: actId,
           type: 'deliverable_submitted',
@@ -442,6 +466,7 @@ function getProjectRecentActivities(
           detail: t.deliverable_submission,
           author: t.owner,
           timestamp: t.deliverable_submitted_at || t.done_at || t.created_at,
+          image_url: isImage(submissionUrl) ? submissionUrl : null,
         });
       } else {
         activities.push({
@@ -470,6 +495,7 @@ function getProjectRecentActivities(
         detail: c.content,
         author: c.author,
         timestamp: c.created_at,
+        image_url: c.image_url || null,
       });
     }
   }

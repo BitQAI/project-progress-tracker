@@ -444,7 +444,7 @@ export function AiChatWidget() {
                 opacity: { duration: 0.3 },
                 scale: { duration: 0.3 },
               }}
-              className="mr-3 cursor-pointer group select-none"
+              className="mr-3 cursor-pointer group select-none hidden sm:block"
               onClick={() => {
                 setIsOpen(true);
                 setShowHintBubble(false);
@@ -596,7 +596,7 @@ export function AiChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.96 }}
             transition={{ type: 'spring', damping: 26, stiffness: 220 }}
-            className="fixed bottom-22 right-6 z-40 flex h-[620px] w-[410px] max-w-[calc(100vw-32px)] flex-col rounded-[24px] border border-blue-100 bg-gradient-to-b from-blue-50/95 via-white/98 to-white shadow-[0_12px_40px_rgba(37,99,235,0.15)] backdrop-blur-2xl overflow-hidden font-sans antialiased"
+            className="fixed bottom-16 sm:bottom-22 right-3 sm:right-6 z-40 flex h-[480px] sm:h-[620px] w-[calc(100vw-24px)] sm:w-[410px] flex-col rounded-[24px] border border-blue-100 bg-gradient-to-b from-blue-50/95 via-white/98 to-white shadow-[0_12px_40px_rgba(37,99,235,0.15)] backdrop-blur-2xl overflow-hidden font-sans antialiased"
           >
             {/* 顶部 Header: 苹果风格的蓝白渐变留白与精致排版 */}
             <div className="flex items-center justify-between bg-blue-50/40 border-b border-blue-100/55 px-5 py-4">
