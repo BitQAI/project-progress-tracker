@@ -74,6 +74,8 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
           formattedTime: formatExecutiveTime(act.timestamp),
         };
       } else if (act.type === 'task_done') {
+        const doneMatch = act.title.match(/「([^」]+)」/);
+        const doneItemName = doneMatch ? `「${doneMatch[1]}」` : '相应任务';
         item = {
           id: act.id,
           projectId: pId,
@@ -82,7 +84,7 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
           type: 'milestone',
           categoryBadge: '关键节点完工',
           badgeVariant: 'blue',
-          headline: `${act.author} 顺利推进完成 ${act.title.replace(/.*完成了任务[「"]?([^「"」]+)[」"]?.*/, '「$1」')}`,
+          headline: `${act.author} 顺利推进完成 ${doneItemName}`,
           summary: cleanSummary || '该执行任务已达成验收标准并按期闭环，项目整体进度正常受控。',
           owner: act.author,
           timestamp: act.timestamp,
@@ -104,6 +106,8 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
           formattedTime: formatExecutiveTime(act.timestamp),
         };
       } else if (act.type === 'task_updated' || act.type === 'node_updated') {
+        const updateMatch = act.title.match(/「([^」]+)」/);
+        const updateItemName = updateMatch ? `「${updateMatch[1]}」` : '相应工作项';
         item = {
           id: act.id,
           projectId: pId,
@@ -112,7 +116,7 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
           type: 'progress',
           categoryBadge: '进度排期同步',
           badgeVariant: 'amber',
-          headline: `${act.author} 更新了 ${act.title.replace(/.*编辑了[^\s]*[「"]?([^「"」]+)[」"]?.*/, '「$1」')} 的执行细节`,
+          headline: `${act.author} 更新了 ${updateItemName} 的执行细节`,
           summary: cleanSummary || '已根据业务最新协同诉求完成排期调整与资源对齐。',
           owner: act.author,
           timestamp: act.timestamp,
