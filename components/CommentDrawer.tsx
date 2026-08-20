@@ -23,7 +23,7 @@ export function CommentDrawer({
   taskId,
 }: CommentDrawerProps) {
   const [comments, setComments] = useState<CommentWithReplies[]>([]);
-  const [author, setAuthor] = useState('当前用户');
+  const [author, setAuthor] = useState('郭鑫');
   const [content, setContent] = useState('');
   const [replyParentId, setReplyParentId] = useState<string | null>(null);
   const [replyParentAuthor, setReplyParentAuthor] = useState<string | null>(null);

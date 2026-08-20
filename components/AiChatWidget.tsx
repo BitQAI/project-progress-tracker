@@ -450,9 +450,9 @@ export function AiChatWidget() {
                 setShowHintBubble(false);
               }}
             >
-              <div className="relative flex items-center gap-2.5 rounded-2xl border border-indigo-200/90 bg-white/95 px-3.5 py-2 shadow-[0_8px_30px_rgba(79,70,229,0.16)] backdrop-blur-xl hover:border-indigo-300 hover:shadow-[0_10px_35px_rgba(79,70,229,0.22)] transition-all">
-                <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 text-white shadow-2xs shrink-0 animate-pulse">
-                  <Sparkles className="h-3.5 w-3.5" />
+              <div className="relative flex items-center gap-2.5 rounded-2xl border border-blue-200 bg-white/95 px-3.5 py-2 shadow-[0_8px_30px_rgba(37,99,235,0.15)] backdrop-blur-xl hover:border-blue-300 hover:shadow-[0_10px_35px_rgba(37,99,235,0.20)] transition-all">
+                <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 via-sky-500 to-indigo-500 text-white shadow-2xs shrink-0 animate-pulse">
+                  <Bot className="h-3.5 w-3.5" />
                 </div>
                 <div className="flex flex-col text-left">
                   <div className="flex items-center gap-1.5">
@@ -480,62 +480,109 @@ export function AiChatWidget() {
                 </button>
 
                 {/* 指向右侧按钮的箭头三角 */}
-                <div className="absolute -right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-t border-r border-indigo-200/90 rotate-45" />
+                <div className="absolute -right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-t border-r border-blue-200 rotate-45" />
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* 触发主按钮（带水波纹与脉冲光晕，明确指示可点击） */}
+        {/* 触发主按钮：极致Apple极简艺术，晶莹水晶球与动态太阳耀斑（Solar Flares）光冕爆发动效 */}
+        <style dangerouslySetInnerHTML={{ __html: `
+          @keyframes solar-flare-morph-1 {
+            0% {
+              border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+              transform: rotate(0deg) scale(1.1);
+            }
+            50% {
+              border-radius: 65% 35% 50% 50% / 55% 45% 55% 45%;
+              transform: rotate(180deg) scale(1.5);
+            }
+            100% {
+              border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+              transform: rotate(360deg) scale(1.1);
+            }
+          }
+          @keyframes solar-flare-morph-2 {
+            0% {
+              border-radius: 50% 50% 30% 70% / 50% 60% 40% 50%;
+              transform: rotate(180deg) scale(1.2);
+            }
+            50% {
+              border-radius: 35% 65% 60% 40% / 45% 55% 45% 55%;
+              transform: rotate(360deg) scale(1.7);
+            }
+            100% {
+              border-radius: 50% 50% 30% 70% / 50% 60% 40% 50%;
+              transform: rotate(540deg) scale(1.2);
+            }
+          }
+          @keyframes solar-flare-morph-3 {
+            0% {
+              border-radius: 30% 70% 40% 60% / 50% 40% 60% 50%;
+              transform: rotate(360deg) scale(1.0);
+            }
+            50% {
+              border-radius: 60% 40% 55% 45% / 40% 60% 45% 55%;
+              transform: rotate(180deg) scale(1.4);
+            }
+            100% {
+              border-radius: 30% 70% 40% 60% / 50% 40% 60% 50%;
+              transform: rotate(0deg) scale(1.0);
+            }
+          }
+        `}} />
+
         <motion.button
           id="ai-floating-trigger-btn"
           onClick={() => {
             setIsOpen(!isOpen);
             setShowHintBubble(false);
           }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className={`relative flex items-center gap-2.5 rounded-full border shadow-[0_6px_28px_rgba(0,0,0,0.12)] backdrop-blur-xl transition-all duration-300 group cursor-pointer ${
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.92 }}
+          className={`relative flex items-center justify-center h-11 w-11 rounded-full border backdrop-blur-xl transition-all duration-300 group cursor-pointer ${
             isOpen
-              ? 'h-12 w-12 justify-center bg-zinc-900 text-white border-zinc-800'
-              : 'h-12 px-3.5 bg-white/95 border-indigo-200/90 hover:border-indigo-400 hover:shadow-[0_8px_32px_rgba(99,102,241,0.25)]'
+              ? 'bg-zinc-900/90 text-white border-zinc-800 shadow-[0_8px_32px_rgba(0,0,0,0.15)]'
+              : 'bg-white/5 border-white/20 hover:border-white/35 shadow-[0_8px_32px_rgba(37,99,235,0.08)]'
           }`}
           title="点击唤起 BitQAI 智能管家"
         >
-          {/* 未展开时的循环水波纹与光晕扩散动效 */}
+          {/* 未展开时：在水晶球深处及四周，渲染太阳耀斑（Solar Flares）动态流光 */}
           {!isOpen && (
-            <>
-              <span className="absolute -inset-1 rounded-full bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 blur-xs animate-pulse pointer-events-none" />
-              <span
-                className="absolute -inset-2 rounded-full border border-indigo-400/40 animate-ping pointer-events-none"
-                style={{ animationDuration: '3s' }}
+            <div className="absolute inset-0 rounded-full pointer-events-none select-none">
+              {/* 太阳耀斑层 1：幽蓝等离子层 */}
+              <div
+                className="absolute inset-[-4px] bg-blue-500/35 blur-md"
+                style={{
+                  animation: 'solar-flare-morph-1 8s infinite linear',
+                  willChange: 'transform, border-radius'
+                }}
               />
-            </>
+              {/* 太阳耀斑层 2：霓虹天空蓝跃动层 */}
+              <div
+                className="absolute inset-[-6px] bg-sky-400/30 blur-lg"
+                style={{
+                  animation: 'solar-flare-morph-2 6s infinite linear',
+                  willChange: 'transform, border-radius'
+                }}
+              />
+              {/* 太阳耀斑层 3：炽白高亮核心闪焰 */}
+              <div
+                className="absolute inset-[-2px] bg-white/40 blur-xs"
+                style={{
+                  animation: 'solar-flare-morph-3 4.5s infinite linear',
+                  willChange: 'transform, border-radius'
+                }}
+              />
+            </div>
           )}
 
+          {/* 按钮中心的极简交互控制 */}
           {isOpen ? (
             <X className="h-5 w-5 text-white transition-transform duration-300" />
           ) : (
-            <>
-              {/* Apple Intelligence 炫彩呼吸球 */}
-              <div className="relative flex h-7 w-7 items-center justify-center rounded-full overflow-hidden shadow-2xs shrink-0">
-                <div
-                  className="absolute inset-0 bg-gradient-to-tr from-indigo-600 via-purple-600 via-pink-500 to-amber-400 animate-spin"
-                  style={{ animationDuration: '6s' }}
-                />
-                <div className="absolute inset-[1.5px] rounded-full bg-white/95" />
-                <Sparkles className="relative h-3.5 w-3.5 text-indigo-600 animate-pulse" />
-              </div>
-
-              {/* 明确的文字标识与可点击引导 */}
-              <div className="flex flex-col text-left pr-1 select-none">
-                <div className="flex items-center gap-1">
-                  <span className="text-xs font-bold text-zinc-900 tracking-tight">AI 助手</span>
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                </div>
-                <span className="text-[10px] font-medium text-indigo-600">点击唤起</span>
-              </div>
-            </>
+            // 晶莹的水晶球中央悬浮着一粒高亮白昼闪焰核
+            <div className="relative h-2 w-2 rounded-full bg-white shadow-[0_0_10px_#ffffff] animate-pulse z-10" />
           )}
         </motion.button>
       </div>
@@ -549,23 +596,23 @@ export function AiChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.96 }}
             transition={{ type: 'spring', damping: 26, stiffness: 220 }}
-            className="fixed bottom-22 right-6 z-40 flex h-[620px] w-[410px] max-w-[calc(100vw-32px)] flex-col rounded-[24px] border border-zinc-200/75 bg-white/90 shadow-[0_12px_40px_rgba(0,0,0,0.12)] backdrop-blur-2xl overflow-hidden font-sans antialiased"
+            className="fixed bottom-22 right-6 z-40 flex h-[620px] w-[410px] max-w-[calc(100vw-32px)] flex-col rounded-[24px] border border-blue-100 bg-gradient-to-b from-blue-50/95 via-white/98 to-white shadow-[0_12px_40px_rgba(37,99,235,0.15)] backdrop-blur-2xl overflow-hidden font-sans antialiased"
           >
-            {/* 顶部 Header: 苹果风格的极致留白与精致排版 */}
-            <div className="flex items-center justify-between bg-zinc-50/70 border-b border-zinc-200/50 px-5 py-4">
+            {/* 顶部 Header: 苹果风格的蓝白渐变留白与精致排版 */}
+            <div className="flex items-center justify-between bg-blue-50/40 border-b border-blue-100/55 px-5 py-4">
               <div className="flex items-center gap-3">
-                {/* 迷你 Apple Intelligence 炫影 Logo */}
-                <div className="relative flex h-7 w-7 items-center justify-center rounded-full overflow-hidden shadow-2xs">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500 via-purple-500 via-pink-400 to-amber-300 animate-spin" style={{ animationDuration: '6s' }} />
+                {/* 迷你智能机器人 蓝白渐变炫影 Logo */}
+                <div className="relative flex h-8 w-8 items-center justify-center rounded-full overflow-hidden shadow-2xs bg-blue-100">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-blue-600 via-sky-400 via-indigo-500 to-white animate-spin" style={{ animationDuration: '6s' }} />
                   <div className="absolute inset-[2px] rounded-full bg-white/95" />
-                  <div className="relative h-2 w-2 rounded-full bg-zinc-950 animate-pulse" />
+                  <Bot className="relative h-4 w-4 text-blue-600 animate-pulse" />
                 </div>
                 
                 <div>
-                  <h3 className="text-[13px] font-semibold text-zinc-900 tracking-tight flex items-center gap-1.5">
+                  <h3 className="text-[13px] font-bold text-zinc-900 tracking-tight flex items-center gap-1.5">
                     BitQAI 智能管家
                   </h3>
-                  <p className="text-[9px] text-zinc-400 font-medium uppercase tracking-wider">Apple Intelligent Assistant</p>
+                  <p className="text-[9px] text-blue-600 font-semibold uppercase tracking-wider">AI Robot Assistant</p>
                 </div>
               </div>
 
@@ -589,14 +636,14 @@ export function AiChatWidget() {
 
             {/* 当前浏览上下文提示 */}
             {projectContext && (
-              <div className="flex items-center gap-1.5 bg-zinc-100/40 border-b border-zinc-200/40 px-5 py-2 text-[10px] text-zinc-500 font-medium">
-                <div className="flex h-1.5 w-1.5 rounded-full bg-zinc-400" />
+              <div className="flex items-center gap-1.5 bg-blue-50/30 border-b border-blue-100/30 px-5 py-2 text-[10px] text-blue-600 font-medium">
+                <div className="flex h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse" />
                 <span className="truncate">当前聚焦 WBS：{projectContext.name}</span>
               </div>
             )}
 
             {/* 对话内容区域 */}
-            <div className="flex-1 overflow-y-auto bg-zinc-50/20 p-5 space-y-4">
+            <div className="flex-1 overflow-y-auto bg-gradient-to-b from-blue-50/10 to-white/40 p-5 space-y-4">
               {messages.map((m) => (
                 <div
                   key={m.id}
@@ -605,8 +652,8 @@ export function AiChatWidget() {
                   <div
                     className={`max-w-[85%] rounded-2xl px-4 py-3 shadow-2xs leading-relaxed ${
                       m.role === 'user'
-                        ? 'bg-zinc-900 text-white rounded-br-none font-medium'
-                        : 'bg-white text-zinc-800 border border-zinc-200/60 rounded-bl-none'
+                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-br-none font-medium'
+                        : 'bg-white text-zinc-800 border border-blue-100 shadow-3xs rounded-bl-none'
                     }`}
                   >
                     {(() => {
@@ -673,9 +720,9 @@ export function AiChatWidget() {
 
               {isLoading && (
                 <div className="flex justify-start animate-fade-in">
-                  <div className="flex items-center gap-2 max-w-[85%] rounded-2xl bg-white border border-zinc-200/50 px-4 py-3 text-xs text-zinc-400 rounded-bl-none shadow-2xs">
-                    <Loader2 className="h-3.5 w-3.5 animate-spin text-zinc-400" />
-                    <span className="font-medium">思考中...</span>
+                  <div className="flex items-center gap-2 max-w-[85%] rounded-2xl bg-white border border-blue-100 px-4 py-3 text-xs text-zinc-400 rounded-bl-none shadow-2xs animate-pulse">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-500" />
+                    <span className="font-medium text-blue-500">思考中...</span>
                   </div>
                 </div>
               )}
