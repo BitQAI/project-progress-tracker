@@ -18,7 +18,8 @@ interface EditProjectModalProps {
     description: string,
     duration: string,
     priority: ProjectPriority,
-    dueDate: string | null
+    dueDate: string | null,
+    changeReason?: string
   ) => Promise<void>;
 }
 
@@ -39,16 +40,30 @@ export function EditProjectModal({
   const [description, setDescription] = useState(initialDescription);
   const [duration, setDuration] = useState(initialDuration);
   const [dueDate, setDueDate] = useState(initialDueDate || '');
+  const [changeReason, setChangeReason] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
   if (!isOpen) return null;
 
+  const isScheduleChanged =
+    duration.trim() !== (initialDuration || '').trim() ||
+    (dueDate || null) !== (initialDueDate || null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !owner.trim()) return;
+    if (isScheduleChanged && !changeReason.trim()) return;
     setIsSaving(true);
     try {
-      await onSave(name.trim(), owner.trim(), description.trim(), duration.trim(), priority, dueDate || null);
+      await onSave(
+        name.trim(),
+        owner.trim(),
+        description.trim(),
+        duration.trim(),
+        priority,
+        dueDate || null,
+        isScheduleChanged ? changeReason.trim() : undefined
+      );
       onClose();
     } finally {
       setIsSaving(false);
@@ -136,6 +151,21 @@ export function EditProjectModal({
               className="w-full rounded-lg border border-zinc-300 p-2 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900"
             />
           </div>
+          {isScheduleChanged && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 space-y-1.5 animate-in fade-in duration-200">
+              <label className="block font-semibold text-amber-950">
+                排期调整理由 * <span className="text-[10px] font-normal text-amber-600">(检测到计划截止日或预估交付周期发生变更，请填写理由)</span>
+              </label>
+              <textarea
+                required
+                rows={2}
+                placeholder="请填写详细变更理由（如：客户要求变更、资源或技术调整等）..."
+                value={changeReason}
+                onChange={(e) => setChangeReason(e.target.value)}
+                className="w-full rounded-lg border border-amber-300 p-2 text-zinc-900 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+              />
+            </div>
+          )}
         </div>
         <div className="flex justify-end gap-2 pt-2 border-t">
           <button

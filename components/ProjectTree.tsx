@@ -95,7 +95,7 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
     }
   };
 
-  const handleUpdateTask = async (task: DbTask) => {
+  const handleUpdateTask = async (task: DbTask, changeReason?: string) => {
     try {
       await fetch('/api/tasks', {
         method: 'PUT',
@@ -112,6 +112,7 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
           deliverableSubmission: task.deliverable_submission,
           doneAt: task.done_at,
           status: task.status,
+          changeReason,
         }),
       });
       reloadTree();
@@ -198,13 +199,14 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
     description?: string,
     estimatedDuration?: string,
     priority?: ProjectPriority,
-    dueDate?: string | null
+    dueDate?: string | null,
+    changeReason?: string
   ) => {
     try {
       await fetch('/api/nodes', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: nodeId, name, owner, description, estimatedDuration, priority, dueDate }),
+        body: JSON.stringify({ id: nodeId, name, owner, description, estimatedDuration, priority, dueDate, changeReason }),
       });
       reloadTree();
     } catch (err) {
@@ -266,9 +268,10 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
     desc: string,
     dur: string,
     pri: ProjectPriority,
-    dueDate: string | null
+    dueDate: string | null,
+    changeReason?: string
   ) => {
-    await handleUpdateNode(tree.id, name, owner, desc, dur, pri, dueDate);
+    await handleUpdateNode(tree.id, name, owner, desc, dur, pri, dueDate, changeReason);
   };
 
   const handleAddBriefComment = async (content: string) => {
@@ -382,17 +385,19 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
       />
 
       {/* 编辑项目基本信息弹窗 */}
-      <EditProjectModal
-        isOpen={isEditingProject}
-        initialName={tree.name}
-        initialOwner={tree.owner}
-        initialPriority={tree.priority}
-        initialDescription={tree.description}
-        initialDuration={tree.estimated_duration}
-        initialDueDate={tree.due_date}
-        onClose={() => setIsEditingProject(false)}
-        onSave={handleSaveProjectInfo}
-      />
+      {isEditingProject && (
+        <EditProjectModal
+          isOpen={isEditingProject}
+          initialName={tree.name}
+          initialOwner={tree.owner}
+          initialPriority={tree.priority}
+          initialDescription={tree.description}
+          initialDuration={tree.estimated_duration}
+          initialDueDate={tree.due_date}
+          onClose={() => setIsEditingProject(false)}
+          onSave={handleSaveProjectInfo}
+        />
+      )}
 
       {/* 统一删除确认弹窗 */}
       <ConfirmDialog

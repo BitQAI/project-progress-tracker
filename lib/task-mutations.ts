@@ -80,7 +80,8 @@ export async function updateTask(
   doneAt?: string | null,
   status?: TaskStatus,
   estimatedDuration?: string,
-  deliverableItems?: DeliverableItem[]
+  deliverableItems?: DeliverableItem[],
+  changeReason?: string
 ): Promise<void> {
   const db = getDb();
   const task = db.tasks.find((t) => t.id === taskId);
@@ -97,6 +98,18 @@ export async function updateTask(
       doneAt,
       status,
     });
+
+    let isScheduleChanged = false;
+    if (dueDate !== undefined && (task.due_date || null) !== (dueDate || null)) {
+      isScheduleChanged = true;
+    }
+    if (estimatedDuration !== undefined && (task.estimated_duration || '') !== (estimatedDuration?.trim() || '')) {
+      isScheduleChanged = true;
+    }
+
+    if (isScheduleChanged && changeReason) {
+      changes.push(`- 排期调整原因: ${changeReason}`);
+    }
 
     task.name = name;
     task.owner = owner;
@@ -140,6 +153,21 @@ export async function updateTask(
         detail: changes.join('\n'),
         author: owner,
       });
+
+      if (isScheduleChanged && changeReason) {
+        const commentId = `cmt_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+        const now = new Date().toISOString();
+        const schedChanges = changes.filter(c => c.includes('计划截止日') || c.includes('预估周期') || c.includes('完成时间') || c.includes('排期调整原因'));
+        db.comments.push({
+          id: commentId,
+          node_id: task.node_id || null,
+          task_id: taskId,
+          parent_id: null,
+          author: owner,
+          content: `【排期调整归档】\n调整理由：${changeReason}\n${schedChanges.join('\n')}`,
+          created_at: now,
+        });
+      }
     }
 
     persistDb();

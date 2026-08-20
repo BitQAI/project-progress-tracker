@@ -262,7 +262,7 @@ interface EditSubNodeFormProps {
   initialDuration?: string;
   initialDueDate?: string | null;
   onClose: () => void;
-  onSubmit: (name: string, owner: string, desc?: string, estimatedDuration?: string, dueDate?: string) => void;
+  onSubmit: (name: string, owner: string, desc?: string, estimatedDuration?: string, dueDate?: string, changeReason?: string) => void;
 }
 
 export function EditSubNodeForm({
@@ -279,16 +279,23 @@ export function EditSubNodeForm({
   const [subNodeDesc, setSubNodeDesc] = useState(initialDesc);
   const [subNodeDuration, setSubNodeDuration] = useState(initialDuration);
   const [subNodeDueDate, setSubNodeDueDate] = useState(initialDueDate || '');
+  const [changeReason, setChangeReason] = useState('');
+
+  const isScheduleChanged =
+    subNodeDuration.trim() !== (initialDuration || '').trim() ||
+    (subNodeDueDate || null) !== (initialDueDate || null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!subNodeName.trim() || !subNodeOwner.trim()) return;
+    if (isScheduleChanged && !changeReason.trim()) return;
     onSubmit(
       subNodeName.trim(),
       subNodeOwner.trim(),
       subNodeDesc.trim() || undefined,
       subNodeDuration.trim() || undefined,
-      subNodeDueDate ? subNodeDueDate : undefined
+      subNodeDueDate ? subNodeDueDate : undefined,
+      isScheduleChanged ? changeReason.trim() : undefined
     );
   };
 
@@ -359,6 +366,22 @@ export function EditSubNodeForm({
           className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
         />
       </div>
+
+      {isScheduleChanged && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-2.5 space-y-1.5 animate-in fade-in duration-200 text-xs">
+          <label className="block text-[11px] font-semibold text-amber-950">
+            排期调整理由 * <span className="text-[10px] font-normal text-amber-600">(检测到计划截止日或预估交付周期发生变更，请填写理由)</span>
+          </label>
+          <textarea
+            required
+            rows={2}
+            placeholder="请填写详细变更理由（如：需求变更、核心骨干请假、关键依赖延期、工期重估等）..."
+            value={changeReason}
+            onChange={(e) => setChangeReason(e.target.value)}
+            className="w-full rounded-lg border border-amber-300 p-2 text-zinc-900 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+          />
+        </div>
+      )}
 
       <div className="flex justify-end gap-2 pt-1">
         <button

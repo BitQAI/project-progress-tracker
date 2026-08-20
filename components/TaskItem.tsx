@@ -24,7 +24,7 @@ interface TaskItemProps {
   task: DbTask;
   onToggleStatus: (task: DbTask, newStatus: 'pending' | 'done', customDoneAt?: string) => void;
   onRequestSubmitDeliverable: (task: DbTask) => void;
-  onUpdateTask: (task: DbTask) => void;
+  onUpdateTask: (task: DbTask, changeReason?: string) => void;
   onDeleteTask: (taskId: string, taskName?: string) => void;
   onOpenComments: (task: DbTask) => void;
 }
@@ -51,6 +51,7 @@ export function TaskItem({
   const [editDoneDate, setEditDoneDate] = useState(() => {
     return task.done_at ? task.done_at.split('T')[0] : todayStr;
   });
+  const [changeReason, setChangeReason] = useState('');
   const [showMenu, setShowMenu] = useState(false);
   const [showDeliverableDetail, setShowDeliverableDetail] = useState(false);
 
@@ -138,6 +139,12 @@ export function TaskItem({
     const formattedReq = hasDeliverable ? formatDeliverablesToText(deliverableItems) : undefined;
     const validItems = hasDeliverable ? deliverableItems.filter((i) => i.name.trim()) : undefined;
 
+    const isScheduleChanged =
+      estimatedDuration.trim() !== (task.estimated_duration || '').trim() ||
+      (dueDate || null) !== (task.due_date || null);
+
+    if (isScheduleChanged && !changeReason.trim()) return;
+
     onUpdateTask({
       ...task,
       name: name.trim(),
@@ -149,12 +156,16 @@ export function TaskItem({
       has_deliverable: hasDeliverable,
       deliverable_requirement: formattedReq,
       deliverable_items: validItems,
-    });
+    }, isScheduleChanged ? changeReason.trim() : undefined);
     setIsEditing(false);
     setShowMenu(false);
   };
 
   if (isEditing) {
+    const isScheduleChanged =
+      estimatedDuration.trim() !== (task.estimated_duration || '').trim() ||
+      (dueDate || null) !== (task.due_date || null);
+
     return (
       <form
         onSubmit={handleSaveEdit}
@@ -281,10 +292,29 @@ export function TaskItem({
           )}
         </div>
 
+        {isScheduleChanged && (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-2.5 space-y-1.5 animate-in fade-in duration-200">
+            <label className="block text-[11px] font-semibold text-amber-950">
+              排期调整理由 * <span className="text-[10px] font-normal text-amber-600">(检测到计划截止日或预估交付周期发生变更，请填写理由)</span>
+            </label>
+            <textarea
+              required
+              rows={2}
+              placeholder="请填写详细变更理由（如：需求变更、核心骨干请假、计划延后、工期重估等）..."
+              value={changeReason}
+              onChange={(e) => setChangeReason(e.target.value)}
+              className="w-full rounded-lg border border-amber-300 p-2 text-zinc-900 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+            />
+          </div>
+        )}
+
         <div className="flex items-center justify-end gap-2 pt-1 border-t border-blue-200/50">
           <button
             type="button"
-            onClick={() => setIsEditing(false)}
+            onClick={() => {
+              setChangeReason('');
+              setIsEditing(false);
+            }}
             className="rounded-lg px-2.5 py-1 text-zinc-600 hover:bg-zinc-200"
           >
             取消
@@ -431,6 +461,7 @@ export function TaskItem({
               <div className="absolute right-0 top-6 z-20 w-24 rounded-lg border border-zinc-200 bg-white py-1 shadow-lg">
                 <button
                   onClick={() => {
+                    setChangeReason('');
                     setIsEditing(true);
                     setShowMenu(false);
                   }}

@@ -22,11 +22,11 @@ export async function PUT(req: NextRequest) {
   try {
     await ensureDbLoaded();
     const body = await req.json();
-    const { id, name, owner, description, estimatedDuration, priority, dueDate } = body;
+    const { id, name, owner, description, estimatedDuration, priority, dueDate, changeReason } = body;
     if (!id || !name?.trim() || !owner?.trim()) {
       return NextResponse.json({ ok: false, error: '节点ID、名称与负责人均不能为空' }, { status: 400 });
     }
-    await updateNode(id, name.trim(), owner.trim(), description, estimatedDuration, priority, dueDate);
+    await updateNode(id, name.trim(), owner.trim(), description, estimatedDuration, priority, dueDate, changeReason);
     return NextResponse.json({ ok: true });
   } catch (error: any) {
     console.error('Update node error:', error);

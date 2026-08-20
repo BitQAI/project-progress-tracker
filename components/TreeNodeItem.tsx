@@ -27,7 +27,7 @@ interface TreeNodeItemProps {
   hideCompleted?: boolean;
   onToggleTaskStatus: (task: DbTask, newStatus: 'pending' | 'done', customDoneAt?: string) => void;
   onRequestSubmitDeliverable: (task: DbTask) => void;
-  onUpdateTask: (task: DbTask) => void;
+  onUpdateTask: (task: DbTask, changeReason?: string) => void;
   onDeleteTask: (taskId: string, taskName?: string) => void;
   onAddSubNode: (
     parentId: string,
@@ -54,7 +54,8 @@ interface TreeNodeItemProps {
     description?: string,
     estimatedDuration?: string,
     priority?: ProjectPriority,
-    dueDate?: string | null
+    dueDate?: string | null,
+    changeReason?: string
   ) => void;
   onDeleteNode: (nodeId: string, name: string) => void;
   onOpenNodeComments: (node: NodeTreeNode) => void;
@@ -128,9 +129,10 @@ export function TreeNodeItem({
     owner: string,
     desc?: string,
     estimatedDuration?: string,
-    dueDate?: string
+    dueDate?: string,
+    changeReason?: string
   ) => {
-    onUpdateNode(node.id, name, owner, desc, estimatedDuration, node.priority, dueDate);
+    onUpdateNode(node.id, name, owner, desc, estimatedDuration, node.priority, dueDate, changeReason);
     setIsEditingNode(false);
   };
 
