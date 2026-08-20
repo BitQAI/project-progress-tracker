@@ -68,6 +68,7 @@ export interface DbComment {
   author: string;
   content: string;
   created_at: string;
+  image_url?: string | null;
 }
 
 export interface CommentWithReplies extends DbComment {
@@ -96,6 +97,16 @@ export interface DbActivityLog {
   detail?: string;
   author: string;
   timestamp: string;
+}
+
+export interface AppDatabase {
+  nodes: DbNode[];
+  tasks: DbTask[];
+  templates: DbTemplate[];
+  templateStages: DbTemplateStage[];
+  templateDeliverables: DbTemplateDeliverable[];
+  comments: DbComment[];
+  activities: DbActivityLog[];
 }
 
 export interface ProjectActivityItem {

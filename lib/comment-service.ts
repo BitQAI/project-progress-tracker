@@ -46,6 +46,7 @@ export async function addComment(params: {
   parentId?: string | null;
   author: string;
   content: string;
+  imageUrl?: string | null;
 }): Promise<string> {
   const db = getDb();
   const id = generateId('cmt');
@@ -58,6 +59,7 @@ export async function addComment(params: {
     author: params.author,
     content: params.content,
     created_at: now,
+    image_url: params.imageUrl || null,
   });
 
   let rootId = '';
