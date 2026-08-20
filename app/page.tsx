@@ -156,6 +156,7 @@ export default function DashboardPage() {
           projects={projects}
           onDeleteProject={handleDeleteClick}
           onStatusChange={handleStatusChange}
+          isLoading={isLoading}
         />
       </main>
 

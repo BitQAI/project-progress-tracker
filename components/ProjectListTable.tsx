@@ -20,12 +20,14 @@ interface ProjectListTableProps {
   projects: ProjectSummary[];
   onDeleteProject: (id: string, name: string) => void;
   onStatusChange: (id: string, newStatus: ProjectStatus) => void;
+  isLoading?: boolean;
 }
 
 export function ProjectListTable({
   projects,
   onDeleteProject,
   onStatusChange,
+  isLoading = false,
 }: ProjectListTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -127,7 +129,18 @@ export function ProjectListTable({
 
       {/* 移动端卡片视图 (md 以下屏幕体验极佳) */}
       <div className="block md:hidden divide-y divide-zinc-150">
-        {filteredProjects.length === 0 ? (
+        {isLoading ? (
+          <div className="py-12 text-center text-zinc-400">
+            <div className="flex flex-col items-center justify-center gap-3">
+              <div className="flex items-center gap-1.5">
+                <div className="h-2.5 w-2.5 rounded-full bg-blue-600 animate-bounce [animation-delay:-0.3s]"></div>
+                <div className="h-2.5 w-2.5 rounded-full bg-blue-600 animate-bounce [animation-delay:-0.15s]"></div>
+                <div className="h-2.5 w-2.5 rounded-full bg-blue-600 animate-bounce"></div>
+              </div>
+              <p className="text-xs font-semibold text-zinc-500 tracking-wide">正在为您加速加载项目列表...</p>
+            </div>
+          </div>
+        ) : filteredProjects.length === 0 ? (
           <div className="py-12 text-center text-zinc-400">
             <div className="flex flex-col items-center justify-center gap-2">
               <ListTree className="h-8 w-8 text-zinc-300" />
@@ -314,7 +327,20 @@ export function ProjectListTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-150">
-            {filteredProjects.length === 0 ? (
+            {isLoading ? (
+              <tr>
+                <td colSpan={7} className="py-12 text-center text-zinc-400">
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <div className="flex items-center gap-1.5">
+                      <div className="h-2.5 w-2.5 rounded-full bg-blue-600 animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="h-2.5 w-2.5 rounded-full bg-blue-600 animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="h-2.5 w-2.5 rounded-full bg-blue-600 animate-bounce"></div>
+                    </div>
+                    <p className="text-xs font-semibold text-zinc-500 tracking-wide">正在为您加速加载项目列表...</p>
+                  </div>
+                </td>
+              </tr>
+            ) : filteredProjects.length === 0 ? (
               <tr>
                 <td colSpan={7} className="py-12 text-center text-zinc-400">
                   <div className="flex flex-col items-center justify-center gap-2">
