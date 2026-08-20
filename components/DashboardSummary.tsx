@@ -26,8 +26,10 @@ export function DashboardSummary({ metrics }: DashboardSummaryProps) {
           <span className="text-xl font-bold tracking-tight text-zinc-900">{metrics.totalProjects}</span>
           <span className="text-xs text-zinc-500">个项目</span>
         </div>
-        <div className="mt-1.5 text-[11px] text-zinc-500">
-          未开始: <span className="font-medium text-zinc-700">{metrics.unstartedCount}</span>
+        <div className="mt-1.5 text-[11px] text-zinc-500 flex items-center gap-1.5">
+          <span>未开始: <span className="font-medium text-zinc-700">{metrics.unstartedCount}</span></span>
+          <span className="text-zinc-300">•</span>
+          <span>暂停中: <span className="font-medium text-zinc-700">{metrics.suspendedCount || 0}</span></span>
         </div>
       </div>
 

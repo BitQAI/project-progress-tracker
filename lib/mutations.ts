@@ -143,7 +143,14 @@ export async function updateProjectStatus(projectId: string, status: ProjectStat
   const node = db.nodes.find((n) => n.id === projectId);
   if (node) {
     node.status = status;
-    const statusText = status === 'done' ? '已结项' : status === 'in_progress' ? '进行中' : '未启动';
+    const statusText =
+      status === 'done'
+        ? '已结项'
+        : status === 'in_progress'
+        ? '进行中'
+        : status === 'suspended'
+        ? '暂停中'
+        : '未启动';
     recordActivity(db, {
       project_id: projectId,
       node_id: projectId,

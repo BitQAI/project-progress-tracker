@@ -31,7 +31,7 @@ export async function PATCH(
     const { id } = await props.params;
     const body = await req.json();
     const { status } = body;
-    if (!status || !['unstarted', 'in_progress', 'done'].includes(status)) {
+    if (!status || !['unstarted', 'in_progress', 'suspended', 'done'].includes(status)) {
       return NextResponse.json({ ok: false, error: '非法的项目状态' }, { status: 400 });
     }
     await updateProjectStatus(id, status as ProjectStatus);

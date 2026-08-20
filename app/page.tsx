@@ -22,6 +22,7 @@ export default function DashboardPage() {
     inProgressCount: 0,
     doneCount: 0,
     unstartedCount: 0,
+    suspendedCount: 0,
     overdueProjectsCount: 0,
     totalTasksCount: 0,
     completedTasksCount: 0,

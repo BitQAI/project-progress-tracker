@@ -104,11 +104,14 @@ export function ProjectHeader({ tree, onEditClick, onStatusChange }: ProjectHead
                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100/80'
                 : tree.status === 'in_progress'
                 ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100/80'
+                : tree.status === 'suspended'
+                ? 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100/80'
                 : 'bg-zinc-100 text-zinc-600 border-zinc-200 hover:bg-zinc-200/80'
             }`}
           >
             <option value="unstarted">未开始</option>
             <option value="in_progress">进行中</option>
+            <option value="suspended">暂停中</option>
             <option value="done">已完成</option>
           </select>
 
@@ -118,6 +121,8 @@ export function ProjectHeader({ tree, onEditClick, onStatusChange }: ProjectHead
                 ? 'bg-emerald-500'
                 : tree.status === 'in_progress'
                 ? 'bg-blue-500 animate-pulse'
+                : tree.status === 'suspended'
+                ? 'bg-purple-500'
                 : 'bg-zinc-400'
             }`}
           />
@@ -128,6 +133,8 @@ export function ProjectHeader({ tree, onEditClick, onStatusChange }: ProjectHead
                 ? 'text-emerald-600'
                 : tree.status === 'in_progress'
                 ? 'text-blue-600'
+                : tree.status === 'suspended'
+                ? 'text-purple-600'
                 : 'text-zinc-500'
             }`}
           />

@@ -112,6 +112,16 @@ export function ProjectListTable({
           >
             未开始
           </button>
+          <button
+            onClick={() => setStatusFilter('suspended')}
+            className={`rounded-lg px-2 py-1.5 sm:px-2.5 sm:py-1.5 text-[10px] xs:text-[11px] sm:text-xs font-medium whitespace-nowrap transition-colors ${
+              statusFilter === 'suspended'
+                ? 'bg-purple-600 text-white'
+                : 'bg-purple-50 text-purple-700 hover:bg-purple-100'
+            }`}
+          >
+            暂停中
+          </button>
         </div>
       </div>
 
@@ -157,6 +167,8 @@ export function ProjectListTable({
                         ? project.isOverdue
                           ? 'bg-amber-50 text-amber-800 border-amber-200'
                           : 'bg-blue-50 text-blue-700 border-blue-200'
+                        : project.status === 'suspended'
+                        ? 'bg-purple-50 text-purple-700 border-purple-200'
                         : 'bg-zinc-100 text-zinc-600 border-zinc-200'
                     }`}
                   >
@@ -164,6 +176,7 @@ export function ProjectListTable({
                     <option value="in_progress">
                       {project.isOverdue ? '超期进行中' : '进行中'}
                     </option>
+                    <option value="suspended">暂停中</option>
                     <option value="done">已完成</option>
                   </select>
 
@@ -175,6 +188,8 @@ export function ProjectListTable({
                         ? project.isOverdue
                           ? 'bg-amber-500 animate-pulse'
                           : 'bg-blue-500 animate-pulse'
+                        : project.status === 'suspended'
+                        ? 'bg-purple-500'
                         : 'bg-zinc-400'
                     }`}
                   />
@@ -424,6 +439,8 @@ export function ProjectListTable({
                             ? project.isOverdue
                               ? 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100/80'
                               : 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100/80'
+                            : project.status === 'suspended'
+                            ? 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100/80'
                             : 'bg-zinc-100 text-zinc-600 border-zinc-200 hover:bg-zinc-200/80'
                         }`}
                       >
@@ -431,6 +448,7 @@ export function ProjectListTable({
                         <option value="in_progress">
                           {project.isOverdue ? '超期进行中' : '进行中'}
                         </option>
+                        <option value="suspended">暂停中</option>
                         <option value="done">已完成</option>
                       </select>
 
@@ -443,6 +461,8 @@ export function ProjectListTable({
                             ? project.isOverdue
                               ? 'bg-amber-500 animate-pulse'
                               : 'bg-blue-500 animate-pulse'
+                            : project.status === 'suspended'
+                            ? 'bg-purple-500'
                             : 'bg-zinc-400'
                         }`}
                       />
@@ -456,6 +476,8 @@ export function ProjectListTable({
                             ? project.isOverdue
                               ? 'text-amber-700'
                               : 'text-blue-600'
+                            : project.status === 'suspended'
+                            ? 'text-purple-600'
                             : 'text-zinc-500'
                         }`}
                       />

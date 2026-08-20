@@ -222,6 +222,7 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
       inProgressCount: 0,
       doneCount: 0,
       unstartedCount: 0,
+      suspendedCount: 0,
       overdueProjectsCount: 0,
       totalTasksCount: 0,
       completedTasksCount: 0,
@@ -233,6 +234,7 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
   let inProgressCount = 0;
   let doneCount = 0;
   let unstartedCount = 0;
+  let suspendedCount = 0;
   let overdueProjectsCount = 0;
   let totalTasksCount = 0;
   let completedTasksCount = 0;
@@ -247,6 +249,8 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
       activeProgressSum += p.progress;
     } else if (p.status === 'unstarted') {
       unstartedCount++;
+    } else if (p.status === 'suspended') {
+      suspendedCount++;
     }
 
     if (p.earlyDays && p.earlyDays > 0) {
@@ -269,6 +273,7 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
     inProgressCount,
     doneCount,
     unstartedCount,
+    suspendedCount,
     overdueProjectsCount,
     totalTasksCount,
     completedTasksCount,
@@ -279,12 +284,13 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
 export async function getProjectsSummaryList(): Promise<ProjectSummary[]> {
   const db = getDb();
   
-  // 状态权重：进行中 (1) 优先于 未开始 (2) 和 已完成 (3)
+  // 状态权重：进行中 (1) 优先于 暂停中 (2) 优先于 未开始 (3) 和 已完成 (4)
   const statusWeight = (s: string) => {
     if (s === 'in_progress') return 1;
-    if (s === 'unstarted') return 2;
-    if (s === 'done') return 3;
-    return 4;
+    if (s === 'suspended') return 2;
+    if (s === 'unstarted') return 3;
+    if (s === 'done') return 4;
+    return 5;
   };
 
   // 优先级权重：P0 (1) > P1 (2) > P2 (3) > P3 (4)

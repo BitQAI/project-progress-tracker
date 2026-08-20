@@ -1,4 +1,4 @@
-export type ProjectStatus = 'unstarted' | 'in_progress' | 'done';
+export type ProjectStatus = 'unstarted' | 'in_progress' | 'suspended' | 'done';
 export type TaskStatus = 'pending' | 'done';
 export type ProjectPriority = 'P0' | 'P1' | 'P2' | 'P3';
 
@@ -176,6 +176,7 @@ export interface DashboardMetrics {
   inProgressCount: number;
   doneCount: number;
   unstartedCount: number;
+  suspendedCount: number;
   overdueProjectsCount: number;
   totalTasksCount: number;
   completedTasksCount: number;
