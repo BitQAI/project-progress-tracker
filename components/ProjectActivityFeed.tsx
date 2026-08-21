@@ -260,27 +260,25 @@ export function ProjectActivityFeed({
                     <div className="flex-1 min-w-0">
                       {/* 移动端与窄屏专属多行排版 (sm:hidden) */}
                       <div className="flex sm:hidden flex-col gap-1.5 w-full">
-                        <div className="flex items-start gap-1.5 flex-wrap">
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           <span
                             className={`inline-flex items-center rounded border px-1.5 py-0.2 text-[10px] font-semibold shrink-0 ${config.badgeClass}`}
                           >
                             {config.badge}
                           </span>
                           <span className="font-medium text-zinc-900 break-words leading-relaxed">{act.title}</span>
-                        </div>
-                        
-                        {/* 移动端专属大缩略图 (若有) */}
-                        {act.image_url && (
-                          <div className="mt-1 flex items-start">
+
+                          {/* 移动端与PC风格一致的小缩略图 (若有) */}
+                          {act.image_url && (
                             <button
                               onClick={(e) => {
                                 e.preventDefault();
                                 setLightboxUrl(act.image_url || null);
                               }}
-                              className="relative group/thumb inline-flex h-12 w-20 shrink-0 items-center justify-center rounded border border-blue-200 bg-blue-50/50 hover:border-blue-400 transition-all cursor-pointer shadow-3xs"
+                              className="relative group/thumb inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm border border-blue-200 bg-blue-50/50 hover:border-blue-400 transition-all cursor-pointer shadow-3xs"
                               title="点击预览高清图证"
                             >
-                              <div className="h-full w-full rounded-xs overflow-hidden">
+                              <div className="h-full w-full rounded-sm overflow-hidden">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                   src={act.image_url}
@@ -288,13 +286,13 @@ export function ProjectActivityFeed({
                                   className="h-full w-full object-cover"
                                 />
                               </div>
-                              <span className="absolute -top-1 -right-1 flex h-1.5 w-1.5 z-10">
+                              <span className="absolute -top-0.5 -right-0.5 flex h-1.5 w-1.5 z-10">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500"></span>
                               </span>
                             </button>
-                          </div>
-                        )}
+                          )}
+                        </div>
 
                         <div className="text-[10px] text-zinc-400 pt-0.5 border-t border-zinc-100/30">
                           {formatTimestamp(act.timestamp)}

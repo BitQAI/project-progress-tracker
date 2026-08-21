@@ -115,10 +115,10 @@ export function ExecutiveRecentActivities({ activities }: ExecutiveRecentActivit
                             e.preventDefault();
                             setLightboxUrl(item.imageUrl || null);
                           }}
-                          className="relative group/thumb inline-flex h-12 w-20 shrink-0 items-center justify-center rounded border border-blue-200 bg-blue-50/50 hover:border-blue-400 transition-all cursor-pointer shadow-3xs"
+                          className="relative group/thumb inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm border border-blue-200 bg-blue-50/50 hover:border-blue-400 transition-all cursor-pointer shadow-3xs"
                           title="点击预览附图"
                         >
-                          <div className="h-full w-full rounded-xs overflow-hidden">
+                          <div className="h-full w-full rounded-sm overflow-hidden">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={item.imageUrl}
@@ -127,7 +127,7 @@ export function ExecutiveRecentActivities({ activities }: ExecutiveRecentActivit
                             />
                           </div>
                           {/* 呼吸状态光环与指示蓝点 */}
-                          <span className="absolute -top-1 -right-1 flex h-1.5 w-1.5 z-10">
+                          <span className="absolute -top-0.5 -right-0.5 flex h-1.5 w-1.5 z-10">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500"></span>
                           </span>
