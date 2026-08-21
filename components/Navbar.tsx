@@ -3,13 +3,15 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Layers, Plus, Activity } from 'lucide-react';
+import { LayoutDashboard, Layers, Plus, Activity, RefreshCw } from 'lucide-react';
 
 interface NavbarProps {
   onOpenCreateModal?: () => void;
+  onRefresh?: () => void;
+  isLoading?: boolean;
 }
 
-export function Navbar({ onOpenCreateModal }: NavbarProps) {
+export function Navbar({ onOpenCreateModal, onRefresh, isLoading = false }: NavbarProps) {
   const pathname = usePathname();
 
   return (
@@ -58,7 +60,7 @@ export function Navbar({ onOpenCreateModal }: NavbarProps) {
           </nav>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-2.5">
           <Link
             href="/templates"
             id="nav-mobile-templates-link"
@@ -67,11 +69,38 @@ export function Navbar({ onOpenCreateModal }: NavbarProps) {
           >
             <Layers className="h-4 w-4" />
           </Link>
+
+          {/* 刷新数据按钮 */}
+          {onRefresh && (
+            <button
+              onClick={onRefresh}
+              disabled={isLoading}
+              className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white p-2 text-xs font-medium text-zinc-700 shadow-2xs hover:bg-zinc-50 disabled:opacity-50 sm:px-3 transition-all"
+              title="刷新最新数据"
+            >
+              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">刷新</span>
+            </button>
+          )}
+
+          {/* 新增项目按钮 */}
+          {onOpenCreateModal && (
+            <button
+              id="dashboard-new-project-btn"
+              onClick={onOpenCreateModal}
+              className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-zinc-900 p-2 text-xs font-semibold text-white shadow-xs hover:bg-zinc-800 sm:px-3.5 transition-all"
+              title="新增项目"
+            >
+              <Plus className="h-4 w-4 stroke-[2.5]" />
+              <span className="hidden sm:inline">新增项目</span>
+            </button>
+          )}
+
           {pathname !== '/' && (
             <Link
               href="/"
               id="nav-back-home-btn"
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-zinc-900 px-2.5 sm:px-3.5 py-2 text-sm font-medium text-white shadow-xs transition-all hover:bg-zinc-800"
+              className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-zinc-900 px-2.5 sm:px-3.5 text-sm font-medium text-white shadow-xs transition-all hover:bg-zinc-800"
               title="返回所有项目仪表盘"
             >
               <LayoutDashboard className="h-4 w-4" />

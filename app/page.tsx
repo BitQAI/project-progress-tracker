@@ -106,45 +106,16 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-zinc-50/50 text-zinc-900">
-      <Navbar onOpenCreateModal={() => setIsCreateModalOpen(true)} />
+      <Navbar 
+        onOpenCreateModal={() => setIsCreateModalOpen(true)} 
+        onRefresh={() => {
+          setIsLoading(true);
+          setRefreshKey((k) => k + 1);
+        }}
+        isLoading={isLoading}
+      />
 
       <main className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8 space-y-6">
-        {/* 顶部标题栏 */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
-              项目总览与执行监控
-            </h1>
-            <p className="mt-1 text-xs text-zinc-500">
-              全景掌控项目进度与逾期状态，通过任务协作实时驱动全局项目交付进度
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => {
-                setIsLoading(true);
-                setRefreshKey((k) => k + 1);
-              }}
-              disabled={isLoading}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-700 shadow-2xs hover:bg-zinc-50 disabled:opacity-50 transition-all"
-              title="刷新最新数据"
-            >
-              <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-              <span>刷新</span>
-            </button>
-
-            <button
-              id="dashboard-new-project-btn"
-              onClick={() => setIsCreateModalOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-zinc-800 transition-all"
-            >
-              <Plus className="h-4 w-4 stroke-[2.5]" />
-              <span>新建项目</span>
-            </button>
-          </div>
-        </div>
-
         {/* 管理层最新 3 条关键进展速报（站在老板理解视角，不含 +/- 代码符号） */}
         <ExecutiveRecentActivities activities={executiveActivities} />
 
