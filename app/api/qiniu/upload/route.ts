@@ -3,8 +3,8 @@ import qiniu from 'qiniu';
 
 export async function POST(req: NextRequest) {
   try {
-    const accessKey = process.env.QINIU_ACCESS_KEY;
-    const secretKey = process.env.QINIU_SECRET_KEY;
+    const accessKey = process.env.QINIU_ACCESS_KEY || 'K2O9yO0C6cImQqFt1rD09vjiglk2fgj-Z2VkAgXY';
+    const secretKey = process.env.QINIU_SECRET_KEY || '0-uaz4SODbMp6Y2BcbYDVKaAM889mRw8I791Gh9B';
     const bucket = process.env.QINIU_BUCKET || 'bitqai';
     const domain = process.env.QINIU_DOMAIN || 'files.bitqai.com';
 
