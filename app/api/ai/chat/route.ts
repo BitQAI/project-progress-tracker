@@ -2,12 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ensureDbLoaded } from '@/lib/db';
 import { buildEnhancedAiKnowledgeContext } from '@/lib/ai-context-service';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     const { messages, context } = await req.json();
 
     if (!messages || !Array.isArray(messages)) {
-      return NextResponse.json({ ok: false, error: '参数错误，必须传入 messages 数组。' }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, error: '参数错误，必须传入 messages 数组。' },
+        { status: 400 }
+      );
     }
 
     const apiKey = process.env.ZHIPU_API_KEY;
@@ -61,7 +67,8 @@ ${globalContextText}
 
     const finalMessages = [systemPrompt, ...messages.filter((m) => m.role !== 'system')];
 
-    const response = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
+    // 3. 请求智谱 AI glm-4-flash 流式传输接口 (stream: true)
+    const zhipuResponse = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -73,28 +80,108 @@ ${globalContextText}
         temperature: 0.7,
         top_p: 0.9,
         max_tokens: 2000,
+        stream: true,
       }),
     });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error('Zhipu AI Response Error:', response.status, errText);
+    if (!zhipuResponse.ok) {
+      const errText = await zhipuResponse.text();
+      console.error('Zhipu AI Response Error:', zhipuResponse.status, errText);
       return NextResponse.json(
-        { ok: false, error: `智谱 AI 请求失败，状态码: ${response.status}`, details: errText },
-        { status: response.status }
+        { ok: false, error: `智谱 AI 请求失败，状态码: ${zhipuResponse.status}`, details: errText },
+        { status: zhipuResponse.status }
       );
     }
 
-    const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content || '';
+    if (!zhipuResponse.body) {
+      return NextResponse.json({ ok: false, error: '智谱 AI 响应流为空' }, { status: 500 });
+    }
 
-    return NextResponse.json({
-      ok: true,
-      text: reply,
-      usage: data.usage,
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+
+    // 4. 构造 Server-Sent Events (SSE) 分块流，极速实时推送到前端
+    const stream = new ReadableStream({
+      async start(controller) {
+        const reader = zhipuResponse.body!.getReader();
+        let buffer = '';
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || '';
+
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed || trimmed.startsWith(':')) continue;
+
+              if (trimmed === 'data: [DONE]') {
+                controller.enqueue(encoder.encode(`data: [DONE]\n\n`));
+                continue;
+              }
+
+              if (trimmed.startsWith('data: ')) {
+                try {
+                  const jsonStr = trimmed.slice(6);
+                  const parsed = JSON.parse(jsonStr);
+                  const deltaContent = parsed.choices?.[0]?.delta?.content || '';
+                  if (deltaContent) {
+                    controller.enqueue(
+                      encoder.encode(`data: ${JSON.stringify({ content: deltaContent })}\n\n`)
+                    );
+                  }
+                } catch {
+                  // 忽略不完整的中间数据分块
+                }
+              }
+            }
+          }
+
+          if (buffer.trim()) {
+            const trimmed = buffer.trim();
+            if (trimmed.startsWith('data: ') && trimmed !== 'data: [DONE]') {
+              try {
+                const parsed = JSON.parse(trimmed.slice(6));
+                const deltaContent = parsed.choices?.[0]?.delta?.content || '';
+                if (deltaContent) {
+                  controller.enqueue(
+                    encoder.encode(`data: ${JSON.stringify({ content: deltaContent })}\n\n`)
+                  );
+                }
+              } catch {}
+            }
+          }
+          controller.enqueue(encoder.encode(`data: [DONE]\n\n`));
+        } catch (streamErr: any) {
+          console.error('Streaming transform error:', streamErr);
+          controller.enqueue(
+            encoder.encode(
+              `data: ${JSON.stringify({ error: streamErr.message || '流式传输异常' })}\n\n`
+            )
+          );
+        } finally {
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream; charset=utf-8',
+        'Cache-Control': 'no-cache, no-transform',
+        Connection: 'keep-alive',
+        'X-Accel-Buffering': 'no',
+      },
     });
   } catch (error: any) {
     console.error('API /api/ai/chat handler error:', error);
-    return NextResponse.json({ ok: false, error: error.message || '内部服务器错误' }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: error.message || '内部服务器错误' },
+      { status: 500 }
+    );
   }
 }
