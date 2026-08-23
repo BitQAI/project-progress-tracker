@@ -3,6 +3,8 @@
 import React from 'react';
 import { TrendingUp, Layers, ListTodo } from 'lucide-react';
 import { ChatChart } from './ChatChart';
+import { DecisionButtonGroup } from './DecisionButtonGroup';
+import { extractDecisionPoint } from '@/lib/decision-parser';
 
 export interface ChatMessage {
   id: string;
@@ -98,7 +100,7 @@ export function ChatMessageItem({
       id: 'risk',
       label: '诊断风险',
       prompt:
-        '请帮我诊断一下当前系统里所有正在推进的项目，有哪些项目存在超期风险？谁的任务比较滞后？给出具体的红色警报和纠偏方案。',
+        '请帮我诊断一下当前活跃主线项目中存在超期风险的任务，并区分长期无排期任务与挂起项目。',
     },
     {
       id: 'wbs',
@@ -109,8 +111,8 @@ export function ChatMessageItem({
     },
     {
       id: 'todo',
-      label: '待办清单',
-      prompt: '请帮我梳理一下系统内当前所有未完成（进行中）的任务清单，按负责人和紧急程度进行分类汇总。',
+      label: '待办筛选',
+      prompt: '我想梳理未完成的任务，请先帮我做个边界条件确认，提供可选项。',
     },
   ];
 
@@ -118,7 +120,10 @@ export function ChatMessageItem({
   const projectsMatch = message.content.includes('[CHART:PROJECTS]');
   const tasksMatch = message.content.includes('[CHART:TASKS]');
 
-  let cleanContent = message.content
+  // 提取交互式决策点与选项数据（支持 [requires_user_input: ...], [OPTIONS: ...], 代码块, 兜底正则等）
+  const { data: decisionPointData, cleanedText: parsedText } = extractDecisionPoint(message.content);
+
+  let cleanContent = parsedText
     .replace('[CHART:TREND]', '')
     .replace('[CHART:PROJECTS]', '')
     .replace('[CHART:TASKS]', '')
@@ -144,6 +149,13 @@ export function ChatMessageItem({
             {trendMatch && <ChatChart type="trend" statsData={statsData} isMounted={isMounted} />}
             {projectsMatch && <ChatChart type="projects" statsData={statsData} isMounted={isMounted} />}
             {tasksMatch && <ChatChart type="tasks" statsData={statsData} isMounted={isMounted} />}
+            {decisionPointData && (
+              <DecisionButtonGroup
+                data={decisionPointData}
+                onSelect={(prompt) => onQuickPrompt(prompt)}
+                disabled={message.isStreaming}
+              />
+            )}
           </>
         )}
 
@@ -169,7 +181,7 @@ export function ChatMessageItem({
                 <button
                   key={idx}
                   onClick={() => onQuickPrompt(p.prompt)}
-                  className="flex items-center rounded-full border border-zinc-200/80 bg-zinc-50/50 hover:bg-zinc-100 hover:border-zinc-300 hover:text-zinc-950 px-2.5 py-1 text-[10px] sm:text-[11px] font-medium text-zinc-500 hover:text-zinc-800 transition-all group shrink-0 shadow-3xs"
+                  className="flex items-center rounded-full border border-zinc-200/80 bg-zinc-50/50 hover:bg-zinc-100 hover:border-zinc-300 hover:text-zinc-950 px-2.5 py-1 text-[10px] sm:text-[11px] font-medium text-zinc-500 hover:text-zinc-800 transition-all group shrink-0 shadow-3xs cursor-pointer"
                 >
                   {getIcon()}
                   {p.label}

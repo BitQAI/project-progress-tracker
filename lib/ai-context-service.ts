@@ -1,18 +1,28 @@
 import { AppDatabase, DbNode, DbTask } from './types';
 
 /**
- * 递归追溯顶级项目名称
+ * 递归追溯顶级项目名称与状态
  */
-function getProjectRootName(nodeId: string, nodeMap: Map<string, DbNode>): string {
+function getProjectRoot(nodeId: string, nodeMap: Map<string, DbNode>): { name: string; status: string; id: string } {
   let curr = nodeMap.get(nodeId);
-  if (!curr) return '未知项目';
+  if (!curr) return { name: '未知项目', status: 'unknown', id: '' };
   while (curr.parent_id) {
     const parent = nodeMap.get(curr.parent_id);
     if (!parent) break;
     curr = parent;
   }
-  return curr.name;
+  return { name: curr.name, status: curr.status, id: curr.id };
 }
+
+/**
+ * 状态中文映射
+ */
+const STATUS_TEXT: Record<string, string> = {
+  in_progress: '进行中',
+  suspended: '已暂停/挂起',
+  unstarted: '未开始',
+  done: '已完成',
+};
 
 /**
  * 构建高精度的全局关系型数据库 AI 知识上下文
@@ -21,9 +31,9 @@ export function buildEnhancedAiKnowledgeContext(db: AppDatabase): string {
   const nodeMap = new Map<string, DbNode>(db.nodes.map((n) => [n.id, n]));
   const todayStr = new Date().toISOString().split('T')[0];
 
-  // 1. 项目与 WBS 全景
+  // 1. 系统所有项目与 WBS 树形结构全景
   const rootProjects = db.nodes.filter((n) => !n.parent_id);
-  let context = `【1. 系统所有项目与 WBS 树形结构全景】：\n`;
+  let context = `【1. 系统所有项目状态与 WBS 结构全景】：\n`;
   rootProjects.forEach((proj, idx) => {
     const childNodes = db.nodes.filter((n) => n.parent_id === proj.id);
     const projTasks = db.tasks.filter((t) => {
@@ -32,32 +42,38 @@ export function buildEnhancedAiKnowledgeContext(db: AppDatabase): string {
     });
     const doneTasks = projTasks.filter((t) => t.status === 'done');
     const pct = projTasks.length > 0 ? Math.round((doneTasks.length / projTasks.length) * 100) : 0;
+    const projStatusCn = STATUS_TEXT[proj.status] || proj.status;
 
     context += `项目 #${idx + 1}: 「${proj.name}」\n`;
-    context += `  - 负责人: ${proj.owner} | 状态: ${proj.status} | 优先级: ${proj.priority} | 工期: ${proj.estimated_duration || '未设定'}\n`;
-    context += `  - 整体完成度: ${pct}% (${doneTasks.length}/${projTasks.length} 任务完成)\n`;
+    context += `  - 项目状态: 【${projStatusCn}】 (系统代码: ${proj.status}) | 负责人: ${proj.owner} | 优先级: ${proj.priority} | 工期: ${proj.estimated_duration || '未设定'}\n`;
+    context += `  - 完成度: ${pct}% (${doneTasks.length}/${projTasks.length} 任务完成)\n`;
     if (proj.description) context += `  - 目标描述: ${proj.description}\n`;
 
     if (childNodes.length > 0) {
-      context += `  - 下辖子模块 (WBS)：\n`;
+      context += `  - 下辖子阶段/模块 (WBS)：\n`;
       childNodes.forEach((c) => {
-        context += `    * [模块] 「${c.name}」| 负责人: ${c.owner} | 状态: ${c.status} | 工期: ${c.estimated_duration || '未设定'}\n`;
+        const nodeStatusCn = STATUS_TEXT[c.status] || c.status;
+        context += `    * 模块「${c.name}」| 模块状态: 【${nodeStatusCn}】| 负责人: ${c.owner} | 截止日: ${c.due_date || '未排期'}\n`;
       });
     }
     context += '\n';
   });
 
-  // 2. 交付件与成果验收证据库
+  // 2. 交付件与成果验收证据库（明确区分已验收通过与待交付）
   const deliverableTasks = db.tasks.filter((t) => t.has_deliverable);
   context += `【2. 交付件与成果验收证据库 (共 ${deliverableTasks.length} 项交付要求)】：\n`;
   deliverableTasks.forEach((t) => {
-    const projName = getProjectRootName(t.node_id, nodeMap);
+    const root = getProjectRoot(t.node_id, nodeMap);
     const node = nodeMap.get(t.node_id);
-    context += `- [交付任务] 「${t.name}」 (归属项目: 「${projName}」/「${node?.name || ''}」)\n`;
-    context += `  * 责任人: ${t.owner} | 状态: ${t.status === 'done' ? '✅ 已验收完成' : '⏳ 待交付'}\n`;
+    const projStatusCn = STATUS_TEXT[root.status] || root.status;
+    const isDone = t.status === 'done';
+
+    context += `- [${isDone ? '✅ 已验收结项任务' : '⏳ 待提交交付件任务'}] 「${t.name}」\n`;
+    context += `  * 所属项目: 「${root.name}」【项目状态: ${projStatusCn}】 | 所属模块: 「${node?.name || ''}」\n`;
+    context += `  * 责任人: ${t.owner} | 任务状态: ${isDone ? '【已完成/已验收 (不可算作未完成待办)】' : '【待交付/待办】'}\n`;
     context += `  * 交付标准/要求: ${t.deliverable_requirement || '未特别指定'}\n`;
     if (t.deliverable_submission) {
-      context += `  * 实际提交成果/证据: ${t.deliverable_submission}\n`;
+      context += `  * 提交成果记录: ${t.deliverable_submission}\n`;
       if (t.deliverable_submitted_at) context += `  * 提交时间: ${t.deliverable_submitted_at}\n`;
     } else {
       context += `  * 成果提交状态: 尚未提交\n`;
@@ -65,13 +81,50 @@ export function buildEnhancedAiKnowledgeContext(db: AppDatabase): string {
   });
   context += '\n';
 
-  // 3. 所有任务执行分工与超期预警
-  context += `【3. 任务执行与成员分工清单】：\n`;
+  // 3. 所有任务执行分工与精准状态归类 (严格区分活跃、无排期、挂起、已完成)
+  context += `【3. 任务执行状态与负责人清单（特别注意状态边界分类）】：\n`;
   db.tasks.forEach((t) => {
-    const projName = getProjectRootName(t.node_id, nodeMap);
-    const isOverdue = t.status !== 'done' && t.due_date && t.due_date < todayStr;
-    context += `- [${t.status === 'done' ? '已完成' : isOverdue ? '⚠️ 已超期' : '进行中'}] 「${t.name}」\n`;
-    context += `  负责人: ${t.owner} | 截止日: ${t.due_date || '无'} | 归属: 「${projName}」\n`;
+    const root = getProjectRoot(t.node_id, nodeMap);
+    const node = nodeMap.get(t.node_id);
+    const isDone = t.status === 'done';
+    const isParentSuspended = root.status === 'suspended' || node?.status === 'suspended';
+    const isParentUnstarted = root.status === 'unstarted' || node?.status === 'unstarted';
+    const hasDueDate = !!t.due_date && t.due_date.trim() !== '';
+    const isOverdue = !isDone && hasDueDate && t.due_date! < todayStr;
+
+    let categoryTag = '';
+    let categoryExplanation = '';
+
+    if (isDone) {
+      categoryTag = '✅ 已完成任务（非进行中）';
+      categoryExplanation = '任务已结项或已验收完成，严禁列入未完成待办。';
+    } else if (isParentSuspended) {
+      categoryTag = '⏸️ 挂起/暂停项目任务（非活跃进行中）';
+      categoryExplanation = `所属项目「${root.name}」处于挂起暂停状态，该任务目前处于搁置状态，不要混入活跃待办。`;
+    } else if (isParentUnstarted) {
+      categoryTag = '⏹️ 未启动项目任务（非活跃进行中）';
+      categoryExplanation = `所属项目「${root.name}」未开工，该任务暂未激活。`;
+    } else if (isOverdue) {
+      categoryTag = '⚠️ 活跃且超期任务（高优待办）';
+      categoryExplanation = `截止日为 ${t.due_date}，当前已超期，需紧急处理。`;
+    } else if (!hasDueDate) {
+      categoryTag = '📅 长期/无排期日常任务（待办）';
+      categoryExplanation = '未指定具体截止日期，属于持续性或常规维护事项。若用户仅查紧急主线待办应予区分或向用户澄清。';
+    } else {
+      categoryTag = '⚡ 活跃正常推进中任务（待办）';
+      categoryExplanation = `计划截止日为 ${t.due_date}，正常推进中。`;
+    }
+
+    context += `- [分类: ${categoryTag}] 任务名称: 「${t.name}」\n`;
+    context += `  * 状态性质: ${categoryExplanation}\n`;
+    context += `  * 所属项目: 「${root.name}」(项目状态: ${STATUS_TEXT[root.status] || root.status})\n`;
+    if (node && node.id !== root.id) {
+      context += `  * 所属模块: 「${node.name}」(模块状态: ${STATUS_TEXT[node.status] || node.status})\n`;
+    }
+    context += `  * 负责人: ${t.owner} | 截止日期: ${hasDueDate ? t.due_date : '无(未设定截止日)'} | 工期: ${t.estimated_duration || '未设定'}\n`;
+    if (t.has_deliverable) {
+      context += `  * 包含交付件: 是 (${isDone ? '已验收' : '待提交'})\n`;
+    }
   });
   context += '\n';
 
