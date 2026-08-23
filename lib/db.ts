@@ -102,6 +102,11 @@ export async function syncLocalStateToSupabase(sourceDb: AppDatabase): Promise<{
   if (!supabase) return { success: false, message: 'Supabase 未初始化' };
 
   try {
+    const validNodeIds = new Set(sourceDb.nodes?.map((n) => n.id) || []);
+    const validTaskIds = new Set(sourceDb.tasks?.map((t) => t.id) || []);
+    const validTemplateIds = new Set(sourceDb.templates?.map((tpl) => tpl.id) || []);
+    const validStageIds = new Set(sourceDb.templateStages?.map((s) => s.id) || []);
+
     // 1. 同步模板及交付物
     if (sourceDb.templates && sourceDb.templates.length > 0) {
       const tplRows = sourceDb.templates.map((t) => ({
@@ -112,6 +117,13 @@ export async function syncLocalStateToSupabase(sourceDb: AppDatabase): Promise<{
       }));
       const { error } = await supabase.from('pm_templates').upsert(tplRows);
       if (error) throw error;
+
+      // 差异删除已废弃模板
+      const { data: supaTpls } = await supabase.from('pm_templates').select('id');
+      if (supaTpls) {
+        const toDel = supaTpls.filter((t) => !validTemplateIds.has(t.id)).map((t) => t.id);
+        if (toDel.length > 0) await supabase.from('pm_templates').delete().in('id', toDel);
+      }
     }
 
     if (sourceDb.templateStages && sourceDb.templateStages.length > 0) {
@@ -123,9 +135,16 @@ export async function syncLocalStateToSupabase(sourceDb: AppDatabase): Promise<{
       }));
       const { error } = await supabase.from('pm_template_stages').upsert(stageRows);
       if (error) throw error;
+
+      const { data: supaStages } = await supabase.from('pm_template_stages').select('id');
+      if (supaStages) {
+        const toDel = supaStages.filter((s) => !validStageIds.has(s.id)).map((s) => s.id);
+        if (toDel.length > 0) await supabase.from('pm_template_stages').delete().in('id', toDel);
+      }
     }
 
     if (sourceDb.templateDeliverables && sourceDb.templateDeliverables.length > 0) {
+      const validDelivIds = new Set(sourceDb.templateDeliverables.map((d) => d.id));
       const delivRows = sourceDb.templateDeliverables.map((d) => ({
         id: d.id,
         stage_id: d.stage_id,
@@ -134,10 +153,23 @@ export async function syncLocalStateToSupabase(sourceDb: AppDatabase): Promise<{
       }));
       const { error } = await supabase.from('pm_template_deliverables').upsert(delivRows);
       if (error) throw error;
+
+      const { data: supaDelivs } = await supabase.from('pm_template_deliverables').select('id');
+      if (supaDelivs) {
+        const toDel = supaDelivs.filter((d) => !validDelivIds.has(d.id)).map((d) => d.id);
+        if (toDel.length > 0) await supabase.from('pm_template_deliverables').delete().in('id', toDel);
+      }
     }
 
-    // 2. 同步项目节点 (需要拓扑排序满足外键约束)
+    // 2. 同步项目节点 (先清理 Supabase 中废弃节点，再拓扑排序更新现存节点)
     if (sourceDb.nodes && sourceDb.nodes.length > 0) {
+      // 差异删除 Supabase 中存在但本地已删除的节点
+      const { data: supaNodes } = await supabase.from('pm_nodes').select('id');
+      if (supaNodes) {
+        const toDel = supaNodes.filter((n) => !validNodeIds.has(n.id)).map((n) => n.id);
+        if (toDel.length > 0) await supabase.from('pm_nodes').delete().in('id', toDel);
+      }
+
       const sortedNodes = sortNodesTopologically(sourceDb.nodes);
       const nodeRows = sortedNodes.map((n) => ({
         id: n.id,
@@ -158,6 +190,13 @@ export async function syncLocalStateToSupabase(sourceDb: AppDatabase): Promise<{
 
     // 3. 同步具体任务
     if (sourceDb.tasks && sourceDb.tasks.length > 0) {
+      // 差异删除 Supabase 中存在但本地已删除的任务
+      const { data: supaTasks } = await supabase.from('pm_tasks').select('id');
+      if (supaTasks) {
+        const toDel = supaTasks.filter((t) => !validTaskIds.has(t.id)).map((t) => t.id);
+        if (toDel.length > 0) await supabase.from('pm_tasks').delete().in('id', toDel);
+      }
+
       const taskRows = sourceDb.tasks.map((t) => ({
         id: t.id,
         node_id: t.node_id,
@@ -178,13 +217,20 @@ export async function syncLocalStateToSupabase(sourceDb: AppDatabase): Promise<{
       if (error) throw error;
     }
 
-    // 4. 同步团队跟进评论
+    // 4. 同步团队跟进评论 (清洗孤儿外键保证外键约束完整)
     if (sourceDb.comments && sourceDb.comments.length > 0) {
+      const validCommentIds = new Set(sourceDb.comments.map((c) => c.id));
+      const { data: supaComments } = await supabase.from('pm_comments').select('id');
+      if (supaComments) {
+        const toDel = supaComments.filter((c) => !validCommentIds.has(c.id)).map((c) => c.id);
+        if (toDel.length > 0) await supabase.from('pm_comments').delete().in('id', toDel);
+      }
+
       const commentRows = sourceDb.comments.map((c) => ({
         id: c.id,
-        node_id: c.node_id || null,
-        task_id: c.task_id || null,
-        parent_id: c.parent_id || null,
+        node_id: c.node_id && validNodeIds.has(c.node_id) ? c.node_id : null,
+        task_id: c.task_id && validTaskIds.has(c.task_id) ? c.task_id : null,
+        parent_id: c.parent_id && validCommentIds.has(c.parent_id) ? c.parent_id : null,
         author: c.author,
         content: c.content,
         created_at: c.created_at || new Date().toISOString(),
@@ -194,13 +240,14 @@ export async function syncLocalStateToSupabase(sourceDb: AppDatabase): Promise<{
       if (error) throw error;
     }
 
-    // 5. 同步审计日志
+    // 5. 同步审计日志 (清洗孤儿外键保证外键约束完整)
     if (sourceDb.activities && sourceDb.activities.length > 0) {
+      const validActivityIds = new Set(sourceDb.activities.map((a) => a.id));
       const actRows = sourceDb.activities.map((a) => ({
         id: a.id,
         project_id: a.project_id,
-        node_id: a.node_id || null,
-        task_id: a.task_id || null,
+        node_id: a.node_id && validNodeIds.has(a.node_id) ? a.node_id : null,
+        task_id: a.task_id && validTaskIds.has(a.task_id) ? a.task_id : null,
         type: a.type,
         title: a.title,
         detail: a.detail || null,
@@ -211,7 +258,6 @@ export async function syncLocalStateToSupabase(sourceDb: AppDatabase): Promise<{
       if (error) throw error;
     }
 
-    // 数据同步成功后直接返回，废除旧单行 JSON project_app_state 冗余备份
     return { success: true, message: '数据成功同步至 Supabase 关系表' };
   } catch (err: any) {
     console.error('Supabase 关系同步出现异常:', err.message);
@@ -358,24 +404,54 @@ function persistDbLocalSync(): void {
   }
 }
 
+let isSyncing = false;
+let hasPendingSync = false;
+
+async function triggerSupabaseSync(): Promise<void> {
+  if (!supabase || !inMemoryDb) return;
+
+  if (isSyncing) {
+    hasPendingSync = true;
+    return;
+  }
+
+  isSyncing = true;
+  hasPendingSync = false;
+
+  try {
+    if (inMemoryDb) {
+      await syncLocalStateToSupabase(inMemoryDb);
+    }
+  } catch (err: any) {
+    console.error('Supabase 关系型同步触发异常:', err?.message || err);
+  } finally {
+    isSyncing = false;
+    if (hasPendingSync) {
+      triggerSupabaseSync();
+    }
+  }
+}
+
 /**
  * 支持关系型表更新及快照备份的持久化函数
  */
 export function persistDb(): void {
   if (!inMemoryDb) return;
 
-  // 1. 同步保存本地备份
+  // 1. 同步保存本地文件系统备份
   persistDbLocalSync();
 
-  // 2. 异步向 Supabase 关系表同步增量数据并更新快照
+  // 2. 队列式安全向 Supabase 关系表同步增量与全量状态
   if (supabase) {
-    (async () => {
-      try {
-        await syncLocalStateToSupabase(inMemoryDb!);
-      } catch (err: any) {
-        console.error('Supabase 关系型同步触发异常:', err.message);
-      }
-    })();
+    triggerSupabaseSync();
+  }
+}
+
+export async function persistDbAsync(): Promise<void> {
+  if (!inMemoryDb) return;
+  persistDbLocalSync();
+  if (supabase) {
+    await triggerSupabaseSync();
   }
 }
 
