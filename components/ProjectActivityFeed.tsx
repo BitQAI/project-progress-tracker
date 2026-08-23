@@ -260,16 +260,18 @@ export function ProjectActivityFeed({
                     <div className="flex-1 min-w-0">
                       {/* 移动端与窄屏专属多行排版 (sm:hidden) */}
                       <div className="flex sm:hidden flex-col gap-1.5 w-full">
-                        <div className="flex items-center gap-1.5 flex-wrap">
+                        <div className="flex items-start gap-1.5 flex-wrap">
                           <span
                             className={`inline-flex items-center rounded border px-1.5 py-0.2 text-[10px] font-semibold shrink-0 ${config.badgeClass}`}
                           >
                             {config.badge}
                           </span>
                           <span className="font-medium text-zinc-900 break-words leading-relaxed">{act.title}</span>
-
-                          {/* 移动端与PC风格一致的小缩略图 (若有) */}
-                          {act.image_url && (
+                        </div>
+                        
+                        {/* 移动端与PC风格一致的小缩略图 (若有) */}
+                        {act.image_url && (
+                          <div className="mt-1 flex items-start">
                             <button
                               onClick={(e) => {
                                 e.preventDefault();
@@ -291,8 +293,8 @@ export function ProjectActivityFeed({
                                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500"></span>
                               </span>
                             </button>
-                          )}
-                        </div>
+                          </div>
+                        )}
 
                         <div className="text-[10px] text-zinc-400 pt-0.5 border-t border-zinc-100/30">
                           {formatTimestamp(act.timestamp)}
