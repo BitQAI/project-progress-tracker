@@ -227,6 +227,7 @@ export async function syncLocalStateToSupabase(sourceDb: AppDatabase): Promise<{
       const taskRows = sourceDb.tasks.map((t) => ({
         id: t.id,
         node_id: t.node_id,
+        parent_id: t.parent_id || null,
         name: t.name,
         owner: t.owner,
         due_date: t.due_date || null,
@@ -355,6 +356,7 @@ export async function ensureDbLoaded(forceReload = false): Promise<AppDatabase> 
               return {
                 id: t.id,
                 node_id: t.node_id,
+                parent_id: t.parent_id || null,
                 name: t.name,
                 owner: t.owner,
                 due_date: t.due_date,
@@ -489,6 +491,23 @@ export async function ensureDbLoaded(forceReload = false): Promise<AppDatabase> 
               }
             }
           });
+
+          // 自动化子任务 parent_id 关联修复机制：从活动的详情中解析所属父任务ID并回填，避免因为表无该列而变成平级
+          if (inMemoryDb.tasks && inMemoryDb.tasks.length > 0 && inMemoryDb.activities && inMemoryDb.activities.length > 0) {
+            inMemoryDb.tasks.forEach((task) => {
+              if (!task.parent_id) {
+                const relatedAct = (inMemoryDb?.activities || []).find(
+                  (act) => act.task_id === task.id && act.detail && act.detail.includes('所属父任务ID:')
+                );
+                if (relatedAct && relatedAct.detail) {
+                  const match = relatedAct.detail.match(/所属父任务ID:\s*(task_[a-zA-Z0-9_]+)/i);
+                  if (match && match[1]) {
+                    task.parent_id = match[1];
+                  }
+                }
+              }
+            });
+          }
 
           persistDbLocalSync();
           if (hasAutoReconciled) {
