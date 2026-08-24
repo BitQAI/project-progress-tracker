@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Layers, Plus, Activity, RefreshCw } from 'lucide-react';
+import { LayoutDashboard, Layers, Plus, Activity, RefreshCw, Network } from 'lucide-react';
 
 interface NavbarProps {
   onOpenCreateModal?: () => void;
@@ -46,6 +46,18 @@ export function Navbar({ onOpenCreateModal, onRefresh, isLoading = false }: Navb
               仪表盘
             </Link>
             <Link
+              href="/graph"
+              id="nav-graph-link"
+              className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                pathname === '/graph'
+                  ? 'bg-zinc-100 text-zinc-900'
+                  : 'text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900'
+              }`}
+            >
+              <Network className="h-4 w-4 text-emerald-600" />
+              全景拓扑图
+            </Link>
+            <Link
               href="/templates"
               id="nav-templates-link"
               className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
@@ -61,6 +73,19 @@ export function Navbar({ onOpenCreateModal, onRefresh, isLoading = false }: Navb
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-2.5">
+          <Link
+            href="/graph"
+            id="nav-mobile-graph-link"
+            className={`inline-flex sm:hidden items-center rounded-lg border p-2 ${
+              pathname === '/graph'
+                ? 'border-zinc-900 bg-zinc-900 text-white'
+                : 'border-zinc-200 text-zinc-700 hover:bg-zinc-50'
+            }`}
+            title="全景进度图"
+          >
+            <Network className="h-4 w-4" />
+          </Link>
+
           <Link
             href="/templates"
             id="nav-mobile-templates-link"
