@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { CommentWithReplies, FileAttachment, AttachmentType } from '@/lib/types';
 import { formatBeijingDateTime } from '@/lib/date-utils';
 import { AttachmentPreviewModal } from './AttachmentPreviewModal';
+import { safeFetchJson } from '@/lib/fetch-utils';
 import {
   X,
   MessageSquare,
@@ -70,10 +71,9 @@ export function CommentDrawer({
         const url = nodeId
           ? `/api/comments?nodeId=${encodeURIComponent(nodeId)}`
           : `/api/comments?taskId=${encodeURIComponent(taskId!)}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if (!ignore && data.ok && data.data) {
-          setComments(data.data);
+        const res = await safeFetchJson(url);
+        if (!ignore && res.ok && res.data?.ok && res.data?.data) {
+          setComments(res.data.data);
         }
       } catch (err) {
         console.error('Fetch comments error:', err);
@@ -119,23 +119,15 @@ export function CommentDrawer({
         const formData = new FormData();
         formData.append('file', file);
 
-        const res = await fetch('/api/qiniu/upload', {
+        const res = await safeFetchJson<any>('/api/qiniu/upload', {
           method: 'POST',
           body: formData,
         });
 
-        let data: any;
-        const contentType = res.headers.get('content-type') || '';
-        if (contentType.includes('application/json')) {
-          data = await res.json();
-        } else {
-          const text = await res.text();
-          throw new Error(`服务器响应异常 (${res.status}): ${text.slice(0, 100)}`);
+        if (!res.ok || !res.data?.ok) {
+          throw new Error(res.error || res.data?.error || `上传「${file.name}」失败`);
         }
-
-        if (!data.ok) {
-          throw new Error(data.error || `上传「${file.name}」失败`);
-        }
+        const data = res.data;
         const newAttachment: FileAttachment = {
           id: `att_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
           name: data.name || file.name,
@@ -193,7 +185,7 @@ export function CommentDrawer({
 
     setIsSubmitting(true);
     try {
-      const res = await fetch('/api/comments', {
+      const res = await safeFetchJson<any>('/api/comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -206,9 +198,9 @@ export function CommentDrawer({
           attachments: uploadedAttachments.length > 0 ? uploadedAttachments : undefined,
         }),
       });
-      const data = await res.json();
-      if (data.ok && data.data) {
-        setComments(data.data.comments);
+
+      if (res.ok && res.data?.ok && res.data?.data) {
+        setComments(res.data.data.comments);
         setContent('');
         setUploadedAttachments([]);
         setReplyParentId(null);

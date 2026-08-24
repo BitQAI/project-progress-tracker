@@ -85,8 +85,8 @@ export function GanttTimelineCanvas({
 
   return (
     <div
-      style={{ width: `${totalWidth}px`, height: `${totalHeight}px` }}
-      className="relative bg-white select-none overflow-visible"
+      style={{ width: `${totalWidth}px`, minWidth: `${totalWidth}px`, height: `${totalHeight}px` }}
+      className="relative bg-white select-none overflow-visible shrink-0"
     >
       {/* 1. 背景网格列 (Days/Weekends) */}
       <div className="absolute inset-0 flex pointer-events-none">
@@ -94,7 +94,7 @@ export function GanttTimelineCanvas({
           <div
             key={idx}
             style={{ width: `${columnWidth}px` }}
-            className={`h-full border-r border-zinc-150 ${
+            className={`shrink-0 h-full border-r border-zinc-150 ${
               day.isToday ? 'bg-blue-50/20' : day.isWeekend ? 'bg-zinc-50/60' : ''
             }`}
           />

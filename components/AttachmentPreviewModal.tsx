@@ -74,29 +74,30 @@ function AttachmentPreviewModalContent({
     let ignore = false;
     if (!isMd) return;
 
-    // 使用服务端代理以规避浏览器 CORS 跨域限制及沙箱网络隔离问题
-    const fetchUrl = attachment.url.startsWith('data:')
-      ? attachment.url
-      : `/api/proxy?url=${encodeURIComponent(attachment.url)}`;
+    async function loadMarkdown() {
+      // 使用服务端代理以规避浏览器 CORS 跨域限制及沙箱网络隔离问题
+      const fetchUrl = attachment.url.startsWith('data:')
+        ? attachment.url
+        : `/api/proxy?url=${encodeURIComponent(attachment.url)}`;
 
-    fetch(fetchUrl)
-      .then((res) => {
+      try {
+        const res = await fetch(fetchUrl);
         if (!res.ok) throw new Error(`无法获取 Markdown 内容 (${res.status})`);
-        return res.text();
-      })
-      .then((text) => {
+        const text = await res.text();
         if (!ignore) {
           setMdContent(text);
           setIsLoadingMd(false);
         }
-      })
-      .catch((err) => {
+      } catch (err: any) {
         if (!ignore) {
           console.error('Fetch markdown error:', err);
           setMdLoadError(err.message || '获取 Markdown 文件内容失败');
           setIsLoadingMd(false);
         }
-      });
+      }
+    }
+
+    loadMarkdown();
 
     return () => {
       ignore = true;

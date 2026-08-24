@@ -19,6 +19,8 @@ interface GanttTimelineHeaderProps {
 }
 
 export function GanttTimelineHeader({ days, columnWidth, viewMode }: GanttTimelineHeaderProps) {
+  const totalWidth = days.length * columnWidth;
+
   // 按月份分组计算跨度
   const monthGroups: { monthStr: string; startIndex: number; count: number }[] = [];
   days.forEach((day, index) => {
@@ -35,14 +37,17 @@ export function GanttTimelineHeader({ days, columnWidth, viewMode }: GanttTimeli
   });
 
   return (
-    <div className="sticky top-0 z-20 flex flex-col border-b border-zinc-200 bg-zinc-50 select-none shadow-2xs">
+    <div
+      style={{ width: `${totalWidth}px`, minWidth: `${totalWidth}px` }}
+      className="sticky top-0 z-20 flex flex-col border-b border-zinc-200 bg-zinc-50 select-none shadow-2xs shrink-0"
+    >
       {/* 顶部月份层 */}
       <div className="flex h-7 border-b border-zinc-200/80 bg-zinc-100/70 text-xs font-semibold text-zinc-700">
         {monthGroups.map((group, idx) => (
           <div
             key={idx}
             style={{ width: `${group.count * columnWidth}px` }}
-            className="flex items-center px-2.5 border-r border-zinc-200/60 truncate"
+            className="shrink-0 flex items-center px-2.5 border-r border-zinc-200/60 truncate"
           >
             <span className="truncate">{group.monthStr}</span>
           </div>
@@ -56,7 +61,7 @@ export function GanttTimelineHeader({ days, columnWidth, viewMode }: GanttTimeli
             <div
               key={idx}
               style={{ width: `${columnWidth}px` }}
-              className={`flex flex-col items-center justify-center border-r border-zinc-150 transition-colors ${
+              className={`shrink-0 flex flex-col items-center justify-center border-r border-zinc-150 transition-colors ${
                 day.isToday
                   ? 'bg-blue-50/90 font-bold text-blue-700'
                   : day.isWeekend
@@ -73,7 +78,9 @@ export function GanttTimelineHeader({ days, columnWidth, viewMode }: GanttTimeli
               ) : viewMode === 'week' ? (
                 <span className="text-[10px]">{day.dayNumber}</span>
               ) : (
-                <span className="text-[9px]">{day.dayNumber % 5 === 0 ? day.dayNumber : ''}</span>
+                <span className="text-[9px]">
+                  {day.dayNumber % 5 === 0 || day.dayNumber === 1 ? day.dayNumber : ''}
+                </span>
               )}
             </div>
           );

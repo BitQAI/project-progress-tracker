@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { TemplateWithStages } from '@/lib/types';
+import { safeFetchJson } from '@/lib/fetch-utils';
 import { ConfirmDialog } from './ConfirmDialog';
 import {
   Layers,
@@ -33,10 +34,9 @@ export function TemplateManager() {
     let ignore = false;
     async function loadTemplates() {
       try {
-        const res = await fetch('/api/templates');
-        const data = await res.json();
-        if (!ignore && data.ok && data.data) {
-          setTemplates(data.data);
+        const res = await safeFetchJson('/api/templates');
+        if (!ignore && res.ok && res.data?.ok && res.data?.data) {
+          setTemplates(res.data.data);
         }
       } catch (err) {
         console.error('Fetch templates error:', err);
@@ -57,7 +57,7 @@ export function TemplateManager() {
     if (!tplToDelete) return;
     setIsDeleting(true);
     try {
-      await fetch(`/api/templates?id=${encodeURIComponent(tplToDelete.id)}`, { method: 'DELETE' });
+      await safeFetchJson(`/api/templates?id=${encodeURIComponent(tplToDelete.id)}`, { method: 'DELETE' });
       setTplToDelete(null);
       setRefreshCount((c) => c + 1);
     } catch (err) {
@@ -105,13 +105,12 @@ export function TemplateManager() {
     if (!tplName.trim()) return;
 
     try {
-      const res = await fetch('/api/templates', {
+      const res = await safeFetchJson('/api/templates', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: tplName.trim(), stages }),
       });
-      const data = await res.json();
-      if (data.ok) {
+      if (res.ok && res.data?.ok) {
         setShowCreateModal(false);
         setTplName('');
         setRefreshCount((c) => c + 1);

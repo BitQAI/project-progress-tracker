@@ -47,7 +47,7 @@ export function GanttSummaryBar({
   // 项目周期计算
   const startDate = projectItem?.startDate || todayStr;
   const dueDate = projectItem?.dueDate || todayStr;
-  const totalDurationDays = Math.max(1, diffDays(startDate, dueDate));
+  const totalDurationDays = Math.max(1, diffDays(startDate, dueDate) + 1);
   const remainingDays = diffDays(todayStr, dueDate);
 
   return (

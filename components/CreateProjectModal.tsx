@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { TemplateWithStages, ProjectPriority } from '@/lib/types';
+import { safeFetchJson } from '@/lib/fetch-utils';
 import { X, Sparkles, FolderPlus, Layers, Check } from 'lucide-react';
 
 interface CreateProjectModalProps {
@@ -28,12 +29,11 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
 
     async function loadTemplates() {
       try {
-        const res = await fetch('/api/templates');
-        const data = await res.json();
-        if (!ignore && data.ok && data.data) {
-          setTemplates(data.data);
-          if (data.data.length > 0) {
-            setSelectedTemplateId((prev) => prev || data.data[0].id);
+        const res = await safeFetchJson<any>('/api/templates');
+        if (!ignore && res.ok && res.data?.ok && res.data?.data) {
+          setTemplates(res.data.data);
+          if (res.data.data.length > 0) {
+            setSelectedTemplateId((prev) => prev || res.data.data[0].id);
           }
         }
       } catch (err) {
@@ -85,18 +85,17 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
         payload.templateId = selectedTemplateId;
       }
 
-      const res = await fetch('/api/projects', {
+      const res = await safeFetchJson<any>('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      const data = await res.json();
 
-      if (!data.ok) {
-        throw new Error(data.error || '创建项目失败');
+      if (!res.ok || !res.data?.ok) {
+        throw new Error(res.error || res.data?.error || '创建项目失败');
       }
 
-      onSuccess(data.data.id);
+      onSuccess(res.data.data.id);
       handleCloseModal();
     } catch (err: any) {
       setError(err.message || '网络异常，请重试');

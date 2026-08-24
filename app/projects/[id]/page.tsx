@@ -6,6 +6,7 @@ import { Navbar } from '@/components/Navbar';
 import { ProjectTree } from '@/components/ProjectTree';
 import { CreateProjectModal } from '@/components/CreateProjectModal';
 import { useRouter } from 'next/navigation';
+import { safeFetchJson } from '@/lib/fetch-utils';
 import { Loader2, AlertCircle, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
@@ -22,18 +23,17 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
     let ignore = false;
     async function loadTree() {
       try {
-        const res = await fetch(`/api/projects/${params.id}`);
-        const data = await res.json();
+        const res = await safeFetchJson(`/api/projects/${params.id}`);
         if (!ignore) {
-          if (!data.ok || !data.data) {
-            setError(data.error || '未找到项目数据');
+          if (!res.ok || !res.data?.ok || !res.data?.data) {
+            setError(res.error || res.data?.error || '未找到项目数据');
           } else {
-            setTree(data.data);
+            setTree(res.data.data);
           }
         }
       } catch (err: any) {
         if (!ignore) {
-          setError(err.message || '加载项目失败');
+          setError(err?.message || '加载项目失败');
         }
       } finally {
         if (!ignore) {

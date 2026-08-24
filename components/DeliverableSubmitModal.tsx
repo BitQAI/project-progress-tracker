@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { DbTask, FileAttachment, AttachmentType } from '@/lib/types';
 import { getTodayBeijingString } from '@/lib/date-utils';
+import { safeFetchJson } from '@/lib/fetch-utils';
 import { AttachmentPreviewModal } from './AttachmentPreviewModal';
 import {
   FileCheck,
@@ -120,21 +121,14 @@ function DeliverableSubmitModalContent({
       const uploadPromises = Array.from(files).map(async (file) => {
         const formData = new FormData();
         formData.append('file', file);
-        const res = await fetch('/api/qiniu/upload', {
+        const res = await safeFetchJson<any>('/api/qiniu/upload', {
           method: 'POST',
           body: formData,
         });
-        let data: any;
-        const contentType = res.headers.get('content-type') || '';
-        if (contentType.includes('application/json')) {
-          data = await res.json();
-        } else {
-          const text = await res.text();
-          throw new Error(`服务器响应异常 (${res.status}): ${text.slice(0, 100)}`);
+        if (!res.ok || !res.data?.ok) {
+          throw new Error(res.error || res.data?.error || `上传「${file.name}」失败`);
         }
-        if (!data.ok) {
-          throw new Error(data.error || `上传「${file.name}」失败`);
-        }
+        const data = res.data;
         const newAttachment: FileAttachment = {
           id: `att_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
           name: data.name || file.name,

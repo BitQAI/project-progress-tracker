@@ -6,6 +6,7 @@ import { Trash2, Minimize2, Send, Loader2, Bot } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChatTriggerButton } from './ai-chat/ChatTriggerButton';
 import { ChatMessageItem, ChatMessage } from './ai-chat/ChatMessageItem';
+import { safeFetchJson } from '@/lib/fetch-utils';
 
 const emptySubscribe = () => () => {};
 
@@ -32,11 +33,11 @@ export function AiChatWidget() {
   useEffect(() => {
     let isSubscribed = true;
 
-    fetch('/api/ai/stats')
-      .then((res) => res.json())
-      .then((data) => {
+    safeFetchJson('/api/ai/stats')
+      .then((res) => {
         if (!isSubscribed) return;
-        if (data.ok) {
+        if (res.ok && res.data?.ok) {
+          const data = res.data;
           setStatsData(data);
           const { metrics, criticalPendingTasks } = data;
 
@@ -71,12 +72,14 @@ export function AiChatWidget() {
             },
           ]);
         } else {
-          throw new Error('Stats api error');
+          throw new Error(res.error || 'Stats api error');
         }
       })
       .catch((err) => {
         if (!isSubscribed) return;
-        console.error('Failed to load stats welcome message:', err);
+        if (err?.message !== 'Request aborted') {
+          console.warn('Failed to load stats welcome message:', err?.message || err);
+        }
         setMessages([
           {
             id: 'welcome',
@@ -100,20 +103,18 @@ export function AiChatWidget() {
   useEffect(() => {
     let isSubscribed = true;
     if (projectId) {
-      fetch(`/api/projects/${projectId}`)
-        .then((res) => res.json())
-        .then((resData) => {
+      safeFetchJson(`/api/projects/${projectId}`)
+        .then((res) => {
           if (isSubscribed) {
-            if (resData.ok && resData.data) {
-              setProjectContext(resData.data);
+            if (res.ok && res.data?.ok && res.data?.data) {
+              setProjectContext(res.data.data);
             } else {
               setProjectContext(null);
             }
           }
         })
-        .catch((err) => {
+        .catch(() => {
           if (isSubscribed) {
-            console.error('Failed to load project context for AI:', err);
             setProjectContext(null);
           }
         });
@@ -183,18 +184,25 @@ export function AiChatWidget() {
         content: m.content,
       }));
 
-      const res = await fetch('/api/ai/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: payloadMessages,
-          context: contextText || undefined,
-        }),
-        signal: abortController.signal,
-      });
+      let res: Response;
+      try {
+        res = await fetch('/api/ai/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: payloadMessages,
+            context: contextText || undefined,
+          }),
+          signal: abortController.signal,
+        });
+      } catch (err: any) {
+        if (err.name === 'AbortError') throw err;
+        console.error('[AiChat] Network error:', err);
+        throw new Error('网络请求失败，请检查网络连接或稍后重试');
+      }
 
       if (!res.ok) {
-        let errMsg = `请求失败 (${res.status})`;
+        let errMsg = `服务响应异常 (${res.status})`;
         try {
           const errJson = await res.json();
           errMsg = errJson.error || errMsg;
@@ -280,17 +288,15 @@ export function AiChatWidget() {
   };
 
   const clearChat = () => {
-    if (window.confirm('确定要清空与 BitQAI 的对话历史吗？')) {
-      setMessages([
-        {
-          id: 'welcome',
-          role: 'assistant',
-          content:
-            '对话历史已重置。我是您的项目助理 **BitQAI**，已连接系统实时数据库，随时为您提供全局进度把控和 WBS 层级拆解建议。',
-          timestamp: new Date(),
-        },
-      ]);
-    }
+    setMessages([
+      {
+        id: 'welcome',
+        role: 'assistant',
+        content:
+          '对话历史已重置。我是您的项目助理 **BitQAI**，已连接系统实时数据库，随时为您提供全局进度把控和 WBS 层级拆解建议。',
+        timestamp: new Date(),
+      },
+    ]);
   };
 
   const activeProjectContext = projectId ? projectContext : null;

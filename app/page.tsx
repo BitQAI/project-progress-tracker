@@ -9,6 +9,7 @@ import { ProjectListTable } from '@/components/ProjectListTable';
 import { CreateProjectModal } from '@/components/CreateProjectModal';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useRouter } from 'next/navigation';
+import { safeFetchJson } from '@/lib/fetch-utils';
 import { RefreshCw, Plus } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -40,17 +41,16 @@ export default function DashboardPage() {
     let ignore = false;
     async function loadData() {
       try {
-        const res = await fetch('/api/projects');
-        const data = await res.json();
-        if (!ignore && data.ok && data.data) {
-          setProjects(data.data.summaries);
-          setMetrics(data.data.metrics);
-          if (Array.isArray(data.data.executiveActivities)) {
-            setExecutiveActivities(data.data.executiveActivities);
+        const res = await safeFetchJson('/api/projects');
+        if (!ignore && res.ok && res.data?.ok && res.data?.data) {
+          setProjects(res.data.data.summaries);
+          setMetrics(res.data.data.metrics);
+          if (Array.isArray(res.data.data.executiveActivities)) {
+            setExecutiveActivities(res.data.data.executiveActivities);
           }
         }
       } catch (err) {
-        console.error('Fetch dashboard error:', err);
+        console.warn('Fetch dashboard warn:', err);
       } finally {
         if (!ignore) {
           setIsLoading(false);
@@ -71,9 +71,8 @@ export default function DashboardPage() {
     if (!projectToDelete) return;
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/projects/${projectToDelete.id}`, { method: 'DELETE' });
-      const data = await res.json();
-      if (data.ok) {
+      const res = await safeFetchJson(`/api/projects/${projectToDelete.id}`, { method: 'DELETE' });
+      if (res.ok && res.data?.ok) {
         setProjectToDelete(null);
         setRefreshKey((k) => k + 1);
       }
@@ -86,13 +85,12 @@ export default function DashboardPage() {
 
   const handleStatusChange = async (id: string, newStatus: ProjectStatus) => {
     try {
-      const res = await fetch(`/api/projects/${id}`, {
+      const res = await safeFetchJson(`/api/projects/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       });
-      const data = await res.json();
-      if (data.ok) {
+      if (res.ok && res.data?.ok) {
         setRefreshKey((k) => k + 1);
       }
     } catch (err) {

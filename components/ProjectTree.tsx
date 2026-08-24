@@ -10,6 +10,7 @@ import { ProjectActivityFeed } from './ProjectActivityFeed';
 import { ProjectHeader } from './ProjectHeader';
 import { EditProjectModal } from './EditProjectModal';
 import { GanttChart } from './gantt/GanttChart';
+import { safeFetchJson } from '@/lib/fetch-utils';
 import { ListTree, CalendarRange } from 'lucide-react';
 
 interface ProjectTreeProps {
@@ -54,20 +55,19 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
 
   const reloadTree = async () => {
     try {
-      const res = await fetch(`/api/projects/${tree.id}`);
-      const data = await res.json();
-      if (data.ok && data.data) {
-        setTree(data.data);
+      const res = await safeFetchJson(`/api/projects/${tree.id}`);
+      if (res.ok && res.data?.ok && res.data?.data) {
+        setTree(res.data.data);
       }
       if (onRefresh) onRefresh();
     } catch (err) {
-      console.error('Reload tree error:', err);
+      console.warn('Reload tree warn:', err);
     }
   };
 
   const handleToggleTaskStatus = async (task: DbTask, newStatus: TaskStatus, customDoneAt?: string) => {
     try {
-      await fetch('/api/tasks', {
+      await safeFetchJson('/api/tasks', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: task.id, status: newStatus, doneAt: customDoneAt }),
@@ -85,7 +85,7 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
     attachments?: FileAttachment[]
   ) => {
     try {
-      await fetch('/api/tasks', {
+      const res = await safeFetchJson('/api/tasks', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -96,6 +96,9 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
           deliverableAttachments: attachments,
         }),
       });
+      if (!res.ok) {
+        throw new Error(res.error || '提交交付物失败');
+      }
       reloadTree();
     } catch (err) {
       console.error('Submit deliverable error:', err);
@@ -105,7 +108,7 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
 
   const handleUpdateTask = async (task: DbTask, changeReason?: string) => {
     try {
-      await fetch('/api/tasks', {
+      await safeFetchJson('/api/tasks', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -137,7 +140,7 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
       onConfirm: async () => {
         setIsDeleting(true);
         try {
-          await fetch(`/api/tasks?id=${encodeURIComponent(taskId)}`, { method: 'DELETE' });
+          await safeFetchJson(`/api/tasks?id=${encodeURIComponent(taskId)}`, { method: 'DELETE' });
           setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
           reloadTree();
         } catch (err) {
@@ -158,7 +161,7 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
     dueDate?: string
   ) => {
     try {
-      await fetch('/api/nodes', {
+      await safeFetchJson('/api/nodes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ parentId, name, owner, description, estimatedDuration, dueDate }),
@@ -181,7 +184,7 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
     parentId?: string | null
   ) => {
     try {
-      await fetch('/api/tasks', {
+      await safeFetchJson('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -213,7 +216,7 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
     changeReason?: string
   ) => {
     try {
-      await fetch('/api/nodes', {
+      await safeFetchJson('/api/nodes', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: nodeId, name, owner, description, estimatedDuration, priority, dueDate, changeReason }),
@@ -244,7 +247,7 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
       onConfirm: async () => {
         setIsDeleting(true);
         try {
-          await fetch(`/api/nodes?id=${encodeURIComponent(nodeId)}`, { method: 'DELETE' });
+          await safeFetchJson(`/api/nodes?id=${encodeURIComponent(nodeId)}`, { method: 'DELETE' });
           setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
           reloadTree();
         } catch (err) {
@@ -258,14 +261,13 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
 
   const handleStatusChange = async (newStatus: ProjectStatus) => {
     try {
-      const res = await fetch(`/api/projects/${tree.id}`, {
+      const res = await safeFetchJson(`/api/projects/${tree.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       });
-      const data = await res.json();
-      if (data.ok && data.data) {
-        setTree(data.data);
+      if (res.ok && res.data?.ok && res.data?.data) {
+        setTree(res.data.data);
       }
     } catch (err) {
       console.error('Change status error:', err);
@@ -285,7 +287,7 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
   };
 
   const handleAddBriefComment = async (content: string) => {
-    await fetch('/api/comments', {
+    await safeFetchJson('/api/comments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
