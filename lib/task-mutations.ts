@@ -5,7 +5,7 @@ import {
   recordActivity,
   describeTaskDiff,
 } from './activity-logger';
-import { TaskStatus, DeliverableItem } from './types';
+import { TaskStatus, DeliverableItem, FileAttachment } from './types';
 
 function generateId(prefix: string): string {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
@@ -19,7 +19,8 @@ export async function addTask(
   hasDeliverable?: boolean,
   deliverableRequirement?: string,
   estimatedDuration?: string,
-  deliverableItems?: DeliverableItem[]
+  deliverableItems?: DeliverableItem[],
+  deliverableAttachments?: FileAttachment[]
 ): Promise<string> {
   const db = getDb();
   const id = generateId('task');
@@ -37,6 +38,7 @@ export async function addTask(
     deliverable_items: hasDeliverable && deliverableItems && deliverableItems.length > 0 ? deliverableItems : undefined,
     deliverable_submission: null,
     deliverable_submitted_at: null,
+    deliverable_attachments: deliverableAttachments && deliverableAttachments.length > 0 ? deliverableAttachments : undefined,
     done_at: null,
     created_at: now,
   });
@@ -81,7 +83,8 @@ export async function updateTask(
   status?: TaskStatus,
   estimatedDuration?: string,
   deliverableItems?: DeliverableItem[],
-  changeReason?: string
+  changeReason?: string,
+  deliverableAttachments?: FileAttachment[]
 ): Promise<void> {
   const db = getDb();
   const task = db.tasks.find((t) => t.id === taskId);
@@ -131,6 +134,9 @@ export async function updateTask(
     if (deliverableSubmission !== undefined) {
       task.deliverable_submission = deliverableSubmission;
     }
+    if (deliverableAttachments !== undefined) {
+      task.deliverable_attachments = deliverableAttachments;
+    }
     if (doneAt !== undefined) {
       task.done_at = doneAt ? (doneAt.includes('T') ? doneAt : `${doneAt}T12:00:00.000Z`) : null;
     }
@@ -178,7 +184,8 @@ export async function toggleTaskStatus(
   taskId: string,
   status: TaskStatus,
   deliverableSubmission?: string,
-  customDoneAt?: string
+  customDoneAt?: string,
+  deliverableAttachments?: FileAttachment[]
 ): Promise<void> {
   const db = getDb();
   const task = db.tasks.find((t) => t.id === taskId);
@@ -207,9 +214,18 @@ export async function toggleTaskStatus(
         else diffTag = ` (延期 ${diffDays} 天完工)`;
       }
 
-      if (task.has_deliverable && deliverableSubmission) {
-        task.deliverable_submission = deliverableSubmission.trim();
+      if (deliverableAttachments !== undefined) {
+        task.deliverable_attachments = deliverableAttachments;
+      }
+
+      if (task.has_deliverable && (deliverableSubmission || (deliverableAttachments && deliverableAttachments.length > 0))) {
+        task.deliverable_submission = deliverableSubmission ? deliverableSubmission.trim() : (task.deliverable_submission || '交付物已归档');
         task.deliverable_submitted_at = now;
+
+        const firstImg = deliverableAttachments?.find((a) => a.type === 'image');
+        const attachmentDesc = deliverableAttachments && deliverableAttachments.length > 0
+          ? `\n附带文件 (${deliverableAttachments.length}个): ` + deliverableAttachments.map(a => a.name).join(', ')
+          : '';
 
         // 自动将交付件提交作为一条证据链留档
         db.comments.push({
@@ -218,7 +234,9 @@ export async function toggleTaskStatus(
           task_id: task.id,
           parent_id: null,
           author: task.owner || '负责人',
-          content: `【交付件归档】${deliverableSubmission.trim()}`,
+          content: `【交付件归档】${task.deliverable_submission}${attachmentDesc}`,
+          image_url: firstImg ? firstImg.url : null,
+          attachments: deliverableAttachments,
           created_at: now,
         });
 
@@ -226,8 +244,12 @@ export async function toggleTaskStatus(
           `- 任务状态: pending (进行中)`,
           `+ 任务状态: done (已完成${diffTag})`,
           `+ 实际完成日: ${now.split('T')[0]}`,
-          `+ 交付成果与验收结论: ${deliverableSubmission.trim()}`,
+          `+ 交付成果与验收结论: ${task.deliverable_submission}`,
         ];
+        if (deliverableAttachments && deliverableAttachments.length > 0) {
+          diffLines.push(`+ 归档附件: ${deliverableAttachments.map(a => a.name).join(', ')}`);
+        }
+
         recordActivity(db, {
           project_id: rootId,
           node_id: task.node_id,
@@ -236,6 +258,8 @@ export async function toggleTaskStatus(
           title: `${task.owner} 提交了交付件并完成了「${task.name}」${diffTag}`,
           detail: diffLines.join('\n'),
           author: task.owner,
+          image_url: firstImg ? firstImg.url : null,
+          attachments: deliverableAttachments,
         });
       } else {
         const diffLines = [
@@ -243,6 +267,10 @@ export async function toggleTaskStatus(
           `+ 任务状态: done (已完成${diffTag})`,
           `+ 实际完成日: ${now.split('T')[0]}`,
         ];
+        if (deliverableAttachments && deliverableAttachments.length > 0) {
+          diffLines.push(`+ 交付附件: ${deliverableAttachments.map(a => a.name).join(', ')}`);
+        }
+
         recordActivity(db, {
           project_id: rootId,
           node_id: task.node_id,
@@ -251,6 +279,7 @@ export async function toggleTaskStatus(
           title: `${task.owner} 勾选完成了任务「${task.name}」${diffTag}`,
           detail: diffLines.join('\n'),
           author: task.owner,
+          attachments: deliverableAttachments,
         });
       }
     } else {

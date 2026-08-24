@@ -1,9 +1,25 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { CommentWithReplies } from '@/lib/types';
+import React, { useState, useEffect, useRef } from 'react';
+import { CommentWithReplies, FileAttachment, AttachmentType } from '@/lib/types';
 import { formatBeijingDateTime } from '@/lib/date-utils';
-import { X, MessageSquare, CornerDownRight, Send, User, Clock, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { AttachmentPreviewModal } from './AttachmentPreviewModal';
+import {
+  X,
+  MessageSquare,
+  CornerDownRight,
+  Send,
+  User,
+  Clock,
+  Image as ImageIcon,
+  Loader2,
+  Paperclip,
+  FileCode,
+  FileText,
+  Trash2,
+  Eye,
+  Plus,
+} from 'lucide-react';
 
 interface CommentDrawerProps {
   isOpen: boolean;
@@ -30,13 +46,17 @@ export function CommentDrawer({
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 七牛云上传状态
+  // 附件上传与列表
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [uploadedAttachments, setUploadedAttachments] = useState<FileAttachment[]>([]);
   const [isDragActive, setIsDragActive] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
-  // 全屏预览状态 (Lightbox)
-  const [selectedFullImage, setSelectedFullImage] = useState<string | null>(null);
+  // 统一在线预览状态
+  const [previewAttachment, setPreviewAttachment] = useState<FileAttachment | null>(null);
+  const [previewAttachmentList, setPreviewAttachmentList] = useState<FileAttachment[]>([]);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     let ignore = false;
@@ -70,7 +90,6 @@ export function CommentDrawer({
     };
   }, [isOpen, nodeId, taskId]);
 
-  // 处理拖拽
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragActive(true);
@@ -85,51 +104,87 @@ export function CommentDrawer({
     setIsDragActive(false);
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
-      await uploadToQiniu(files[0]);
+      await uploadFiles(files);
     }
   };
 
-  // 服务端代理上传图片到七牛云
-  const uploadToQiniu = async (file: File) => {
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      alert('⚠️ 请选择有效的图片文件！');
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      alert('⚠️ 图片大小不能超过 5MB！');
-      return;
-    }
+  // 服务端代理上传文件（图片/MD/PDF）到七牛云
+  const uploadFiles = async (files: FileList | File[]) => {
+    if (!files || files.length === 0) return;
 
     setIsUploading(true);
+    setUploadError(null);
     try {
-      const formData = new FormData();
-      formData.append('file', file);
+      const uploadPromises = Array.from(files).map(async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
 
-      const res = await fetch('/api/qiniu/upload', {
-        method: 'POST',
-        body: formData,
+        const res = await fetch('/api/qiniu/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        let data: any;
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          data = await res.json();
+        } else {
+          const text = await res.text();
+          throw new Error(`服务器响应异常 (${res.status}): ${text.slice(0, 100)}`);
+        }
+
+        if (!data.ok) {
+          throw new Error(data.error || `上传「${file.name}」失败`);
+        }
+        const newAttachment: FileAttachment = {
+          id: `att_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+          name: data.name || file.name,
+          url: data.url,
+          type: (data.type as AttachmentType) || 'other',
+          size: data.size || file.size,
+          uploaded_at: new Date().toISOString(),
+        };
+        return newAttachment;
       });
 
-      const data = await res.json();
-      if (data.ok && data.url) {
-        setUploadedImageUrl(data.url);
-      } else {
-        alert(data.error || '图片上传失败，请重试');
-      }
-    } catch (err) {
-      console.error('Qiniu upload error:', err);
-      alert('上传异常，请检查后端七牛云配置');
+      const results = await Promise.all(uploadPromises);
+      setUploadedAttachments((prev) => [...prev, ...results]);
+    } catch (err: any) {
+      console.error('Upload attachments error:', err);
+      setUploadError(err.message || '上传异常，请重试');
     } finally {
       setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      await uploadToQiniu(files[0]);
+  const handleRemoveAttachment = (id: string) => {
+    setUploadedAttachments((prev) => prev.filter((a) => a.id !== id));
+  };
+
+  const getFormatIcon = (type: AttachmentType) => {
+    switch (type) {
+      case 'image':
+        return <ImageIcon className="h-3.5 w-3.5 text-sky-500" />;
+      case 'md':
+        return <FileCode className="h-3.5 w-3.5 text-emerald-500" />;
+      case 'pdf':
+        return <FileText className="h-3.5 w-3.5 text-rose-500" />;
+      default:
+        return <FileText className="h-3.5 w-3.5 text-zinc-500" />;
     }
+  };
+
+  const formatFileSize = (bytes?: number) => {
+    if (!bytes) return '';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const openPreview = (att: FileAttachment, list?: FileAttachment[]) => {
+    setPreviewAttachment(att);
+    setPreviewAttachmentList(list || [att]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -147,16 +202,18 @@ export function CommentDrawer({
           parentId: replyParentId || undefined,
           author: author.trim(),
           content: content.trim(),
-          imageUrl: uploadedImageUrl || undefined, // 传递已上传的七牛 URL
+          imageUrl: uploadedAttachments.find((a) => a.type === 'image')?.url || undefined,
+          attachments: uploadedAttachments.length > 0 ? uploadedAttachments : undefined,
         }),
       });
       const data = await res.json();
       if (data.ok && data.data) {
         setComments(data.data.comments);
         setContent('');
-        setUploadedImageUrl(null); // 清空图片
+        setUploadedAttachments([]);
         setReplyParentId(null);
         setReplyParentAuthor(null);
+        setUploadError(null);
       }
     } catch (err) {
       console.error('Submit comment error:', err);
@@ -172,22 +229,22 @@ export function CommentDrawer({
       <div className="fixed inset-0 z-50 flex justify-end bg-zinc-900/40 backdrop-blur-xs animate-in fade-in duration-200">
         <div
           id="comment-drawer"
-          className="flex h-full w-full max-w-md flex-col bg-white shadow-2xl border-l border-zinc-200 animate-in slide-in-from-right duration-200"
+          className="flex h-full w-full max-w-lg flex-col bg-white shadow-2xl border-l border-zinc-200 animate-in slide-in-from-right duration-200"
         >
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-zinc-150 p-4">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-zinc-700">
+          <div className="flex items-center justify-between border-b border-zinc-150 p-4 shrink-0">
+            <div className="flex items-center gap-2 min-w-0 pr-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-zinc-700 shrink-0">
                 <MessageSquare className="h-4 w-4" />
               </div>
-              <div>
-                <h3 className="font-bold text-zinc-900 text-sm">{title}</h3>
-                {subtitle && <p className="text-xs text-zinc-500">{subtitle}</p>}
+              <div className="min-w-0">
+                <h3 className="font-bold text-zinc-900 text-sm truncate">{title}</h3>
+                {subtitle && <p className="text-xs text-zinc-500 truncate">{subtitle}</p>}
               </div>
             </div>
             <button
               onClick={onClose}
-              className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
+              className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 shrink-0"
             >
               <X className="h-5 w-5" />
             </button>
@@ -204,78 +261,101 @@ export function CommentDrawer({
                 <MessageSquare className="h-8 w-8 text-zinc-300 mb-2" />
                 <p className="text-xs font-medium text-zinc-700">暂无流转记录与评价留档</p>
                 <p className="text-[11px] text-zinc-400 mt-1 max-w-[260px]">
-                  在此记录进展、风险、决策依据，支持上传图片存证，永久归档
+                  在此记录进展、风险、决策依据，支持上传图片、Markdown、PDF 文档存证
                 </p>
               </div>
             ) : (
-              comments.map((cmt) => (
-                <div key={cmt.id} className="space-y-2">
-                  <div className="rounded-xl border border-zinc-200/80 bg-zinc-50/50 p-3 shadow-xs">
-                    <div className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-1.5 font-semibold text-zinc-800">
-                        <User className="h-3 w-3 text-zinc-500" />
-                        <span>{cmt.author}</span>
+              comments.map((cmt) => {
+                const allAttachments: FileAttachment[] = cmt.attachments || (
+                  cmt.image_url ? [{
+                    id: `legacy_${cmt.id}`,
+                    name: '存证凭据图片',
+                    url: cmt.image_url,
+                    type: 'image',
+                  }] : []
+                );
+
+                return (
+                  <div key={cmt.id} className="space-y-2">
+                    <div className="rounded-xl border border-zinc-200/80 bg-zinc-50/50 p-3 shadow-xs">
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-1.5 font-semibold text-zinc-800">
+                          <User className="h-3 w-3 text-zinc-500" />
+                          <span>{cmt.author}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-[11px] text-zinc-400">
+                          <Clock className="h-3 w-3" />
+                          <span>{formatBeijingDateTime(cmt.created_at)}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1 text-[11px] text-zinc-400">
-                        <Clock className="h-3 w-3" />
-                        <span>{formatBeijingDateTime(cmt.created_at)}</span>
+                      
+                      <p className="mt-2 text-xs leading-relaxed text-zinc-700 whitespace-pre-wrap">
+                        {cmt.content}
+                      </p>
+
+                      {/* 附件与图片凭据列表 */}
+                      {allAttachments.length > 0 && (
+                        <div className="mt-2.5 space-y-1.5">
+                          <div className="text-3xs font-semibold text-zinc-400 uppercase tracking-wider">
+                            相关存证附件 ({allAttachments.length})
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {allAttachments.map((att) => (
+                              <button
+                                key={att.id || att.url}
+                                type="button"
+                                onClick={() => openPreview(att, allAttachments)}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50 text-xs text-zinc-800 shadow-2xs group transition-all text-left"
+                              >
+                                <span className="shrink-0">{getFormatIcon(att.type)}</span>
+                                <span className="font-medium truncate max-w-[140px] group-hover:text-zinc-900">
+                                  {att.name}
+                                </span>
+                                {att.size && (
+                                  <span className="text-3xs text-zinc-400 shrink-0">
+                                    {formatFileSize(att.size)}
+                                  </span>
+                                )}
+                                <Eye className="h-3 w-3 text-zinc-400 group-hover:text-emerald-600 shrink-0 ml-0.5" />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="mt-2.5 flex justify-end">
+                        <button
+                          onClick={() => {
+                            setReplyParentId(cmt.id);
+                            setReplyParentAuthor(cmt.author);
+                          }}
+                          className="inline-flex items-center gap-1 text-[11px] text-blue-600 hover:text-blue-700 hover:underline"
+                        >
+                          <CornerDownRight className="h-3 w-3" />
+                          回复
+                        </button>
                       </div>
                     </div>
-                    
-                    <p className="mt-2 text-xs leading-relaxed text-zinc-700 whitespace-pre-wrap">
-                      {cmt.content}
-                    </p>
 
-                    {/* 图片预览 */}
-                    {cmt.image_url && (
-                      <div 
-                        onClick={() => setSelectedFullImage(cmt.image_url!)}
-                        className="mt-2.5 relative max-w-[220px] rounded-lg overflow-hidden border border-zinc-200/80 group cursor-zoom-in"
-                      >
-                        <img
-                          src={cmt.image_url}
-                          alt="存证凭据"
-                          className="max-h-36 object-cover w-full group-hover:scale-[1.03] transition-transform duration-250 ease-out"
-                          referrerPolicy="no-referrer"
-                        />
-                        <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-medium backdrop-blur-2xs">
-                          点击查看大图
-                        </div>
+                    {/* 嵌套回复 */}
+                    {cmt.replies && cmt.replies.length > 0 && (
+                      <div className="ml-5 space-y-2 border-l-2 border-zinc-200 pl-3">
+                        {cmt.replies.map((reply) => (
+                          <div key={reply.id} className="rounded-lg border border-zinc-200/60 bg-white p-2.5 shadow-xs">
+                            <div className="flex items-between justify-between text-xs">
+                              <span className="font-semibold text-zinc-800">{reply.author}</span>
+                              <span className="text-[10px] text-zinc-400">
+                                {formatBeijingDateTime(reply.created_at)}
+                              </span>
+                            </div>
+                            <p className="mt-1.5 text-xs text-zinc-700 whitespace-pre-wrap">{reply.content}</p>
+                          </div>
+                        ))}
                       </div>
                     )}
-
-                    <div className="mt-2.5 flex justify-end">
-                      <button
-                        onClick={() => {
-                          setReplyParentId(cmt.id);
-                          setReplyParentAuthor(cmt.author);
-                        }}
-                        className="inline-flex items-center gap-1 text-[11px] text-blue-600 hover:text-blue-700 hover:underline"
-                      >
-                        <CornerDownRight className="h-3 w-3" />
-                        回复
-                      </button>
-                    </div>
                   </div>
-
-                  {/* 嵌套回复 */}
-                  {cmt.replies && cmt.replies.length > 0 && (
-                    <div className="ml-5 space-y-2 border-l-2 border-zinc-200 pl-3">
-                      {cmt.replies.map((reply) => (
-                        <div key={reply.id} className="rounded-lg border border-zinc-200/60 bg-white p-2.5 shadow-xs">
-                          <div className="flex items-between justify-between text-xs">
-                            <span className="font-semibold text-zinc-800">{reply.author}</span>
-                            <span className="text-[10px] text-zinc-400">
-                              {formatBeijingDateTime(reply.created_at)}
-                            </span>
-                          </div>
-                          <p className="mt-1.5 text-xs text-zinc-700 whitespace-pre-wrap">{reply.content}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))
+                );
+              })
             )}
           </div>
 
@@ -285,7 +365,7 @@ export function CommentDrawer({
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-            className={`border-t border-zinc-200 bg-white p-4 space-y-3 transition-colors duration-200 ${
+            className={`border-t border-zinc-200 bg-white p-4 space-y-3 shrink-0 transition-colors duration-200 ${
               isDragActive ? 'bg-blue-50/50 border-blue-300' : ''
             }`}
           >
@@ -313,42 +393,66 @@ export function CommentDrawer({
                 onChange={(e) => setAuthor(e.target.value)}
                 className="h-8 w-1/3 rounded-lg border border-zinc-200 px-2.5 text-xs text-zinc-800 focus:border-zinc-900 focus:outline-none"
               />
-              <span className="text-[10px] text-zinc-400 flex-1 text-right">支持拖拽图片到此区域上传</span>
+              <span className="text-[10px] text-zinc-400 flex-1 text-right">支持拖拽图片/MD/PDF上传</span>
             </div>
 
-            {/* 图片上传展示 & 进度区域 */}
-            {(isUploading || uploadedImageUrl) && (
-              <div className="relative inline-flex items-center gap-3 bg-zinc-50 border border-zinc-200 rounded-xl p-2 max-w-full">
-                <div className="relative h-14 w-14 rounded-lg overflow-hidden bg-zinc-100 border border-zinc-200/80 flex items-center justify-center shrink-0">
-                  {isUploading ? (
-                    <div className="flex flex-col items-center justify-center gap-1">
-                      <Loader2 className="h-4 w-4 animate-spin text-zinc-500" />
-                      <span className="text-[9px] text-zinc-400">上传中</span>
-                    </div>
-                  ) : (
-                    <img
-                      src={uploadedImageUrl!}
-                      alt="已上传凭证"
-                      className="h-full w-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
+            {/* 隐藏的通用文件上传 input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*,.md,.markdown,text/markdown,.pdf,application/pdf"
+              onChange={(e) => {
+                if (e.target.files) uploadFiles(e.target.files);
+              }}
+              disabled={isUploading || isSubmitting}
+              className="hidden"
+            />
+
+            {/* 已上传附件展示与进度列表 */}
+            {(isUploading || uploadedAttachments.length > 0) && (
+              <div className="space-y-1.5 bg-zinc-50 border border-zinc-200 rounded-xl p-2.5">
+                <div className="flex items-center justify-between text-3xs font-medium text-zinc-500">
+                  <span>已就绪存证附件 ({uploadedAttachments.length})</span>
+                  {isUploading && (
+                    <span className="flex items-center gap-1 text-emerald-600">
+                      <Loader2 className="h-3 w-3 animate-spin" /> 上传中...
+                    </span>
                   )}
                 </div>
-                {!isUploading && (
-                  <div className="flex flex-col text-left pr-6">
-                    <span className="text-[11px] font-semibold text-emerald-600">✨ 七牛云上传成功</span>
-                    <span className="text-[9px] text-zinc-400 truncate max-w-[150px]">已生成安全公网链接</span>
-                  </div>
-                )}
-                {!isUploading && (
-                  <button
-                    type="button"
-                    onClick={() => setUploadedImageUrl(null)}
-                    className="absolute top-1 right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-zinc-500 hover:bg-zinc-600 text-white text-xs transition-colors"
-                  >
-                    ×
-                  </button>
-                )}
+                <div className="flex flex-wrap gap-1.5">
+                  {uploadedAttachments.map((att) => (
+                    <div
+                      key={att.id}
+                      className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white border border-zinc-200 text-xs shadow-2xs"
+                    >
+                      {getFormatIcon(att.type)}
+                      <span className="max-w-[110px] truncate font-medium text-zinc-700">{att.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => openPreview(att, uploadedAttachments)}
+                        className="text-zinc-400 hover:text-emerald-600 ml-0.5"
+                        title="在线预览"
+                      >
+                        <Eye className="h-3 w-3" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveAttachment(att.id)}
+                        className="text-zinc-400 hover:text-rose-600"
+                        title="移除"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {uploadError && (
+              <div className="text-xs text-rose-600 bg-rose-50 p-2 rounded-lg border border-rose-200">
+                {uploadError}
               </div>
             )}
 
@@ -357,7 +461,7 @@ export function CommentDrawer({
                 id="comment-content-input"
                 rows={2}
                 required
-                placeholder={isDragActive ? "松开鼠标即可极速上传图片凭证..." : "填写进度备注、风险说明或完成依据..."}
+                placeholder={isDragActive ? "松开鼠标即可极速上传存证文件..." : "填写进度备注、风险说明或完成依据..."}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 className="flex-1 rounded-lg border border-zinc-200 p-2 text-xs text-zinc-800 placeholder-zinc-400 focus:border-zinc-900 focus:outline-none"
@@ -372,45 +476,38 @@ export function CommentDrawer({
             </div>
 
             <div className="flex items-center justify-between gap-2 border-t border-zinc-100 pt-2">
-              <label className="flex items-center gap-1.5 cursor-pointer rounded-lg px-2 py-1 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 transition-colors">
-                <ImageIcon className="h-4 w-4 text-zinc-500" />
-                <span className="text-xs font-medium">添加凭证图片</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
+              <div className="flex items-center gap-1.5">
+                {/* 统一添加附件按钮 */}
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
                   disabled={isUploading || isSubmitting}
-                  className="hidden"
-                />
-              </label>
-              <span className="text-[10px] text-zinc-400">最大支持 5MB JPG/PNG/WEBP</span>
+                  className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-zinc-700 bg-zinc-100 hover:bg-zinc-200 transition-colors text-xs font-medium"
+                >
+                  <Paperclip className="h-3.5 w-3.5 text-zinc-500" />
+                  <span>添加附件 (图片/MD/PDF)</span>
+                </button>
+              </div>
+              <span className="text-[10px] text-zinc-400">支持多文件与拖拽</span>
             </div>
           </form>
         </div>
       </div>
 
-      {/* Lightbox 大图预览 */}
-      {selectedFullImage && (
-        <div
-          onClick={() => setSelectedFullImage(null)}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/90 backdrop-blur-md animate-in fade-in duration-200 cursor-zoom-out"
-        >
-          <div className="relative max-w-[90vw] max-h-[90vh]">
-            <img
-              src={selectedFullImage}
-              alt="存证大图原图"
-              className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl animate-in zoom-in-95 duration-200"
-              referrerPolicy="no-referrer"
-            />
-            <button
-              onClick={() => setSelectedFullImage(null)}
-              className="absolute -top-10 right-0 text-white hover:text-zinc-300 text-xs font-semibold bg-zinc-900/40 px-3.5 py-1.5 rounded-full backdrop-blur-md"
-            >
-              关闭
-            </button>
-          </div>
-        </div>
+      {/* 统一在线预览模态框 */}
+      {previewAttachment && (
+        <AttachmentPreviewModal
+          isOpen={!!previewAttachment}
+          attachment={previewAttachment}
+          attachmentList={previewAttachmentList}
+          onSelectAttachment={(att) => setPreviewAttachment(att)}
+          onClose={() => {
+            setPreviewAttachment(null);
+            setPreviewAttachmentList([]);
+          }}
+        />
       )}
     </>
   );
 }
+

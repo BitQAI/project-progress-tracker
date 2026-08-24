@@ -2,6 +2,17 @@ export type ProjectStatus = 'unstarted' | 'in_progress' | 'suspended' | 'done';
 export type TaskStatus = 'pending' | 'done';
 export type ProjectPriority = 'P0' | 'P1' | 'P2' | 'P3';
 
+export type AttachmentType = 'image' | 'md' | 'pdf' | 'other';
+
+export interface FileAttachment {
+  id: string;
+  name: string;
+  url: string;
+  type: AttachmentType;
+  size?: number;
+  uploaded_at?: string;
+}
+
 export interface DbNode {
   id: string;
   parent_id: string | null;
@@ -35,6 +46,7 @@ export interface DbTask {
   deliverable_items?: DeliverableItem[];
   deliverable_submission?: string | null;
   deliverable_submitted_at?: string | null;
+  deliverable_attachments?: FileAttachment[];
   done_at: string | null;
   created_at: string;
 }
@@ -69,6 +81,7 @@ export interface DbComment {
   content: string;
   created_at: string;
   image_url?: string | null;
+  attachments?: FileAttachment[];
 }
 
 export interface CommentWithReplies extends DbComment {
@@ -98,6 +111,7 @@ export interface DbActivityLog {
   author: string;
   timestamp: string;
   image_url?: string | null;
+  attachments?: FileAttachment[];
 }
 
 export interface AppDatabase {
@@ -130,6 +144,7 @@ export interface ProjectActivityItem {
   author: string;
   timestamp: string;
   image_url?: string | null;
+  attachments?: FileAttachment[];
 }
 
 export interface NodeTreeNode extends DbNode {

@@ -7,7 +7,17 @@ export async function POST(req: NextRequest) {
   try {
     await ensureDbLoaded();
     const body = await req.json();
-    const { nodeId, name, owner, dueDate, hasDeliverable, deliverableRequirement, estimatedDuration, deliverableItems } = body;
+    const {
+      nodeId,
+      name,
+      owner,
+      dueDate,
+      hasDeliverable,
+      deliverableRequirement,
+      estimatedDuration,
+      deliverableItems,
+      deliverableAttachments,
+    } = body;
     if (!nodeId || !name?.trim() || !owner?.trim()) {
       return NextResponse.json({ ok: false, error: '节点ID、任务名称与负责人均不能为空' }, { status: 400 });
     }
@@ -19,7 +29,8 @@ export async function POST(req: NextRequest) {
       hasDeliverable,
       deliverableRequirement,
       estimatedDuration,
-      deliverableItems
+      deliverableItems,
+      deliverableAttachments
     );
     return NextResponse.json({ ok: true, data: { id: taskId } });
   } catch (error: any) {
@@ -45,6 +56,7 @@ export async function PUT(req: NextRequest) {
       estimatedDuration,
       deliverableItems,
       changeReason,
+      deliverableAttachments,
     } = body;
     if (!id || !name?.trim() || !owner?.trim()) {
       return NextResponse.json({ ok: false, error: '任务ID、名称与负责人均不能为空' }, { status: 400 });
@@ -61,7 +73,8 @@ export async function PUT(req: NextRequest) {
       status,
       estimatedDuration,
       deliverableItems,
-      changeReason
+      changeReason,
+      deliverableAttachments
     );
     return NextResponse.json({ ok: true });
   } catch (error: any) {
@@ -74,11 +87,11 @@ export async function PATCH(req: NextRequest) {
   try {
     await ensureDbLoaded();
     const body = await req.json();
-    const { id, status, deliverableSubmission, doneAt } = body;
+    const { id, status, deliverableSubmission, doneAt, deliverableAttachments } = body;
     if (!id || !status || !['pending', 'done'].includes(status)) {
       return NextResponse.json({ ok: false, error: '任务ID与状态参数无效' }, { status: 400 });
     }
-    await toggleTaskStatus(id, status as TaskStatus, deliverableSubmission, doneAt);
+    await toggleTaskStatus(id, status as TaskStatus, deliverableSubmission, doneAt, deliverableAttachments);
     return NextResponse.json({ ok: true });
   } catch (error: any) {
     console.error('Toggle task status error:', error);

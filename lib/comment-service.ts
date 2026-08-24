@@ -1,6 +1,6 @@
 import { getDb, persistDb } from './db';
 import { findRootProjectId, findRootProjectIdByTask, recordActivity } from './activity-logger';
-import { DbComment, CommentWithReplies } from './types';
+import { DbComment, CommentWithReplies, FileAttachment } from './types';
 
 function generateId(prefix: string): string {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
@@ -47,10 +47,14 @@ export async function addComment(params: {
   author: string;
   content: string;
   imageUrl?: string | null;
+  attachments?: FileAttachment[];
 }): Promise<string> {
   const db = getDb();
   const id = generateId('cmt');
   const now = new Date().toISOString();
+  
+  const finalImageUrl = params.imageUrl || (params.attachments?.find(a => a.type === 'image')?.url) || null;
+
   db.comments.push({
     id,
     node_id: params.nodeId || null,
@@ -59,7 +63,8 @@ export async function addComment(params: {
     author: params.author,
     content: params.content,
     created_at: now,
-    image_url: params.imageUrl || null,
+    image_url: finalImageUrl,
+    attachments: params.attachments && params.attachments.length > 0 ? params.attachments : undefined,
   });
 
   let rootId = '';
@@ -78,6 +83,8 @@ export async function addComment(params: {
       title: `${params.author} 发布了进展备注与证据链`,
       detail: params.content,
       author: params.author,
+      image_url: finalImageUrl,
+      attachments: params.attachments,
     });
   }
 

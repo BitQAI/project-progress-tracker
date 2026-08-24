@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { NodeTreeNode, TaskStatus, ProjectStatus, DbTask, DeliverableItem, ProjectPriority } from '@/lib/types';
+import { NodeTreeNode, TaskStatus, ProjectStatus, DbTask, DeliverableItem, ProjectPriority, FileAttachment } from '@/lib/types';
 import { TreeNodeItem } from './TreeNodeItem';
 import { CommentDrawer } from './CommentDrawer';
 import { ConfirmDialog } from './ConfirmDialog';
@@ -76,7 +76,12 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
     }
   };
 
-  const handleSubmitDeliverableSuccess = async (taskId: string, submissionText: string, doneDate: string) => {
+  const handleSubmitDeliverableSuccess = async (
+    taskId: string,
+    submissionText: string,
+    doneDate: string,
+    attachments?: FileAttachment[]
+  ) => {
     try {
       await fetch('/api/tasks', {
         method: 'PATCH',
@@ -86,6 +91,7 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
           status: 'done',
           deliverableSubmission: submissionText,
           doneAt: doneDate,
+          deliverableAttachments: attachments,
         }),
       });
       reloadTree();

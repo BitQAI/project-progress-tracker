@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   try {
     await ensureDbLoaded();
     const body = await req.json();
-    const { nodeId, taskId, parentId, author, content, imageUrl } = body;
+    const { nodeId, taskId, parentId, author, content, imageUrl, attachments } = body;
 
     if (!author?.trim() || !content?.trim()) {
       return NextResponse.json({ ok: false, error: '姓名/称呼与评论内容不能为空' }, { status: 400 });
@@ -41,6 +41,7 @@ export async function POST(req: NextRequest) {
       author: author.trim(),
       content: content.trim(),
       imageUrl: imageUrl || undefined,
+      attachments: attachments || undefined,
     });
 
     const updatedComments = await getComments({ nodeId, taskId });
