@@ -68,19 +68,38 @@ export async function addComment(params: {
   });
 
   let rootId = '';
+  let targetName = '相应项';
+  let isTask = false;
   if (params.taskId) {
-    rootId = findRootProjectIdByTask(db, params.taskId).projectId;
+    const rootInfo = findRootProjectIdByTask(db, params.taskId);
+    rootId = rootInfo.projectId;
+    if (rootInfo.task) {
+      targetName = rootInfo.task.name;
+      isTask = true;
+    }
   } else if (params.nodeId) {
     rootId = findRootProjectId(db, params.nodeId);
+    const node = db.nodes.find((n) => n.id === params.nodeId);
+    if (node) {
+      targetName = node.name;
+    }
   }
 
   if (rootId) {
+    const hasAttachments = !!(finalImageUrl || (params.attachments && params.attachments.length > 0));
+    let title = '';
+    if (hasAttachments) {
+      title = `“最新进展”发布了「${targetName}」${isTask ? '任务' : ''}的进展备注与证据链`;
+    } else {
+      title = `“最新动态”记录了「${targetName}」${isTask ? '任务' : ''}关键业务进展与工作指示`;
+    }
+
     recordActivity(db, {
       project_id: rootId,
       node_id: params.nodeId,
       task_id: params.taskId,
       type: 'comment_added',
-      title: `${params.author} 发布了进展备注与证据链`,
+      title,
       detail: params.content,
       author: params.author,
       image_url: finalImageUrl,
@@ -88,6 +107,6 @@ export async function addComment(params: {
     });
   }
 
-  persistDb();
+  await persistDb();
   return id;
 }

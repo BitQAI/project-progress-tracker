@@ -53,7 +53,7 @@ export async function createProjectFromScratch(
     author: owner,
   });
 
-  persistDb();
+  await persistDb();
   return id;
 }
 
@@ -134,7 +134,7 @@ export async function createProjectFromTemplate(
     author: owner,
   });
 
-  persistDb();
+  await persistDb();
   return rootId;
 }
 
@@ -158,7 +158,7 @@ export async function updateProjectStatus(projectId: string, status: ProjectStat
       title: `${node.owner} 将项目状态调整为「${statusText}」`,
       author: node.owner,
     });
-    persistDb();
+    await persistDb();
   }
 }
 
@@ -176,7 +176,7 @@ export async function updateProjectPriority(projectId: string, priority: Project
       detail: `- 优先级: ${oldPriority}\n+ 优先级: ${priority}`,
       author: node.owner,
     });
-    persistDb();
+    await persistDb();
   }
 }
 
@@ -226,7 +226,7 @@ export async function addNode(
     author: owner,
   });
 
-  persistDb();
+  await persistDb();
   return id;
 }
 
@@ -304,7 +304,7 @@ export async function updateNode(
       }
     }
 
-    persistDb();
+    await persistDb();
   }
 }
 
@@ -347,7 +347,7 @@ export async function deleteNodeCascading(nodeId: string): Promise<void> {
   // 删除节点
   db.nodes = db.nodes.filter((n) => !subtreeIds.has(n.id));
 
-  persistDb();
+  await persistDb();
 }
 
 // Re-export task, comment and template services for convenience

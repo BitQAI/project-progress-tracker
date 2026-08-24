@@ -272,8 +272,9 @@ export async function syncLocalStateToSupabase(sourceDb: AppDatabase): Promise<{
 /**
  * 异步从 Supabase 关系表中加载或自动平铺迁移
  */
-export async function ensureDbLoaded(): Promise<AppDatabase> {
-  if (inMemoryDb) {
+export async function ensureDbLoaded(forceReload = false): Promise<AppDatabase> {
+  // 在 Vercel 环境下，为了保证不同 Serverless 容器和请求之间的数据 100% 实时同步，我们绕过 inMemoryDb 缓存，每次都从 Supabase 重新加载最新数据
+  if (inMemoryDb && !forceReload && !process.env.VERCEL) {
     if (!inMemoryDb.activities) inMemoryDb.activities = [];
     return inMemoryDb;
   }
@@ -535,7 +536,7 @@ async function triggerSupabaseSync(): Promise<void> {
 /**
  * 支持关系型表更新及快照备份的持久化函数
  */
-export function persistDb(): void {
+export async function persistDb(): Promise<void> {
   if (!inMemoryDb) return;
 
   // 1. 同步保存本地文件系统备份
@@ -543,15 +544,16 @@ export function persistDb(): void {
 
   // 2. 队列式安全向 Supabase 关系表同步增量与全量状态
   if (supabase) {
-    triggerSupabaseSync();
+    if (process.env.VERCEL) {
+      // 在 Vercel 环境下，直接同步并等待完成，防止 Serverless 进程被冷冻
+      await syncLocalStateToSupabase(inMemoryDb);
+    } else {
+      await triggerSupabaseSync();
+    }
   }
 }
 
 export async function persistDbAsync(): Promise<void> {
-  if (!inMemoryDb) return;
-  persistDbLocalSync();
-  if (supabase) {
-    await triggerSupabaseSync();
-  }
+  await persistDb();
 }
 

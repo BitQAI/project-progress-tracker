@@ -67,7 +67,7 @@ export async function addTask(
     author: owner,
   });
 
-  persistDb();
+  await persistDb();
   return id;
 }
 
@@ -176,7 +176,7 @@ export async function updateTask(
       }
     }
 
-    persistDb();
+    await persistDb();
   }
 }
 
@@ -309,7 +309,7 @@ export async function toggleTaskStatus(
         author: task.owner,
       });
     }
-    persistDb();
+    await persistDb();
   }
 }
 
@@ -337,5 +337,5 @@ export async function deleteTask(taskId: string): Promise<void> {
 
   db.comments = db.comments.filter((c) => c.task_id !== taskId);
   db.tasks = db.tasks.filter((t) => t.id !== taskId);
-  persistDb();
+  await persistDb();
 }

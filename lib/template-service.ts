@@ -70,7 +70,7 @@ export async function createTemplate(
     });
   });
 
-  persistDb();
+  await persistDb();
   return tplId;
 }
 
@@ -83,5 +83,5 @@ export async function deleteTemplate(templateId: string): Promise<void> {
   db.templateStages = db.templateStages.filter((s) => s.template_id !== templateId);
   db.templates = db.templates.filter((t) => t.id !== templateId);
 
-  persistDb();
+  await persistDb();
 }

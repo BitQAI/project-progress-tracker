@@ -17,6 +17,8 @@ import {
   Loader2,
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 import { FileAttachment, AttachmentType } from '@/lib/types';
 
 interface AttachmentPreviewModalProps {
@@ -72,7 +74,12 @@ function AttachmentPreviewModalContent({
     let ignore = false;
     if (!isMd) return;
 
-    fetch(attachment.url)
+    // 使用服务端代理以规避浏览器 CORS 跨域限制及沙箱网络隔离问题
+    const fetchUrl = attachment.url.startsWith('data:')
+      ? attachment.url
+      : `/api/proxy?url=${encodeURIComponent(attachment.url)}`;
+
+    fetch(fetchUrl)
       .then((res) => {
         if (!res.ok) throw new Error(`无法获取 Markdown 内容 (${res.status})`);
         return res.text();
@@ -284,9 +291,9 @@ function AttachmentPreviewModalContent({
                   {mdContent || '（空文档）'}
                 </pre>
               ) : (
-                <article className="prose prose-zinc max-w-none prose-headings:font-bold prose-h1:text-xl prose-h2:text-lg prose-h3:text-base prose-p:text-sm prose-p:leading-relaxed prose-li:text-sm prose-code:text-emerald-700 prose-code:bg-emerald-50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none prose-pre:bg-zinc-900 prose-pre:text-zinc-100 prose-table:text-sm">
-                  <ReactMarkdown>{mdContent || '（空文档）'}</ReactMarkdown>
-                </article>
+                <div className="markdown-body prose max-w-none">
+                  <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>{mdContent || '（空文档）'}</ReactMarkdown>
+                </div>
               )}
             </div>
           )}

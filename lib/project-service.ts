@@ -494,14 +494,38 @@ function getProjectRecentActivities(
     const actId = `act_cmt_${c.id}`;
     if (!seenIds.has(actId) && !activities.some((a) => a.detail === c.content)) {
       seenIds.add(actId);
+      let targetName = '相应项';
+      let isTask = false;
+      if (c.task_id) {
+        const task = db.tasks.find((t) => t.id === c.task_id);
+        if (task) {
+          targetName = task.name;
+          isTask = true;
+        }
+      } else if (c.node_id) {
+        const node = db.nodes.find((n) => n.id === c.node_id);
+        if (node) {
+          targetName = node.name;
+        }
+      }
+
+      const hasAttachments = !!(c.image_url || (c.attachments && c.attachments.length > 0));
+      let title = '';
+      if (hasAttachments) {
+        title = `“最新进展”发布了「${targetName}」${isTask ? '任务' : ''}的进展备注与证据链`;
+      } else {
+        title = `“最新动态”记录了「${targetName}」${isTask ? '任务' : ''}关键业务进展与工作指示`;
+      }
+
       activities.push({
         id: actId,
         type: 'comment_added',
-        title: `${c.author} 记录了进展备注与证据链`,
+        title,
         detail: c.content,
         author: c.author,
         timestamp: c.created_at,
         image_url: c.image_url || null,
+        attachments: c.attachments || [],
       });
     }
   }
