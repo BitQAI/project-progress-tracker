@@ -78,10 +78,11 @@ export function TreeNodeItem({
   onOpenNodeComments,
   onOpenTaskComments,
 }: TreeNodeItemProps) {
-  // 默认情况下收起各分组（顶层项目保持展开，子分组默认收起）
-  const [isOpen, setIsOpen] = useState(depth === 0);
-  // 默认任务列表是收起状态
-  const [showTasks, setShowTasks] = useState(false);
+  // 默认展开逻辑：仅进度在 0% ~ 100% 之间（即进行中）的分组和任务才会默认展开
+  const isBetween0And100 = node.progressPercent > 0 && node.progressPercent < 100;
+  const [isOpen, setIsOpen] = useState(isBetween0And100);
+  // 仅进度在 0% ~ 100% 之间的分组，其任务列表才会默认展开
+  const [showTasks, setShowTasks] = useState(isBetween0And100);
   const [showAddSubNode, setShowAddSubNode] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
   const [isEditingNode, setIsEditingNode] = useState(false);
@@ -154,10 +155,16 @@ export function TreeNodeItem({
             : 'border-zinc-200/80 bg-white hover:border-zinc-300 hover:shadow-2xs my-1'
         }`}
       >
-        <div className="flex items-center gap-2 flex-1 min-w-0">
+        <div
+          className="flex items-center gap-2 flex-1 min-w-0 cursor-pointer select-none"
+          onClick={() => setIsOpen(!isOpen)}
+        >
           <button
             type="button"
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsOpen(!isOpen);
+            }}
             className="flex h-6 w-6 items-center justify-center rounded text-zinc-500 hover:bg-zinc-200/70 shrink-0"
             title={isOpen ? '收起分组' : '展开分组'}
           >

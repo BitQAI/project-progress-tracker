@@ -77,7 +77,12 @@ export function GanttLeftTree({
             >
               {/* 左侧层级缩进与展开图标 */}
               <div
-                className="flex flex-1 items-center min-w-0 pr-2"
+                className={`flex flex-1 items-center min-w-0 pr-2 ${item.hasChildren ? 'cursor-pointer' : ''}`}
+                onClick={() => {
+                  if (item.hasChildren) {
+                    onToggleCollapse(item.id);
+                  }
+                }}
                 style={{ paddingLeft: `${item.depth * 14}px` }}
               >
                 {item.hasChildren ? (

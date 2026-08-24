@@ -32,7 +32,21 @@ export function GanttChart({
   onRequestSubmitDeliverable,
   onUpdateTask,
 }: GanttChartProps) {
-  const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
+  const [collapsedIds, setCollapsedIds] = useState<Set<string>>(() => {
+    // 默认分组 100% 和 0% 的都收起，只展开 0% 到 100% 之间的分组
+    const initialCollapsed = new Set<string>();
+    function collectCollapsed(n: NodeTreeNode) {
+      const hasChildren = (n.children && n.children.length > 0) || (n.tasks && n.tasks.length > 0);
+      if (hasChildren) {
+        if (n.progressPercent === 0 || n.progressPercent === 100) {
+          initialCollapsed.add(n.id);
+        }
+      }
+      n.children?.forEach(collectCollapsed);
+    }
+    collectCollapsed(tree);
+    return initialCollapsed;
+  });
   const [viewMode, setViewMode] = useState<GanttViewMode>('day');
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
   const [hideUnscheduled, setHideUnscheduled] = useState(false);
