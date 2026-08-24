@@ -312,23 +312,36 @@ export async function ensureDbLoaded(): Promise<AppDatabase> {
               due_date: n.due_date,
               created_at: n.created_at,
             })),
-            tasks: (tasksRes.data || []).map((t) => ({
-              id: t.id,
-              node_id: t.node_id,
-              name: t.name,
-              owner: t.owner,
-              due_date: t.due_date,
-              estimated_duration: t.estimated_duration,
-              status: t.status,
-              has_deliverable: t.has_deliverable,
-              deliverable_requirement: t.deliverable_requirement,
-              deliverable_items: t.deliverable_items,
-              deliverable_submission: t.deliverable_submission,
-              deliverable_submitted_at: t.deliverable_submitted_at,
-              deliverable_attachments: t.deliverable_attachments || [],
-              done_at: t.done_at,
-              created_at: t.created_at,
-            })),
+            tasks: (tasksRes.data || []).map((t) => {
+              let deliverable_attachments = Array.isArray(t.deliverable_attachments)
+                ? t.deliverable_attachments
+                : [];
+              if (typeof t.deliverable_attachments === 'string') {
+                try {
+                  deliverable_attachments = JSON.parse(t.deliverable_attachments);
+                } catch {
+                  deliverable_attachments = [];
+                }
+              }
+
+              return {
+                id: t.id,
+                node_id: t.node_id,
+                name: t.name,
+                owner: t.owner,
+                due_date: t.due_date,
+                estimated_duration: t.estimated_duration,
+                status: t.status,
+                has_deliverable: t.has_deliverable,
+                deliverable_requirement: t.deliverable_requirement,
+                deliverable_items: t.deliverable_items,
+                deliverable_submission: t.deliverable_submission,
+                deliverable_submitted_at: t.deliverable_submitted_at,
+                deliverable_attachments,
+                done_at: t.done_at,
+                created_at: t.created_at,
+              };
+            }),
             templates: (tplsRes.data || []).map((tpl) => ({
               id: tpl.id,
               name: tpl.name,
@@ -347,33 +360,112 @@ export async function ensureDbLoaded(): Promise<AppDatabase> {
               name: d.name,
               order: d.order_num,
             })),
-            comments: (cmtsRes.data || []).map((c) => ({
-              id: c.id,
-              node_id: c.node_id,
-              task_id: c.task_id,
-              parent_id: c.parent_id,
-              author: c.author,
-              content: c.content,
-              created_at: c.created_at,
-              image_url: c.image_url || null,
-              attachments: c.attachments || [],
-            })),
-            activities: (actsRes.data || []).map((a) => ({
-              id: a.id,
-              project_id: a.project_id,
-              node_id: a.node_id,
-              task_id: a.task_id,
-              type: a.type,
-              title: a.title,
-              detail: a.detail,
-              author: a.author,
-              timestamp: a.timestamp,
-              image_url: a.image_url || null,
-              attachments: a.attachments || [],
-            })),
+            comments: (cmtsRes.data || []).map((c) => {
+              let attachments = Array.isArray(c.attachments) ? c.attachments : [];
+              if (typeof c.attachments === 'string') {
+                try {
+                  attachments = JSON.parse(c.attachments);
+                } catch {
+                  attachments = [];
+                }
+              }
+
+              // 兼容历史存量数据：如果 attachments 为空但存在 image_url，自动合成标准附件结构
+              if ((!attachments || attachments.length === 0) && c.image_url) {
+                const nameMatch = c.content?.match(/附带文件[^\n:]*:\s*([^\n,]+)/);
+                attachments = [
+                  {
+                    id: `att_${c.id}`,
+                    name: nameMatch ? nameMatch[1].trim() : '存证凭据图片.png',
+                    url: c.image_url,
+                    type: 'image',
+                    uploaded_at: c.created_at || new Date().toISOString(),
+                  },
+                ];
+              }
+
+              const finalImageUrl =
+                c.image_url ||
+                attachments.find((a: any) => a.type === 'image')?.url ||
+                null;
+
+              return {
+                id: c.id,
+                node_id: c.node_id,
+                task_id: c.task_id,
+                parent_id: c.parent_id,
+                author: c.author,
+                content: c.content,
+                created_at: c.created_at,
+                image_url: finalImageUrl,
+                attachments,
+              };
+            }),
+            activities: (actsRes.data || []).map((a) => {
+              let attachments = Array.isArray(a.attachments) ? a.attachments : [];
+              if (typeof a.attachments === 'string') {
+                try {
+                  attachments = JSON.parse(a.attachments);
+                } catch {
+                  attachments = [];
+                }
+              }
+              return {
+                id: a.id,
+                project_id: a.project_id,
+                node_id: a.node_id,
+                task_id: a.task_id,
+                type: a.type,
+                title: a.title,
+                detail: a.detail,
+                author: a.author,
+                timestamp: a.timestamp,
+                image_url: a.image_url || null,
+                attachments,
+              };
+            }),
           };
 
+          // 核心对齐与补全机制：如果任务的 deliverable_attachments 为空，但关联的证据链评论（如交付件归档）中包含附件或图片，自动对齐到任务上
+          let hasAutoReconciled = false;
+          inMemoryDb.tasks.forEach((task) => {
+            if (!task.deliverable_attachments || task.deliverable_attachments.length === 0) {
+              const taskComments = (inMemoryDb?.comments || []).filter((c) => c.task_id === task.id);
+              const recoveredAttachments: any[] = [];
+
+              taskComments.forEach((c) => {
+                if (c.attachments && c.attachments.length > 0) {
+                  c.attachments.forEach((att: any) => {
+                    if (!recoveredAttachments.some((a) => a.url === att.url)) {
+                      recoveredAttachments.push(att);
+                    }
+                  });
+                } else if (c.image_url) {
+                  if (!recoveredAttachments.some((a) => a.url === c.image_url)) {
+                    const nameMatch = c.content?.match(/附带文件[^\n:]*:\s*([^\n,]+)/);
+                    recoveredAttachments.push({
+                      id: `att_${c.id}`,
+                      name: nameMatch ? nameMatch[1].trim() : '存证凭据图片.png',
+                      url: c.image_url,
+                      type: 'image',
+                      uploaded_at: c.created_at,
+                    });
+                  }
+                }
+              });
+
+              if (recoveredAttachments.length > 0) {
+                task.deliverable_attachments = recoveredAttachments;
+                task.has_deliverable = true;
+                hasAutoReconciled = true;
+              }
+            }
+          });
+
           persistDbLocalSync();
+          if (hasAutoReconciled) {
+            triggerSupabaseSync();
+          }
           console.log(`✅ 成功从 Supabase 关系表加载数据 (共 ${inMemoryDb.nodes.length} 个节点)`);
           return inMemoryDb;
         } else {

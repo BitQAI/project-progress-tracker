@@ -218,8 +218,18 @@ export async function toggleTaskStatus(
         task.deliverable_attachments = deliverableAttachments;
       }
 
-      if (task.has_deliverable && (deliverableSubmission || (deliverableAttachments && deliverableAttachments.length > 0))) {
-        task.deliverable_submission = deliverableSubmission ? deliverableSubmission.trim() : (task.deliverable_submission || '交付物已归档');
+      const hasSubmissionContent =
+        (deliverableSubmission && deliverableSubmission.trim().length > 0) ||
+        (deliverableAttachments && deliverableAttachments.length > 0);
+
+      if (hasSubmissionContent) {
+        task.has_deliverable = true;
+      }
+
+      if (task.has_deliverable && (hasSubmissionContent || task.deliverable_submission)) {
+        task.deliverable_submission = deliverableSubmission
+          ? deliverableSubmission.trim()
+          : (task.deliverable_submission || '交付物已归档');
         task.deliverable_submitted_at = now;
 
         const firstImg = deliverableAttachments?.find((a) => a.type === 'image');
@@ -236,7 +246,7 @@ export async function toggleTaskStatus(
           author: task.owner || '负责人',
           content: `【交付件归档】${task.deliverable_submission}${attachmentDesc}`,
           image_url: firstImg ? firstImg.url : null,
-          attachments: deliverableAttachments,
+          attachments: deliverableAttachments && deliverableAttachments.length > 0 ? deliverableAttachments : undefined,
           created_at: now,
         });
 

@@ -23,6 +23,7 @@ import {
   Image as ImageIcon,
   Eye,
   ExternalLink,
+  Paperclip,
 } from 'lucide-react';
 
 interface TaskItemProps {
@@ -198,6 +199,19 @@ export function TaskItem({
             </button>
           )}
 
+          {/* 附件速查徽章 */}
+          {task.deliverable_attachments && task.deliverable_attachments.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowDeliverableDetail(!showDeliverableDetail)}
+              className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium shrink-0 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200/80 transition-colors"
+              title={`点击展开附件清单 (共 ${task.deliverable_attachments.length} 个附件)`}
+            >
+              <Paperclip className="h-2.5 w-2.5" />
+              <span>{task.deliverable_attachments.length}个附件</span>
+            </button>
+          )}
+
           {/* 超期/延期提示 */}
           {isOverdue && (
             <span className="inline-flex items-center gap-1 rounded bg-red-100 border border-red-200/80 px-1.5 py-0.5 text-[10px] font-semibold text-red-700 shrink-0">
@@ -296,13 +310,13 @@ export function TaskItem({
               <span className="text-zinc-600 leading-tight">{task.deliverable_requirement}</span>
             </div>
           )}
-          {task.deliverable_submission ? (
+          {task.deliverable_submission || (task.deliverable_attachments && task.deliverable_attachments.length > 0) ? (
             <div className="space-y-1.5">
               <div className="flex items-center justify-between text-[11px] text-emerald-800 bg-emerald-50/90 px-2.5 py-1.5 rounded border border-emerald-200/80 w-full min-w-0 gap-2">
                 <div className="flex items-center gap-1.5 min-w-0 flex-1">
                   <span className="font-semibold shrink-0">已归档成果:</span>
-                  <span className="truncate break-all flex-1 min-w-0 font-medium" title={task.deliverable_submission}>
-                    {task.deliverable_submission}
+                  <span className="truncate break-all flex-1 min-w-0 font-medium" title={task.deliverable_submission || '交付件/附件已归档'}>
+                    {task.deliverable_submission || '已提交附件成果'}
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
