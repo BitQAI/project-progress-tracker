@@ -7,7 +7,7 @@ import { Check, User, Paperclip, AlertCircle, Calendar } from 'lucide-react';
 import { getTodayBeijingString } from '@/lib/date-utils';
 
 export function TaskFlowNode({ data }: NodeProps & { data: TaskNodeData }) {
-  const { task, onToggleTask, onSelectNode, direction = 'LR' } = data;
+  const { task, onToggleTask, onSelectNode, direction = 'LR', isSubtask = false } = data;
   const isTB = direction === 'TB';
 
   const isDone = task.status === 'done';
@@ -27,11 +27,13 @@ export function TaskFlowNode({ data }: NodeProps & { data: TaskNodeData }) {
   return (
     <div
       onClick={() => onSelectNode(task.id, 'task', task)}
-      className={`group relative w-[230px] cursor-pointer rounded-lg border bg-white p-2.5 shadow-2xs transition-all hover:shadow-sm ${
+      className={`group relative ${isSubtask ? 'w-[220px]' : 'w-[235px]'} cursor-pointer rounded-lg border bg-white p-2.5 shadow-2xs transition-all hover:shadow-sm ${
         isDone
           ? 'border-emerald-200 bg-emerald-50/30'
           : isOverdue
           ? 'border-rose-300 ring-1 ring-rose-200 bg-rose-50/20'
+          : isSubtask
+          ? 'border-zinc-200 bg-zinc-50/40 hover:border-zinc-300'
           : 'border-zinc-200 hover:border-zinc-300'
       }`}
     >
@@ -40,6 +42,14 @@ export function TaskFlowNode({ data }: NodeProps & { data: TaskNodeData }) {
         position={isTB ? Position.Top : Position.Left}
         className="!h-2 !w-2 !bg-zinc-400 !border-2 !border-white"
       />
+
+      {isSubtask && (
+        <div className="mb-1 flex items-center gap-1">
+          <span className="rounded bg-indigo-50 px-1.5 py-0.2 text-[9px] font-semibold text-indigo-600 border border-indigo-100/80">
+            ↳ 子任务
+          </span>
+        </div>
+      )}
 
       <div className="flex items-start gap-2">
         {/* 极简勾选框 */}
@@ -105,6 +115,12 @@ export function TaskFlowNode({ data }: NodeProps & { data: TaskNodeData }) {
           ) : null}
         </div>
       </div>
+
+      <Handle
+        type="source"
+        position={isTB ? Position.Bottom : Position.Right}
+        className="!h-2 !w-2 !bg-zinc-400 !border-2 !border-white"
+      />
     </div>
   );
 }

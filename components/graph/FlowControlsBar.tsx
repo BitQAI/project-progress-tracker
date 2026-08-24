@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Search, RotateCcw, ChevronRight, ChevronDown, MoveHorizontal, MoveVertical, Filter, ShieldAlert } from 'lucide-react';
+import { Search, RotateCcw, ChevronRight, ChevronDown, MoveHorizontal, MoveVertical, ShieldAlert, Maximize2 } from 'lucide-react';
 import { GraphFilterState, LayoutDirection } from './types';
 import { ProjectStatus, ProjectPriority } from '@/lib/types';
 
@@ -12,6 +12,7 @@ interface FlowControlsBarProps {
   onDirectionChange: (dir: LayoutDirection) => void;
   isAllExpanded: boolean;
   onToggleAll: () => void;
+  onFitView?: () => void;
   onReset: () => void;
   isLoading: boolean;
   totalNodesCount: number;
@@ -24,6 +25,7 @@ export function FlowControlsBar({
   onDirectionChange,
   isAllExpanded,
   onToggleAll,
+  onFitView,
   onReset,
   isLoading,
   totalNodesCount,
@@ -150,6 +152,19 @@ export function FlowControlsBar({
             </>
           )}
         </button>
+
+        {/* 居中视野 */}
+        {onFitView && (
+          <button
+            type="button"
+            onClick={onFitView}
+            className="flex h-8.5 items-center gap-1 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs font-medium text-zinc-700 shadow-2xs hover:bg-zinc-50 transition-colors"
+            title="居中自适应视野"
+          >
+            <Maximize2 className="h-3.5 w-3.5 text-zinc-500" />
+            <span className="hidden sm:inline">居中</span>
+          </button>
+        )}
 
         {/* 重置筛选与刷新 */}
         <button

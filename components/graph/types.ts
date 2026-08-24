@@ -32,6 +32,7 @@ export interface TaskNodeData {
   task: DbTask;
   projectId: string;
   nodeId: string;
+  isSubtask?: boolean;
   onToggleTask: (taskId: string, currentStatus: string) => void;
   onSelectNode: (taskId: string, type: 'task', data: DbTask) => void;
   direction?: LayoutDirection;

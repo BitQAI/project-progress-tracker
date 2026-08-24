@@ -179,15 +179,34 @@ function FlowInner({ initialData, onRefreshData, isLoading = false }: ProgressFl
   const [nodes, setNodes, onNodesChange] = useNodesState(layoutedNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(layoutedEdges);
 
-  // 当布局元素变化时同步至画布并平滑自适应居中
+  const isInitialMount = React.useRef(true);
+  const prevDirectionRef = React.useRef<LayoutDirection>(direction);
+
+  const handleFitView = useCallback(() => {
+    fitView({ duration: 400, padding: 0.25 });
+  }, [fitView]);
+
+  // 当布局元素变化时同步至画布。仅在首次挂载或布局方向切换时自动自适应，展开/折叠不重置用户缩放
   useEffect(() => {
     setNodes(layoutedNodes);
     setEdges(layoutedEdges);
-    const timer = setTimeout(() => {
-      fitView({ duration: 350, padding: 0.25 });
-    }, 50);
-    return () => clearTimeout(timer);
-  }, [layoutedNodes, layoutedEdges, setNodes, setEdges, fitView]);
+
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      const timer = setTimeout(() => {
+        fitView({ duration: 400, padding: 0.25 });
+      }, 60);
+      return () => clearTimeout(timer);
+    }
+
+    if (prevDirectionRef.current !== direction) {
+      prevDirectionRef.current = direction;
+      const timer = setTimeout(() => {
+        fitView({ duration: 400, padding: 0.25 });
+      }, 60);
+      return () => clearTimeout(timer);
+    }
+  }, [layoutedNodes, layoutedEdges, setNodes, setEdges, fitView, direction]);
 
   const handleReset = useCallback(() => {
     setFilter({
@@ -214,6 +233,7 @@ function FlowInner({ initialData, onRefreshData, isLoading = false }: ProgressFl
           onDirectionChange={setDirection}
           isAllExpanded={isAllExpanded}
           onToggleAll={handleToggleAll}
+          onFitView={handleFitView}
           onReset={handleReset}
           isLoading={isLoading}
           totalNodesCount={layoutedNodes.length}
