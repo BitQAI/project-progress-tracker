@@ -1,4 +1,4 @@
-import { getDb, AppDatabase } from './db';
+import { getDb, AppDatabase, persistDb } from './db';
 import {
   DbNode,
   DbTask,
@@ -281,8 +281,37 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
   };
 }
 
+export function syncAllNodeStatuses(db: AppDatabase) {
+  let changed = false;
+  for (const node of db.nodes) {
+    const subtreeIds = new Set(getSubtreeNodeIds(db, node.id));
+    const tasks = db.tasks.filter((t) => subtreeIds.has(t.node_id));
+    const completedTasks = tasks.filter((t) => t.status === 'done').length;
+    const totalTasks = tasks.length;
+    const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+    let computedStatus = node.status;
+    if (progress === 0) {
+      computedStatus = 'unstarted';
+    } else if (progress === 100) {
+      computedStatus = 'done';
+    } else if (node.status === 'unstarted' || node.status === 'done') {
+      computedStatus = 'in_progress';
+    }
+
+    if (node.status !== computedStatus) {
+      node.status = computedStatus;
+      changed = true;
+    }
+  }
+  if (changed) {
+    persistDb().catch((err) => console.error('Failed to persist auto-synced statuses:', err));
+  }
+}
+
 export async function getProjectsSummaryList(): Promise<ProjectSummary[]> {
   const db = getDb();
+  syncAllNodeStatuses(db);
   
   // 状态权重：进行中 (1) 优先于 暂停中 (2) 优先于 未开始 (3) 和 已完成 (4)
   const statusWeight = (s: string) => {
@@ -388,6 +417,7 @@ export async function getProjectsSummaryList(): Promise<ProjectSummary[]> {
 
 export async function getProjectTree(projectId: string): Promise<NodeTreeNode | null> {
   const db = getDb();
+  syncAllNodeStatuses(db);
   const rootNode = db.nodes.find((n) => n.id === projectId);
   if (!rootNode) return null;
 
@@ -397,7 +427,7 @@ export async function getProjectTree(projectId: string): Promise<NodeTreeNode | 
   const taskIds = new Set(tasks.map((t) => t.id));
 
   const tree = buildNodeTreeRecursively(db, rootNode, todayStr);
-  tree.recentActivities = getProjectRecentActivities(db, projectId, subtreeIds, taskIds, 15);
+  tree.recentActivities = getProjectRecentActivities(db, projectId, subtreeIds, taskIds, 1000);
   return tree;
 }
 
@@ -512,9 +542,9 @@ function getProjectRecentActivities(
       const hasAttachments = !!(c.image_url || (c.attachments && c.attachments.length > 0));
       let title = '';
       if (hasAttachments) {
-        title = `“最新进展”发布了「${targetName}」${isTask ? '任务' : ''}的进展备注与证据链`;
+        title = `${c.author} 记录了「${targetName}」${isTask ? '任务' : ''}的进展备注与证据链`;
       } else {
-        title = `“最新动态”记录了「${targetName}」${isTask ? '任务' : ''}关键业务进展与工作指示`;
+        title = `${c.author} 记录了「${targetName}」${isTask ? '任务' : ''}的关键业务进展与工作指示`;
       }
 
       activities.push({

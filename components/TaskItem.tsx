@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { DbTask, FileAttachment, AttachmentType } from '@/lib/types';
+import { DbTask, FileAttachment, AttachmentType, DeliverableItem } from '@/lib/types';
 import { getTodayBeijingString } from '@/lib/date-utils';
 import { AttachmentPreviewModal } from './AttachmentPreviewModal';
 import { TaskEditForm } from './TaskEditForm';
+import { AddTaskForm } from './NodeActionForms';
 import {
   CheckSquare,
   Square,
@@ -24,26 +25,45 @@ import {
   Eye,
   ExternalLink,
   Paperclip,
+  Plus,
+  CornerDownRight,
 } from 'lucide-react';
 
 interface TaskItemProps {
   task: DbTask;
+  subtasks?: DbTask[];
   onToggleStatus: (task: DbTask, newStatus: 'pending' | 'done', customDoneAt?: string) => void;
   onRequestSubmitDeliverable: (task: DbTask) => void;
   onUpdateTask: (task: DbTask, changeReason?: string) => void;
   onDeleteTask: (taskId: string, taskName?: string) => void;
   onOpenComments: (task: DbTask) => void;
+  onAddTask: (
+    nodeId: string,
+    name: string,
+    owner: string,
+    dueDate: string | undefined,
+    hasDeliverable?: boolean,
+    deliverableRequirement?: string,
+    estimatedDuration?: string,
+    deliverableItems?: DeliverableItem[],
+    parentId?: string | null
+  ) => void;
+  hideCompleted?: boolean;
 }
 
 export function TaskItem({
   task,
+  subtasks = [],
   onToggleStatus,
   onRequestSubmitDeliverable,
   onUpdateTask,
   onDeleteTask,
   onOpenComments,
+  onAddTask,
+  hideCompleted = false,
 }: TaskItemProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [isAddingSubtask, setIsAddingSubtask] = useState(false);
   const todayStr = useMemo(() => getTodayBeijingString(), []);
   const [showMenu, setShowMenu] = useState(false);
   const [showDeliverableDetail, setShowDeliverableDetail] = useState(false);
@@ -265,6 +285,18 @@ export function TaskItem({
             <MessageSquare className="h-3.5 w-3.5" />
           </button>
 
+          {/* 新增子任务按钮 */}
+          <button
+            type="button"
+            onClick={() => setIsAddingSubtask(!isAddingSubtask)}
+            className={`rounded p-1 transition-colors ${
+              isAddingSubtask ? 'text-blue-600 bg-blue-50' : 'text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700'
+            }`}
+            title="新增下级子任务"
+          >
+            <Plus className="h-3.5 w-3.5" />
+          </button>
+
           {/* 操作菜单 */}
           <div className="relative">
             <button
@@ -275,6 +307,16 @@ export function TaskItem({
             </button>
             {showMenu && (
               <div className="absolute right-0 top-6 z-20 w-24 rounded-lg border border-zinc-200 bg-white py-1 shadow-lg">
+                <button
+                  onClick={() => {
+                    setIsAddingSubtask(true);
+                    setShowMenu(false);
+                  }}
+                  className="flex w-full items-center gap-1.5 px-2.5 py-1 text-left text-xs text-zinc-700 hover:bg-zinc-100"
+                >
+                  <Plus className="h-3 w-3 text-blue-600" />
+                  新增子任务
+                </button>
                 <button
                   onClick={() => {
                     setIsEditing(true);
@@ -389,6 +431,61 @@ export function TaskItem({
             setPreviewAttachmentList([]);
           }}
         />
+      )}
+
+      {/* 新增子任务表单区域 */}
+      {isAddingSubtask && (
+        <div className="mt-2.5 pt-2.5 border-t border-dashed border-zinc-200">
+          <AddTaskForm
+            nodeName={task.name}
+            defaultOwner={task.owner || ''}
+            isSubtask={true}
+            onClose={() => setIsAddingSubtask(false)}
+            onSubmit={(name, owner, dueDate, hasDeliverable, deliverableRequirement, estimatedDuration, deliverableItems) => {
+              // Convert undefined to string | undefined
+              onAddTask(
+                task.node_id,
+                name,
+                owner,
+                dueDate,
+                hasDeliverable,
+                deliverableRequirement,
+                estimatedDuration,
+                deliverableItems,
+                task.id
+              );
+              setIsAddingSubtask(false);
+            }}
+          />
+        </div>
+      )}
+
+      {/* 子任务递归渲染列表 */}
+      {subtasks && subtasks.length > 0 && (
+        <div className="mt-2.5 pl-3 sm:pl-4 border-l-2 border-dashed border-zinc-200/80 space-y-2">
+          <div className="flex items-center gap-1 text-[10px] text-zinc-400 font-semibold select-none pt-0.5">
+            <CornerDownRight className="h-3 w-3 text-zinc-300" />
+            <span>子任务 ({subtasks.length} 项)</span>
+          </div>
+          <div className="space-y-2">
+            {subtasks
+              .filter((sub) => !hideCompleted || sub.status !== 'done')
+              .map((sub) => (
+                <TaskItem
+                  key={sub.id}
+                  task={sub}
+                  subtasks={[]}
+                  onToggleStatus={onToggleStatus}
+                  onRequestSubmitDeliverable={onRequestSubmitDeliverable}
+                  onUpdateTask={onUpdateTask}
+                  onDeleteTask={onDeleteTask}
+                  onOpenComments={onOpenComments}
+                  onAddTask={onAddTask}
+                  hideCompleted={hideCompleted}
+                />
+              ))}
+          </div>
+        </div>
       )}
     </div>
   );

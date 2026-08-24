@@ -45,7 +45,8 @@ interface TreeNodeItemProps {
     hasDeliverable?: boolean,
     deliverableRequirement?: string,
     estimatedDuration?: string,
-    deliverableItems?: DeliverableItem[]
+    deliverableItems?: DeliverableItem[],
+    parentId?: string | null
   ) => void;
   onUpdateNode: (
     nodeId: string,
@@ -361,18 +362,25 @@ export function TreeNodeItem({
               {showTasks && (
                 <div className="space-y-1.5 pt-0.5">
                   {node.tasks
-                    .filter((t) => !hideCompleted || t.status !== 'done')
-                    .map((task) => (
-                      <TaskItem
-                        key={task.id}
-                        task={task}
-                        onToggleStatus={onToggleTaskStatus}
-                        onRequestSubmitDeliverable={onRequestSubmitDeliverable}
-                        onUpdateTask={onUpdateTask}
-                        onDeleteTask={onDeleteTask}
-                        onOpenComments={onOpenTaskComments}
-                      />
-                    ))}
+                    .filter((t) => !t.parent_id)
+                    .filter((t) => !hideCompleted || t.status !== 'done' || node.tasks.some((sub) => sub.parent_id === t.id && sub.status !== 'done'))
+                    .map((task) => {
+                      const subtasks = node.tasks.filter((sub) => sub.parent_id === task.id);
+                      return (
+                        <TaskItem
+                          key={task.id}
+                          task={task}
+                          subtasks={subtasks}
+                          onToggleStatus={onToggleTaskStatus}
+                          onRequestSubmitDeliverable={onRequestSubmitDeliverable}
+                          onUpdateTask={onUpdateTask}
+                          onDeleteTask={onDeleteTask}
+                          onOpenComments={onOpenTaskComments}
+                          onAddTask={onAddTask}
+                          hideCompleted={hideCompleted}
+                        />
+                      );
+                    })}
                   {hideCompleted &&
                     node.tasks.filter((t) => t.status === 'done').length > 0 &&
                     node.tasks.filter((t) => t.status !== 'done').length === 0 && (

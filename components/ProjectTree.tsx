@@ -177,7 +177,8 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
     hasDeliverable?: boolean,
     deliverableRequirement?: string,
     estimatedDuration?: string,
-    deliverableItems?: DeliverableItem[]
+    deliverableItems?: DeliverableItem[],
+    parentId?: string | null
   ) => {
     try {
       await fetch('/api/tasks', {
@@ -192,6 +193,7 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
           deliverableRequirement,
           estimatedDuration,
           deliverableItems,
+          parentId,
         }),
       });
       reloadTree();
@@ -306,6 +308,7 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
 
       {/* 前情提要与最新进展动态面板 */}
       <ProjectActivityFeed
+        key={tree.id}
         projectId={tree.id}
         activities={tree.recentActivities}
         projectDescription={tree.description}

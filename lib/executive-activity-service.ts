@@ -113,6 +113,29 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
           formattedTime: formatExecutiveTime(act.timestamp),
         };
       } else if (act.type === 'comment_added' || act.type === 'briefing') {
+        let headline = act.title || '';
+        if (!headline || !headline.includes('「')) {
+          let targetName = '相应工作项';
+          let isTask = false;
+          if (act.task_id) {
+            const task = db.tasks.find((t) => t.id === act.task_id);
+            if (task) {
+              targetName = task.name;
+              isTask = true;
+            }
+          } else if (act.node_id) {
+            const node = db.nodes.find((n) => n.id === act.node_id);
+            if (node) {
+              targetName = node.name;
+            }
+          }
+          const hasAttachments = !!(actImageUrl);
+          if (hasAttachments) {
+            headline = `${act.author} 记录了「${targetName}」${isTask ? '任务' : ''}的进展备注与证据链`;
+          } else {
+            headline = `${act.author} 记录了「${targetName}」${isTask ? '任务' : ''}的关键业务进展与工作指示`;
+          }
+        }
         item = {
           id: act.id,
           projectId: pId,
@@ -121,7 +144,7 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
           type: 'comment',
           categoryBadge: '管理留档',
           badgeVariant: 'purple',
-          headline: `${act.author} 记录了关键业务进展与工作指示`,
+          headline,
           summary: cleanSummary || act.title,
           owner: act.author,
           timestamp: act.timestamp,

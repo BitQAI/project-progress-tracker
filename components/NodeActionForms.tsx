@@ -17,6 +17,7 @@ interface AddTaskFormProps {
     estimatedDuration?: string,
     deliverableItems?: DeliverableItem[]
   ) => void;
+  isSubtask?: boolean;
 }
 
 export function AddTaskForm({
@@ -24,6 +25,7 @@ export function AddTaskForm({
   defaultOwner,
   onClose,
   onSubmit,
+  isSubtask = false,
 }: AddTaskFormProps) {
   const [taskName, setTaskName] = useState('');
   const [taskOwner, setTaskOwner] = useState(defaultOwner);
@@ -57,8 +59,10 @@ export function AddTaskForm({
       className="rounded-xl border border-blue-200 bg-blue-50/50 p-3.5 text-xs space-y-3"
     >
       <div className="flex items-center justify-between font-semibold text-blue-900 border-b border-blue-200/60 pb-1.5">
-        <span>在此分组节点下新增任务</span>
-        <span className="text-[11px] text-blue-700 font-normal">所属模块: {nodeName}</span>
+        <span>{isSubtask ? '新增子任务' : '在此分组节点下新增任务'}</span>
+        <span className="text-[11px] text-blue-700 font-normal">
+          {isSubtask ? `所属父任务: ${nodeName}` : `所属模块: ${nodeName}`}
+        </span>
       </div>
       <input
         type="text"
@@ -132,7 +136,7 @@ export function AddTaskForm({
           type="submit"
           className="rounded-lg bg-blue-600 px-3 py-1 text-white font-medium hover:bg-blue-700 shadow-xs"
         >
-          添加任务
+          {isSubtask ? '添加子任务' : '添加任务'}
         </button>
       </div>
     </form>

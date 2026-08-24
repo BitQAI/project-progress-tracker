@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ProjectActivityItem } from '@/lib/types';
 import { GitDiffView } from './GitDiffView';
 import { formatBeijingShortDateTime } from '@/lib/date-utils';
@@ -43,6 +43,19 @@ export function ProjectActivityFeed({
   const [newUpdateText, setNewUpdateText] = useState('');
   const [isPosting, setIsPosting] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+
+  // 懒加载状态：默认显示近 5 条最新动态，滚动触底时增量加载
+  const [visibleCount, setVisibleCount] = useState(5);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    // 触底检测（距离底部 15px 以内）
+    if (target.scrollHeight - target.scrollTop <= target.clientHeight + 15) {
+      if (visibleCount < activities.length) {
+        setVisibleCount((prev) => Math.min(prev + 5, activities.length));
+      }
+    }
+  };
 
   const handlePostUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -246,8 +259,11 @@ export function ProjectActivityFeed({
 
           {/* 动态时间流 */}
           {activities.length > 0 ? (
-            <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
-              {activities.map((act) => {
+            <div 
+              onScroll={handleScroll}
+              className="space-y-1.5 max-h-56 overflow-y-auto pr-1"
+            >
+              {activities.slice(0, visibleCount).map((act) => {
                 const config = getActivityConfig(act.type);
                 return (
                   <div
@@ -354,6 +370,11 @@ export function ProjectActivityFeed({
                   </div>
                 );
               })}
+              {visibleCount < activities.length && (
+                <div className="py-2 text-center text-[10px] text-zinc-400 border-t border-dashed border-zinc-100 select-none animate-pulse">
+                  向下滚动加载更多历史动态 ({visibleCount} / {activities.length})
+                </div>
+              )}
             </div>
           ) : (
             <p className="py-1 text-center text-xs text-zinc-400">

@@ -20,7 +20,8 @@ export async function addTask(
   deliverableRequirement?: string,
   estimatedDuration?: string,
   deliverableItems?: DeliverableItem[],
-  deliverableAttachments?: FileAttachment[]
+  deliverableAttachments?: FileAttachment[],
+  parentId?: string | null
 ): Promise<string> {
   const db = getDb();
   const id = generateId('task');
@@ -28,6 +29,7 @@ export async function addTask(
   db.tasks.push({
     id,
     node_id: nodeId,
+    parent_id: parentId || null,
     name,
     owner,
     due_date: dueDate || null,
@@ -55,14 +57,19 @@ export async function addTask(
       ? `+ 交付件要求: 必须提交成果 (${deliverableRequirement?.trim() || '需提供验收说明'})`
       : `+ 交付件要求: 无交付要求`,
     parentNode ? `+ 所属模块: ${parentNode.name}` : null,
+    parentId ? `+ 所属父任务ID: ${parentId}` : null,
   ].filter(Boolean) as string[];
+
+  const parentTask = parentId ? db.tasks.find(t => t.id === parentId) : null;
 
   recordActivity(db, {
     project_id: rootId,
     node_id: nodeId,
     task_id: id,
     type: 'task_created',
-    title: `${owner} 在模块「${parentNode?.name || '项目'}」中新增了任务「${name}」`,
+    title: parentTask
+      ? `${owner} 在任务「${parentTask.name}」下新增了子任务「${name}」`
+      : `${owner} 在模块「${parentNode?.name || '项目'}」中新增了任务「${name}」`,
     detail: detailParts.join('\n'),
     author: owner,
   });
@@ -335,7 +342,10 @@ export async function deleteTask(taskId: string): Promise<void> {
     });
   }
 
-  db.comments = db.comments.filter((c) => c.task_id !== taskId);
-  db.tasks = db.tasks.filter((t) => t.id !== taskId);
+  const subtaskIds = db.tasks.filter((t) => t.parent_id === taskId).map((t) => t.id);
+  const allIdsToDelete = [taskId, ...subtaskIds];
+
+  db.comments = db.comments.filter((c) => !c.task_id || !allIdsToDelete.includes(c.task_id));
+  db.tasks = db.tasks.filter((t) => !allIdsToDelete.includes(t.id));
   await persistDb();
 }

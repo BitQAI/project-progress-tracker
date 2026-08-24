@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
       estimatedDuration,
       deliverableItems,
       deliverableAttachments,
+      parentId,
     } = body;
     if (!nodeId || !name?.trim() || !owner?.trim()) {
       return NextResponse.json({ ok: false, error: '节点ID、任务名称与负责人均不能为空' }, { status: 400 });
@@ -30,7 +31,8 @@ export async function POST(req: NextRequest) {
       deliverableRequirement,
       estimatedDuration,
       deliverableItems,
-      deliverableAttachments
+      deliverableAttachments,
+      parentId
     );
     return NextResponse.json({ ok: true, data: { id: taskId } });
   } catch (error: any) {

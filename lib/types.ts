@@ -36,6 +36,7 @@ export interface DeliverableItem {
 export interface DbTask {
   id: string;
   node_id: string;
+  parent_id?: string | null;
   name: string;
   owner: string;
   due_date?: string | null;

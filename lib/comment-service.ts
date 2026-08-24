@@ -89,9 +89,9 @@ export async function addComment(params: {
     const hasAttachments = !!(finalImageUrl || (params.attachments && params.attachments.length > 0));
     let title = '';
     if (hasAttachments) {
-      title = `“最新进展”发布了「${targetName}」${isTask ? '任务' : ''}的进展备注与证据链`;
+      title = `${params.author} 记录了「${targetName}」${isTask ? '任务' : ''}的进展备注与证据链`;
     } else {
-      title = `“最新动态”记录了「${targetName}」${isTask ? '任务' : ''}关键业务进展与工作指示`;
+      title = `${params.author} 记录了「${targetName}」${isTask ? '任务' : ''}的关键业务进展与工作指示`;
     }
 
     recordActivity(db, {
