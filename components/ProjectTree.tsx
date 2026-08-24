@@ -9,7 +9,8 @@ import { DeliverableSubmitModal } from './DeliverableSubmitModal';
 import { ProjectActivityFeed } from './ProjectActivityFeed';
 import { ProjectHeader } from './ProjectHeader';
 import { EditProjectModal } from './EditProjectModal';
-import { ListTree } from 'lucide-react';
+import { GanttChart } from './gantt/GanttChart';
+import { ListTree, CalendarRange } from 'lucide-react';
 
 interface ProjectTreeProps {
   initialTree: NodeTreeNode;
@@ -18,6 +19,7 @@ interface ProjectTreeProps {
 
 export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
   const [tree, setTree] = useState<NodeTreeNode>(initialTree);
+  const [activeView, setActiveView] = useState<'tree' | 'gantt'>('tree');
   const [hideCompleted, setHideCompleted] = useState(false);
   const [commentTarget, setCommentTarget] = useState<{
     isOpen: boolean;
@@ -311,14 +313,39 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
         onAddBriefComment={handleAddBriefComment}
       />
 
-      {/* 递归树展示区 */}
+      {/* 视图展示区：支持 WBS 结构树与时间轴甘特图双向切换 */}
       <div className="rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6 shadow-xs">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-150 pb-3.5 mb-3.5">
+          {/* 左侧：视图切换 Segmented Switcher */}
           <div className="flex items-center gap-2">
-            <ListTree className="h-4 w-4 text-zinc-700" />
-            <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-900">
-              项目分解结构树 (WBS)
-            </h2>
+            <div className="inline-flex rounded-lg border border-zinc-200 bg-zinc-100/80 p-0.5 shadow-2xs">
+              <button
+                type="button"
+                id="view-toggle-tree-btn"
+                onClick={() => setActiveView('tree')}
+                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${
+                  activeView === 'tree'
+                    ? 'bg-white text-zinc-900 shadow-xs'
+                    : 'text-zinc-600 hover:text-zinc-900'
+                }`}
+              >
+                <ListTree className="h-3.5 w-3.5 text-blue-600" />
+                <span>WBS 分解树</span>
+              </button>
+              <button
+                type="button"
+                id="view-toggle-gantt-btn"
+                onClick={() => setActiveView('gantt')}
+                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${
+                  activeView === 'gantt'
+                    ? 'bg-white text-zinc-900 shadow-xs'
+                    : 'text-zinc-600 hover:text-zinc-900'
+                }`}
+              >
+                <CalendarRange className="h-3.5 w-3.5 text-indigo-600" />
+                <span>时间轴甘特图 (Gantt)</span>
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
@@ -341,35 +368,59 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
           </div>
         </div>
 
-        <TreeNodeItem
-          node={tree}
-          depth={0}
-          hideCompleted={hideCompleted}
-          onToggleTaskStatus={handleToggleTaskStatus}
-          onRequestSubmitDeliverable={(t) => setDeliverableTask(t)}
-          onUpdateTask={handleUpdateTask}
-          onDeleteTask={handleDeleteTask}
-          onAddSubNode={handleAddSubNode}
-          onAddTask={handleAddTask}
-          onUpdateNode={handleUpdateNode}
-          onDeleteNode={handleDeleteNode}
-          onOpenNodeComments={(n) =>
-            setCommentTarget({
-              isOpen: true,
-              title: `节点备注与留档: ${n.name}`,
-              subtitle: `负责人: ${n.owner}`,
-              nodeId: n.id,
-            })
-          }
-          onOpenTaskComments={(t) =>
-            setCommentTarget({
-              isOpen: true,
-              title: `任务证据链: ${t.name}`,
-              subtitle: `负责人: ${t.owner} | 截止: ${t.due_date}`,
-              taskId: t.id,
-            })
-          }
-        />
+        {activeView === 'tree' ? (
+          <TreeNodeItem
+            node={tree}
+            depth={0}
+            hideCompleted={hideCompleted}
+            onToggleTaskStatus={handleToggleTaskStatus}
+            onRequestSubmitDeliverable={(t) => setDeliverableTask(t)}
+            onUpdateTask={handleUpdateTask}
+            onDeleteTask={handleDeleteTask}
+            onAddSubNode={handleAddSubNode}
+            onAddTask={handleAddTask}
+            onUpdateNode={handleUpdateNode}
+            onDeleteNode={handleDeleteNode}
+            onOpenNodeComments={(n) =>
+              setCommentTarget({
+                isOpen: true,
+                title: `节点备注与留档: ${n.name}`,
+                subtitle: `负责人: ${n.owner}`,
+                nodeId: n.id,
+              })
+            }
+            onOpenTaskComments={(t) =>
+              setCommentTarget({
+                isOpen: true,
+                title: `任务证据链: ${t.name}`,
+                subtitle: `负责人: ${t.owner} | 截止: ${t.due_date}`,
+                taskId: t.id,
+              })
+            }
+          />
+        ) : (
+          <GanttChart
+            tree={tree}
+            hideCompleted={hideCompleted}
+            onRequestSubmitDeliverable={(t) => setDeliverableTask(t)}
+            onOpenTaskComments={(t) =>
+              setCommentTarget({
+                isOpen: true,
+                title: `任务证据链: ${t.name}`,
+                subtitle: `负责人: ${t.owner} | 截止: ${t.due_date}`,
+                taskId: t.id,
+              })
+            }
+            onOpenNodeComments={(n) =>
+              setCommentTarget({
+                isOpen: true,
+                title: `节点备注与留档: ${n.name}`,
+                subtitle: `负责人: ${n.owner}`,
+                nodeId: n.id,
+              })
+            }
+          />
+        )}
       </div>
 
       {/* 交付件提交弹窗 */}
