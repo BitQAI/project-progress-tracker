@@ -403,11 +403,12 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
             tree={tree}
             hideCompleted={hideCompleted}
             onRequestSubmitDeliverable={(t) => setDeliverableTask(t)}
+            onUpdateTask={handleUpdateTask}
             onOpenTaskComments={(t) =>
               setCommentTarget({
                 isOpen: true,
                 title: `任务证据链: ${t.name}`,
-                subtitle: `负责人: ${t.owner} | 截止: ${t.due_date}`,
+                subtitle: `负责人: ${t.owner} | 截止: ${t.due_date || '未定'}`,
                 taskId: t.id,
               })
             }

@@ -13,6 +13,9 @@ interface GanttSummaryBarProps {
   onScrollToToday: () => void;
   isAllExpanded: boolean;
   onToggleExpandAll: () => void;
+  hideUnscheduled: boolean;
+  onToggleHideUnscheduled: () => void;
+  unscheduledCount: number;
 }
 
 export function GanttSummaryBar({
@@ -23,6 +26,9 @@ export function GanttSummaryBar({
   onScrollToToday,
   isAllExpanded,
   onToggleExpandAll,
+  hideUnscheduled,
+  onToggleHideUnscheduled,
+  unscheduledCount,
 }: GanttSummaryBarProps) {
   const todayStr = getTodayBeijingString();
 
@@ -159,9 +165,9 @@ export function GanttSummaryBar({
         </div>
       </div>
 
-      {/* 甘特图控制栏：缩放模式、展开/折叠、快速定位 */}
+      {/* 甘特图控制栏：缩放模式、展开/折叠、快速定位、待排期过滤 */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-zinc-200/70 bg-zinc-50/80 px-4 py-2.5">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {/* 展开/折叠全部 */}
           <button
             type="button"
@@ -183,6 +189,30 @@ export function GanttSummaryBar({
             <Compass className="h-3.5 w-3.5 text-blue-600" />
             <span>定位今天 (Today)</span>
           </button>
+
+          {/* 待排期任务显隐切换 */}
+          {unscheduledCount > 0 && (
+            <button
+              type="button"
+              id="gantt-toggle-unscheduled-btn"
+              onClick={onToggleHideUnscheduled}
+              className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-all ${
+                hideUnscheduled
+                  ? 'border-zinc-200 bg-white text-zinc-500 hover:text-zinc-800'
+                  : 'border-amber-200 bg-amber-50 text-amber-800 shadow-2xs'
+              }`}
+            >
+              <Calendar className="h-3.5 w-3.5 text-amber-600" />
+              <span>{hideUnscheduled ? '显示待排期项' : '包含待排期项'}</span>
+              <span
+                className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
+                  hideUnscheduled ? 'bg-zinc-100 text-zinc-600' : 'bg-amber-200/80 text-amber-900'
+                }`}
+              >
+                {unscheduledCount}
+              </span>
+            </button>
+          )}
         </div>
 
         {/* 粒度缩放 Segmented Control */}

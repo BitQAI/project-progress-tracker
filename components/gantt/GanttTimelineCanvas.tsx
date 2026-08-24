@@ -33,6 +33,7 @@ interface GanttTimelineCanvasProps {
   onOpenTaskComments?: (task: DbTask) => void;
   onOpenNodeComments?: (node: NodeTreeNode) => void;
   onRequestSubmitDeliverable?: (task: DbTask) => void;
+  onQuickScheduleTask?: (task: DbTask) => void;
 }
 
 const ROW_HEIGHT = 44; // 与左侧列表行高保持严格一致 44px (h-11)
@@ -48,6 +49,7 @@ export function GanttTimelineCanvas({
   onOpenTaskComments,
   onOpenNodeComments,
   onRequestSubmitDeliverable,
+  onQuickScheduleTask,
 }: GanttTimelineCanvasProps) {
   const [activeTooltip, setActiveTooltip] = useState<{
     item: GanttItem;
@@ -220,7 +222,9 @@ export function GanttTimelineCanvas({
               }}
               onClick={() => {
                 if (isTask && item.originalTask) {
-                  if (item.hasDeliverable && !item.deliverableSubmitted && onRequestSubmitDeliverable) {
+                  if (item.isUnscheduled && onQuickScheduleTask) {
+                    onQuickScheduleTask(item.originalTask);
+                  } else if (item.hasDeliverable && !item.deliverableSubmitted && onRequestSubmitDeliverable) {
                     onRequestSubmitDeliverable(item.originalTask);
                   } else if (onOpenTaskComments) {
                     onOpenTaskComments(item.originalTask);
@@ -257,8 +261,28 @@ export function GanttTimelineCanvas({
                     {item.name} ({item.progressPercent}%)
                   </span>
                 </div>
+              ) : item.isUnscheduled ? (
+                /* 方案 A：待排期占位虚线胶囊 (Unscheduled Striped Capsule) */
+                <div
+                  style={{
+                    backgroundImage:
+                      'repeating-linear-gradient(45deg, rgba(254, 243, 199, 0.75), rgba(254, 243, 199, 0.75) 6px, rgba(253, 230, 138, 0.6) 6px, rgba(253, 230, 138, 0.6) 12px)',
+                  }}
+                  className="group relative flex h-full w-full items-center justify-between overflow-hidden rounded-md border-2 border-dashed border-amber-400/90 px-2 text-amber-900 shadow-2xs transition-all hover:border-amber-500 hover:shadow-xs"
+                >
+                  <div className="relative z-10 flex items-center gap-1 min-w-0 truncate font-medium">
+                    <Clock className="h-3 w-3 shrink-0 text-amber-600 animate-pulse" />
+                    <span className="truncate text-[11px]">
+                      {item.name}
+                    </span>
+                  </div>
+
+                  <div className="relative z-10 flex items-center gap-1 text-[10px] shrink-0 font-semibold text-amber-700 bg-amber-200/80 px-1 py-0.2 rounded">
+                    <span>待排期</span>
+                  </div>
+                </div>
               ) : (
-                /* 叶子任务条 (Task Bar) */
+                /* 正常叶子任务条 (Standard Task Bar) */
                 <div
                   className={`group relative flex h-full w-full items-center justify-between overflow-hidden rounded-md px-2 shadow-xs transition-colors ${
                     item.status === 'done'
@@ -317,6 +341,8 @@ export function GanttTimelineCanvas({
                   ? '项目总览'
                   : activeTooltip.item.type === 'node'
                   ? '阶段分组'
+                  : activeTooltip.item.isUnscheduled
+                  ? '待排期规划项'
                   : '任务项'}
               </span>
               <h4 className="mt-1 text-xs font-bold text-white line-clamp-2">
@@ -327,6 +353,8 @@ export function GanttTimelineCanvas({
               className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold ${
                 activeTooltip.item.status === 'done'
                   ? 'bg-emerald-500/20 text-emerald-300'
+                  : activeTooltip.item.isUnscheduled
+                  ? 'bg-amber-500/20 text-amber-300'
                   : activeTooltip.item.isOverdue
                   ? 'bg-red-500/20 text-red-300'
                   : 'bg-blue-500/20 text-blue-300'
@@ -334,6 +362,8 @@ export function GanttTimelineCanvas({
             >
               {activeTooltip.item.status === 'done'
                 ? '已完成'
+                : activeTooltip.item.isUnscheduled
+                ? '待排期'
                 : activeTooltip.item.isOverdue
                 ? '已逾期'
                 : '推进中'}
@@ -348,13 +378,17 @@ export function GanttTimelineCanvas({
             <div className="flex items-center gap-1.5 font-mono">
               <Calendar className="h-3 w-3 text-zinc-400" />
               <span>
-                {activeTooltip.item.startDate} ~ {activeTooltip.item.dueDate}
+                {activeTooltip.item.isUnscheduled
+                  ? '排期时间: 尚未设定截止日 (待定)'
+                  : `${activeTooltip.item.startDate} ~ ${activeTooltip.item.dueDate}`}
               </span>
             </div>
             <div className="flex items-center gap-1.5">
               <Clock className="h-3 w-3 text-zinc-400" />
               <span>
-                周期工期: {activeTooltip.item.durationDays} 天 (进度 {activeTooltip.item.progressPercent}%)
+                {activeTooltip.item.isUnscheduled
+                  ? '预估参考工期: 待启动排期'
+                  : `周期工期: ${activeTooltip.item.durationDays} 天 (进度 ${activeTooltip.item.progressPercent}%)`}
               </span>
             </div>
 
@@ -375,8 +409,10 @@ export function GanttTimelineCanvas({
               </div>
             )}
           </div>
-          <div className="mt-2.5 border-t border-zinc-800 pt-1.5 text-right text-[10px] text-zinc-500">
-            点击直接唤起证据链与进度备注
+          <div className="mt-2.5 border-t border-zinc-800 pt-1.5 text-right text-[10px] text-zinc-400">
+            {activeTooltip.item.isUnscheduled
+              ? '⚡ 点击此条可快速设定截止日期与工期'
+              : '点击直接唤起证据链与进度备注'}
           </div>
         </div>
       )}

@@ -12,8 +12,8 @@ import {
   Clock,
   AlertCircle,
   FileCheck2,
-  MessageSquare,
-  Sparkles,
+  Calendar,
+  CalendarPlus,
 } from 'lucide-react';
 
 interface GanttLeftTreeProps {
@@ -25,6 +25,7 @@ interface GanttLeftTreeProps {
   onOpenTaskComments?: (task: DbTask) => void;
   onOpenNodeComments?: (node: NodeTreeNode) => void;
   onRequestSubmitDeliverable?: (task: DbTask) => void;
+  onQuickScheduleTask?: (task: DbTask) => void;
 }
 
 export function GanttLeftTree({
@@ -36,6 +37,7 @@ export function GanttLeftTree({
   onOpenTaskComments,
   onOpenNodeComments,
   onRequestSubmitDeliverable,
+  onQuickScheduleTask,
 }: GanttLeftTreeProps) {
   return (
     <div className="w-[340px] sm:w-[380px] shrink-0 border-r border-zinc-200 bg-white select-none">
@@ -55,6 +57,7 @@ export function GanttLeftTree({
           const isProject = item.type === 'project';
           const isNode = item.type === 'node';
           const isTask = item.type === 'task';
+          const isUnscheduled = !!item.isUnscheduled;
 
           return (
             <div
@@ -63,7 +66,13 @@ export function GanttLeftTree({
               onMouseEnter={() => onHoverItem(item.id)}
               onMouseLeave={() => onHoverItem(null)}
               className={`flex h-11 items-center px-3 transition-colors ${
-                isHovered ? 'bg-blue-50/60' : isProject ? 'bg-zinc-50/60 font-semibold' : 'hover:bg-zinc-50/50'
+                isHovered
+                  ? 'bg-blue-50/60'
+                  : isProject
+                  ? 'bg-zinc-50/60 font-semibold'
+                  : isUnscheduled
+                  ? 'bg-amber-50/30'
+                  : 'hover:bg-zinc-50/50'
               }`}
             >
               {/* 左侧层级缩进与展开图标 */}
@@ -97,6 +106,8 @@ export function GanttLeftTree({
                   <Folder className="mr-1.5 h-4 w-4 shrink-0 text-amber-600" />
                 ) : item.status === 'done' ? (
                   <CheckCircle2 className="mr-1.5 h-4 w-4 shrink-0 text-emerald-500" />
+                ) : isUnscheduled ? (
+                  <Calendar className="mr-1.5 h-4 w-4 shrink-0 text-amber-500/90" />
                 ) : item.isOverdue ? (
                   <AlertCircle className="mr-1.5 h-4 w-4 shrink-0 text-red-500 animate-pulse" />
                 ) : (
@@ -113,12 +124,31 @@ export function GanttLeftTree({
                         ? 'font-semibold text-zinc-800'
                         : item.status === 'done'
                         ? 'text-zinc-400 line-through'
+                        : isUnscheduled
+                        ? 'text-zinc-700'
                         : 'text-zinc-700'
                     }`}
                     title={item.name}
                   >
                     {item.name}
                   </span>
+
+                  {isUnscheduled && isTask && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (item.originalTask && onQuickScheduleTask) {
+                          onQuickScheduleTask(item.originalTask);
+                        }
+                      }}
+                      className="shrink-0 flex items-center gap-0.5 rounded px-1.5 py-0.2 text-[9px] font-medium bg-amber-50 text-amber-700 border border-amber-200/80 hover:bg-amber-100 transition-colors"
+                      title="点击快速设定截止排期"
+                    >
+                      <CalendarPlus className="h-2.5 w-2.5" />
+                      <span>待排期</span>
+                    </button>
+                  )}
 
                   {item.priority && (
                     <span className="shrink-0 rounded bg-red-50 px-1 py-0.2 text-[9px] font-bold text-red-600 border border-red-100">
@@ -148,8 +178,12 @@ export function GanttLeftTree({
               </div>
 
               {/* 工期 */}
-              <div className="w-14 text-center text-xs text-zinc-500 font-mono shrink-0">
-                {item.durationDays}天
+              <div className="w-14 text-center text-xs font-mono shrink-0">
+                {isUnscheduled ? (
+                  <span className="text-[10px] text-amber-600 font-medium">待排期</span>
+                ) : (
+                  <span className="text-zinc-500">{item.durationDays}天</span>
+                )}
               </div>
 
               {/* 进度 */}
@@ -160,10 +194,12 @@ export function GanttLeftTree({
                       ? 'text-emerald-600 font-bold'
                       : item.progressPercent > 0
                       ? 'text-blue-600 font-medium'
+                      : isUnscheduled
+                      ? 'text-amber-500 font-medium'
                       : 'text-zinc-400'
                   }
                 >
-                  {item.progressPercent}%
+                  {isUnscheduled ? '未启动' : `${item.progressPercent}%`}
                 </span>
               </div>
             </div>

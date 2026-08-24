@@ -21,6 +21,7 @@ export interface GanttItem {
   deliverableSubmitted?: boolean;
   isOverdue: boolean;
   overdueDays: number;
+  isUnscheduled?: boolean; // 没有明确设置截止日、属于待定/待排期规划项
   hasChildren: boolean;
   order: number;
   originalNode?: NodeTreeNode;
@@ -87,6 +88,7 @@ export function flattenTreeToGanttItems(
   node: NodeTreeNode,
   collapsedIds: Set<string>,
   hideCompleted = false,
+  hideUnscheduled = false,
   depth = 0,
   prevSiblingEndMap: Map<string, string> = new Map()
 ): { items: GanttItem[]; dependencies: GanttDependency[] } {
@@ -109,7 +111,7 @@ export function flattenTreeToGanttItems(
       nodeDue = addDays(nodeStart, 1);
     }
 
-    const isOverdue = n.hasOverdueTasks || (n.status !== 'done' && nodeDue < todayStr);
+    const isOverdue = n.hasOverdueTasks || (n.status !== 'done' && dueStr && nodeDue < todayStr);
     const overdueDays = isOverdue ? Math.max(1, diffDays(nodeDue, todayStr)) : 0;
 
     const nodeGanttItem: GanttItem = {
@@ -125,7 +127,7 @@ export function flattenTreeToGanttItems(
       dueDate: nodeDue,
       durationDays: Math.max(1, diffDays(nodeStart, nodeDue)),
       progressPercent: n.progressPercent || 0,
-      isOverdue,
+      isOverdue: !!isOverdue,
       overdueDays,
       hasChildren,
       order: n.order ?? 0,
@@ -149,17 +151,28 @@ export function flattenTreeToGanttItems(
           continue;
         }
 
+        const isUnscheduled = !t.due_date;
+        if (hideUnscheduled && isUnscheduled) {
+          continue;
+        }
+
         const taskCreated = formatBeijingDate(t.created_at) || nodeStart;
-        const taskDue = t.due_date ? formatBeijingDate(t.due_date) : addDays(prevTaskDue, parseDurationToDays(t.estimated_duration, 3));
-        const taskDuration = Math.max(1, parseDurationToDays(t.estimated_duration, Math.max(1, diffDays(taskCreated, taskDue))));
+        // 如果未定截止日，锚定在父节点起始或今天后 2 天作为虚拟占位跨度
+        const taskDue = t.due_date
+          ? formatBeijingDate(t.due_date)
+          : addDays(nodeStart > todayStr ? nodeStart : todayStr, parseDurationToDays(t.estimated_duration, 2));
+        const taskDuration = isUnscheduled
+          ? parseDurationToDays(t.estimated_duration, 2)
+          : Math.max(1, parseDurationToDays(t.estimated_duration, Math.max(1, diffDays(taskCreated, taskDue))));
         
         let taskStart = addDays(taskDue, -taskDuration);
-        if (taskStart < taskCreated) taskStart = taskCreated;
+        if (taskStart < taskCreated && !isUnscheduled) taskStart = taskCreated;
         if (diffDays(taskStart, taskDue) < 1) {
           taskStart = addDays(taskDue, -1);
         }
 
-        const isTaskOverdue = t.status !== 'done' && taskDue < todayStr;
+        // 待排期任务不计为已逾期
+        const isTaskOverdue = !isUnscheduled && t.status !== 'done' && taskDue < todayStr;
         const taskOverdueDays = isTaskOverdue ? Math.max(1, diffDays(taskDue, todayStr)) : 0;
 
         const taskItem: GanttItem = {
@@ -179,6 +192,7 @@ export function flattenTreeToGanttItems(
           deliverableSubmitted: !!t.deliverable_submission,
           isOverdue: isTaskOverdue,
           overdueDays: taskOverdueDays,
+          isUnscheduled,
           hasChildren: false,
           order: 0,
           originalTask: t,
@@ -187,16 +201,18 @@ export function flattenTreeToGanttItems(
 
         items.push(taskItem);
 
-        // 如果存在前置任务，建立依赖连线关系
-        if (lastTaskId) {
+        // 如果存在前置任务且双方均有排期，建立依赖连线关系
+        if (lastTaskId && !isUnscheduled) {
           dependencies.push({
             fromId: lastTaskId,
             toId: t.id,
           });
         }
 
-        lastTaskId = t.id;
-        prevTaskDue = taskDue;
+        if (!isUnscheduled) {
+          lastTaskId = t.id;
+          prevTaskDue = taskDue;
+        }
       }
     }
 

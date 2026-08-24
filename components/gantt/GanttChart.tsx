@@ -13,6 +13,7 @@ import { GanttSummaryBar } from './GanttSummaryBar';
 import { GanttLeftTree } from './GanttLeftTree';
 import { GanttTimelineHeader } from './GanttTimelineHeader';
 import { GanttTimelineCanvas } from './GanttTimelineCanvas';
+import { QuickScheduleModal } from './QuickScheduleModal';
 
 interface GanttChartProps {
   tree: NodeTreeNode;
@@ -20,6 +21,7 @@ interface GanttChartProps {
   onOpenTaskComments?: (task: DbTask) => void;
   onOpenNodeComments?: (node: NodeTreeNode) => void;
   onRequestSubmitDeliverable?: (task: DbTask) => void;
+  onUpdateTask?: (task: DbTask, changeReason?: string) => Promise<void> | void;
 }
 
 export function GanttChart({
@@ -28,10 +30,13 @@ export function GanttChart({
   onOpenTaskComments,
   onOpenNodeComments,
   onRequestSubmitDeliverable,
+  onUpdateTask,
 }: GanttChartProps) {
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<GanttViewMode>('day');
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
+  const [hideUnscheduled, setHideUnscheduled] = useState(false);
+  const [quickScheduleTask, setQuickScheduleTask] = useState<DbTask | null>(null);
 
   const rightScrollRef = useRef<HTMLDivElement>(null);
 
@@ -50,8 +55,25 @@ export function GanttChart({
 
   // 2. 扁平化数据与依赖关系
   const { items, dependencies } = useMemo(() => {
-    return flattenTreeToGanttItems(tree, collapsedIds, hideCompleted);
-  }, [tree, collapsedIds, hideCompleted]);
+    return flattenTreeToGanttItems(tree, collapsedIds, hideCompleted, hideUnscheduled);
+  }, [tree, collapsedIds, hideCompleted, hideUnscheduled]);
+
+  // 计算全局待排期任务总数 (不受 hideUnscheduled 过滤影响，用于标签提示)
+  const unscheduledCount = useMemo(() => {
+    let count = 0;
+    function countUnscheduled(n: NodeTreeNode) {
+      if (n.tasks) {
+        for (const t of n.tasks) {
+          if (!t.due_date && (!hideCompleted || t.status !== 'done')) {
+            count++;
+          }
+        }
+      }
+      n.children?.forEach(countUnscheduled);
+    }
+    countUnscheduled(tree);
+    return count;
+  }, [tree, hideCompleted]);
 
   // 3. 计算全局时间轴范围
   const { minDate, totalDays } = useMemo(() => {
@@ -120,6 +142,9 @@ export function GanttChart({
         onScrollToToday={handleScrollToToday}
         isAllExpanded={isAllExpanded}
         onToggleExpandAll={handleToggleExpandAll}
+        hideUnscheduled={hideUnscheduled}
+        onToggleHideUnscheduled={() => setHideUnscheduled((prev) => !prev)}
+        unscheduledCount={unscheduledCount}
       />
 
       {/* 主甘特图区域：左侧 WBS 列表 + 右侧时间网格 Canvas */}
@@ -135,6 +160,7 @@ export function GanttChart({
             onOpenTaskComments={onOpenTaskComments}
             onOpenNodeComments={onOpenNodeComments}
             onRequestSubmitDeliverable={onRequestSubmitDeliverable}
+            onQuickScheduleTask={(task) => setQuickScheduleTask(task)}
           />
 
           {/* 右侧水平滚动时间轴画布 */}
@@ -151,13 +177,14 @@ export function GanttChart({
               onOpenTaskComments={onOpenTaskComments}
               onOpenNodeComments={onOpenNodeComments}
               onRequestSubmitDeliverable={onRequestSubmitDeliverable}
+              onQuickScheduleTask={(task) => setQuickScheduleTask(task)}
             />
           </div>
         </div>
 
         {/* 底部图例说明说明栏 */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-zinc-150 bg-zinc-50/70 px-4 py-2 text-[11px] text-zinc-500">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             <span className="font-semibold text-zinc-700">图例指示:</span>
             <div className="flex items-center gap-1.5">
               <span className="h-2.5 w-4 rounded-xs bg-zinc-800" />
@@ -176,6 +203,10 @@ export function GanttChart({
               <span>延期风险节点</span>
             </div>
             <div className="flex items-center gap-1.5">
+              <span className="h-2.5 w-5 rounded-xs border border-dashed border-amber-400 bg-amber-100" />
+              <span>待排期规划项 (点击可定截止日)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
               <span className="h-[2px] w-4 border-b border-dashed border-slate-400" />
               <span>前后序依赖流向</span>
             </div>
@@ -183,6 +214,18 @@ export function GanttChart({
           <span>支持左右滚动查看完整项目生命周期</span>
         </div>
       </div>
+
+      {/* 快捷排期/设定截止日弹窗 */}
+      <QuickScheduleModal
+        task={quickScheduleTask}
+        isOpen={!!quickScheduleTask}
+        onClose={() => setQuickScheduleTask(null)}
+        onSave={async (updatedTask, changeReason) => {
+          if (onUpdateTask) {
+            await onUpdateTask(updatedTask, changeReason);
+          }
+        }}
+      />
     </div>
   );
 }
