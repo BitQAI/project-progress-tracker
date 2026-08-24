@@ -4,14 +4,38 @@
 
 ---
 
-## 📌 部署前准备：环境变量清单
+## 📌 部署前准备：环境变量清单与数据库结构
 
-无论采用何种部署方案，都必须配置以下环境变量以确保与 Supabase 云数据库的正常连通。请提前复制：
+### 1. 环境变量配置
 
-| 变量名称 | 示例值 | 说明 |
+无论采用何种部署方案，都必须配置以下环境变量以确保与 Supabase 云数据库以及附件存储的正常连通：
+
+| 变量名称 | 示例值 / 默认值 | 说明 |
 | :--- | :--- | :--- |
-| `NEXT_PUBLIC_SUPABASE_URL` | `https://ifgmjhoaskhaorgstxsk.supabase.co` | 您的 Supabase 项目接口地址 |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `sb_publishable_FRKkiDoNE9QYImevQCL55A_9U46ZrFK` | 您的 Supabase 客户端公钥 (Anon Key) |
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://ifgmjhoaskhaorgstxsk.supabase.co` | 您的 Supabase 项目接口地址 (必填) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `sb_publishable_FRKkiDoNE9QYImevQCL55A_9U46ZrFK` | 您的 Supabase 客户端公钥 (必填) |
+| `QINIU_ACCESS_KEY` | `K2O9yO0C...` | 七牛云 OSS AccessKey (选填，未配置时自动内联兼容) |
+| `QINIU_SECRET_KEY` | `...` | 七牛云 OSS SecretKey (选填) |
+| `QINIU_BUCKET` | `bitqai` | 七牛云空间名称 (选填) |
+| `QINIU_DOMAIN` | `files.bitqai.com` | 七牛云绑定加速域名 (选填) |
+| `GEMINI_API_KEY` | `...` | Gemini AI 决策与看板统计 API Key (选填) |
+| `ZHIPU_API_KEY` | `...` | 智谱 AI 助手 API Key (选填) |
+
+### 2. Supabase 数据库升级语句 (SQL Editor 执行)
+
+如果您已在 Supabase 创建了表，请前往 Supabase 控制台的 **SQL Editor** 执行以下增量迁移语句，以确保任务交付件与证据链附件在云端持久化：
+
+```sql
+-- 支持任务交付物附件数组存储 (图片、Markdown、PDF 等)
+ALTER TABLE pm_tasks ADD COLUMN IF NOT EXISTS deliverable_attachments JSONB DEFAULT '[]'::jsonb;
+
+-- 支持评论区多格式证据链附件存储
+ALTER TABLE pm_comments ADD COLUMN IF NOT EXISTS attachments JSONB DEFAULT '[]'::jsonb;
+
+-- 支持审计动态日志的附件与图片存储
+ALTER TABLE pm_activity_logs ADD COLUMN IF NOT EXISTS attachments JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE pm_activity_logs ADD COLUMN IF NOT EXISTS image_url TEXT;
+```
 
 ---
 

@@ -210,6 +210,7 @@ export async function syncLocalStateToSupabase(sourceDb: AppDatabase): Promise<{
         deliverable_items: t.deliverable_items || [],
         deliverable_submission: t.deliverable_submission || null,
         deliverable_submitted_at: t.deliverable_submitted_at || null,
+        deliverable_attachments: t.deliverable_attachments || [],
         done_at: t.done_at || null,
         created_at: t.created_at || new Date().toISOString(),
       }));
@@ -235,6 +236,7 @@ export async function syncLocalStateToSupabase(sourceDb: AppDatabase): Promise<{
         content: c.content,
         created_at: c.created_at || new Date().toISOString(),
         image_url: c.image_url || null,
+        attachments: c.attachments || [],
       }));
       const { error } = await supabase.from('pm_comments').upsert(commentRows);
       if (error) throw error;
@@ -253,6 +255,8 @@ export async function syncLocalStateToSupabase(sourceDb: AppDatabase): Promise<{
         detail: a.detail || null,
         author: a.author,
         timestamp: a.timestamp || new Date().toISOString(),
+        image_url: a.image_url || null,
+        attachments: a.attachments || [],
       }));
       const { error } = await supabase.from('pm_activity_logs').upsert(actRows);
       if (error) throw error;
@@ -321,6 +325,7 @@ export async function ensureDbLoaded(): Promise<AppDatabase> {
               deliverable_items: t.deliverable_items,
               deliverable_submission: t.deliverable_submission,
               deliverable_submitted_at: t.deliverable_submitted_at,
+              deliverable_attachments: t.deliverable_attachments || [],
               done_at: t.done_at,
               created_at: t.created_at,
             })),
@@ -351,6 +356,7 @@ export async function ensureDbLoaded(): Promise<AppDatabase> {
               content: c.content,
               created_at: c.created_at,
               image_url: c.image_url || null,
+              attachments: c.attachments || [],
             })),
             activities: (actsRes.data || []).map((a) => ({
               id: a.id,
@@ -362,6 +368,8 @@ export async function ensureDbLoaded(): Promise<AppDatabase> {
               detail: a.detail,
               author: a.author,
               timestamp: a.timestamp,
+              image_url: a.image_url || null,
+              attachments: a.attachments || [],
             })),
           };
 
