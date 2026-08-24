@@ -6,6 +6,7 @@ import {
   describeTaskDiff,
 } from './activity-logger';
 import { TaskStatus, DeliverableItem, FileAttachment } from './types';
+import { normalizeDoneAtTimestamp } from './date-utils';
 
 function generateId(prefix: string): string {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
@@ -145,7 +146,7 @@ export async function updateTask(
       task.deliverable_attachments = deliverableAttachments;
     }
     if (doneAt !== undefined) {
-      task.done_at = doneAt ? (doneAt.includes('T') ? doneAt : `${doneAt}T12:00:00.000Z`) : null;
+      task.done_at = doneAt ? normalizeDoneAtTimestamp(doneAt) : null;
     }
     if (status !== undefined) {
       task.status = status;
@@ -198,11 +199,7 @@ export async function toggleTaskStatus(
   const task = db.tasks.find((t) => t.id === taskId);
   if (task) {
     task.status = status;
-    const now = customDoneAt
-      ? customDoneAt.includes('T')
-        ? customDoneAt
-        : `${customDoneAt}T12:00:00.000Z`
-      : new Date().toISOString();
+    const now = normalizeDoneAtTimestamp(customDoneAt);
     const { projectId } = findRootProjectIdByTask(db, taskId);
     const rootId = projectId || findRootProjectId(db, task.node_id);
 

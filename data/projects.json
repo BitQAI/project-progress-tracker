@@ -1,25 +1,12 @@
 {
   "nodes": [
     {
-      "id": "node_1787034644812_19lkh",
-      "parent_id": "proj_1787034273833_t0513",
-      "name": "阶段1：信息采集 + 自动摘要",
-      "owner": "郭鑫",
-      "order": 1,
-      "status": "in_progress",
-      "priority": "P1",
-      "description": null,
-      "estimated_duration": null,
-      "due_date": null,
-      "created_at": "2026-08-18T06:30:44.812+00:00"
-    },
-    {
       "id": "node_1787041345199_iqcwh",
       "parent_id": "proj_1787041302427_h90di",
       "name": "阶段1：AI问答入口（基础智能化）",
       "owner": "郭鑫",
       "order": 1,
-      "status": "in_progress",
+      "status": "unstarted",
       "priority": "P1",
       "description": null,
       "estimated_duration": null,
@@ -32,7 +19,7 @@
       "name": "第一阶段部署后新增的要求",
       "owner": "郭鑫",
       "order": 1,
-      "status": "in_progress",
+      "status": "done",
       "priority": "P1",
       "description": null,
       "estimated_duration": null,
@@ -45,12 +32,25 @@
       "name": "第一阶段：组织目标与岗位体系构建（自上而下拆解）",
       "owner": "郭鑫",
       "order": 1,
-      "status": "in_progress",
+      "status": "done",
       "priority": "P1",
       "description": "公司/部门/岗位目标树 标准化组织绩效目标、岗位JD、岗位绩效目标 岗位目标承载清单（每个岗位应该“承担什么结果”）",
       "estimated_duration": "36人天",
       "due_date": "2026-08-14",
       "created_at": "2026-08-18T07:33:43.205+00:00"
+    },
+    {
+      "id": "node_1787034644812_19lkh",
+      "parent_id": "proj_1787034273833_t0513",
+      "name": "阶段1：信息采集 + 自动摘要",
+      "owner": "郭鑫",
+      "order": 1,
+      "status": "unstarted",
+      "priority": "P1",
+      "description": null,
+      "estimated_duration": null,
+      "due_date": null,
+      "created_at": "2026-08-18T06:30:44.812+00:00"
     },
     {
       "id": "proj_1787038257116_wkrdf",
@@ -66,12 +66,25 @@
       "created_at": "2026-08-18T07:30:57.116+00:00"
     },
     {
+      "id": "node_1787041357145_h8vhq",
+      "parent_id": "proj_1787041302427_h90di",
+      "name": "阶段2：意图识别 + 推荐系统",
+      "owner": "郭鑫",
+      "order": 2,
+      "status": "unstarted",
+      "priority": "P1",
+      "description": null,
+      "estimated_duration": null,
+      "due_date": null,
+      "created_at": "2026-08-18T08:22:37.145+00:00"
+    },
+    {
       "id": "node_1787034701344_xnj9n",
       "parent_id": "proj_1787034273833_t0513",
       "name": "阶段2：结构化分析 + 对比能力",
       "owner": "郭鑫",
       "order": 2,
-      "status": "in_progress",
+      "status": "unstarted",
       "priority": "P1",
       "description": null,
       "estimated_duration": null,
@@ -92,25 +105,12 @@
       "created_at": "2026-08-18T07:43:18.445+00:00"
     },
     {
-      "id": "node_1787041357145_h8vhq",
-      "parent_id": "proj_1787041302427_h90di",
-      "name": "阶段2：意图识别 + 推荐系统",
-      "owner": "郭鑫",
-      "order": 2,
-      "status": "in_progress",
-      "priority": "P1",
-      "description": null,
-      "estimated_duration": null,
-      "due_date": null,
-      "created_at": "2026-08-18T08:22:37.145+00:00"
-    },
-    {
       "id": "node_1787034712462_chngh",
       "parent_id": "proj_1787034273833_t0513",
       "name": "阶段3：组织级认知系统（自动推送）",
       "owner": "郭鑫",
       "order": 3,
-      "status": "in_progress",
+      "status": "unstarted",
       "priority": "P1",
       "description": null,
       "estimated_duration": null,
@@ -149,7 +149,7 @@
       "name": "阶段3：转化智能化",
       "owner": "郭鑫",
       "order": 3,
-      "status": "in_progress",
+      "status": "unstarted",
       "priority": "P1",
       "description": null,
       "estimated_duration": null,
@@ -162,7 +162,7 @@
       "name": "第三阶段：目标执行与过程管理（动态追踪）",
       "owner": "郭鑫",
       "order": 3,
-      "status": "in_progress",
+      "status": "unstarted",
       "priority": "P1",
       "description": "从“年终考核”转向“过程管理 + 风险干预”。",
       "estimated_duration": "4周",
@@ -188,7 +188,7 @@
       "name": "第四阶段：绩效评估与反馈闭环（AI辅助评估）",
       "owner": "郭鑫",
       "order": 4,
-      "status": "in_progress",
+      "status": "unstarted",
       "priority": "P1",
       "description": "构建“证据驱动 + AI辅助 + 多角色协同”的绩效评估体系。",
       "estimated_duration": "4.5周",
@@ -201,7 +201,7 @@
       "name": "第五阶段：AI自治型组织绩效系统（AI自主驱动）",
       "owner": "郭鑫",
       "order": 5,
-      "status": "in_progress",
+      "status": "unstarted",
       "priority": "P1",
       "description": "从“AI辅助绩效管理”升级为“AI自主驱动的组织绩效运行系统”，实现绩效管理从流程工具进化为组织智能操作系统。",
       "estimated_duration": "5周",
@@ -227,7 +227,7 @@
       "name": "公司产品商标前置工作",
       "owner": "郭鑫、熊老师、唐婷婷",
       "order": 6,
-      "status": "in_progress",
+      "status": "done",
       "priority": "P1",
       "description": null,
       "estimated_duration": "1周",
@@ -240,7 +240,7 @@
       "name": "临时工作安排",
       "owner": "郭鑫",
       "order": 7,
-      "status": "in_progress",
+      "status": "done",
       "priority": "P2",
       "description": "记录所有的临时工作安排",
       "estimated_duration": null,
@@ -265,6 +265,7 @@
     {
       "id": "task_1787052155585_anesu",
       "node_id": "proj_1787041566194_rt1xi",
+      "parent_id": null,
       "name": "根据新的文案+口播制作视频",
       "owner": "郭鑫",
       "due_date": null,
@@ -288,6 +289,7 @@
     {
       "id": "task_1787052262981_a15ae",
       "node_id": "node_1787039047763_nsa1s",
+      "parent_id": null,
       "name": "拆解第三阶段任务并与王老师，彭老师对齐",
       "owner": "郭鑫",
       "due_date": null,
@@ -303,8 +305,297 @@
       "created_at": "2026-08-18T11:24:22.981+00:00"
     },
     {
+      "id": "task_1787038562135_uvhmy",
+      "node_id": "node_1787038423205_03kdm",
+      "parent_id": null,
+      "name": "市场验证（市场情况，确定差异化方向）",
+      "owner": "郭鑫",
+      "due_date": "2026-07-03",
+      "estimated_duration": null,
+      "status": "done",
+      "has_deliverable": true,
+      "deliverable_requirement": "竞品分析文档与产品定位与产品路线图 Roadmap",
+      "deliverable_items": [],
+      "deliverable_submission": "产品定位与产品路线图 Roadmap",
+      "deliverable_submitted_at": "2026-07-02T12:00:00+00:00",
+      "deliverable_attachments": [],
+      "done_at": "2026-07-02T12:00:00+00:00",
+      "created_at": "2026-08-18T07:36:02.135+00:00"
+    },
+    {
+      "id": "task_1787052738625_pkk7c",
+      "node_id": "node_1787039047763_nsa1s",
+      "parent_id": null,
+      "name": "模块开发",
+      "owner": "郭鑫",
+      "due_date": null,
+      "estimated_duration": null,
+      "status": "pending",
+      "has_deliverable": true,
+      "deliverable_requirement": "1. 逐功能 spec+plan+验证（沿用 superpowers）",
+      "deliverable_items": [
+        {
+          "id": "deliv_item_87_qwus",
+          "name": "逐功能 spec+plan+验证（沿用 superpowers）",
+          "requirement": ""
+        }
+      ],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": null,
+      "created_at": "2026-08-18T11:32:18.625+00:00"
+    },
+    {
+      "id": "task_1787039673468_gwi07",
+      "node_id": "node_1787038423205_03kdm",
+      "parent_id": null,
+      "name": "需求拆解（明确当前版本做什么）",
+      "owner": "郭鑫",
+      "due_date": "2026-07-07",
+      "estimated_duration": null,
+      "status": "done",
+      "has_deliverable": false,
+      "deliverable_requirement": null,
+      "deliverable_items": [],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": "2026-07-05T12:00:00+00:00",
+      "created_at": "2026-08-18T07:54:33.468+00:00"
+    },
+    {
+      "id": "task_1787041042047_7ooad",
+      "node_id": "node_1787040949737_z8c7z",
+      "parent_id": null,
+      "name": "生成测试账号",
+      "owner": "郭鑫",
+      "due_date": "2026-08-18",
+      "estimated_duration": null,
+      "status": "done",
+      "has_deliverable": false,
+      "deliverable_requirement": null,
+      "deliverable_items": [],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": "2026-08-18T12:00:00+00:00",
+      "created_at": "2026-08-18T08:17:22.047+00:00"
+    },
+    {
+      "id": "task_1787040779460_ygm4a",
+      "node_id": "node_1787038423205_03kdm",
+      "parent_id": null,
+      "name": "测试 + 部署",
+      "owner": "郭鑫",
+      "due_date": "2026-08-14",
+      "estimated_duration": "3天",
+      "status": "done",
+      "has_deliverable": false,
+      "deliverable_requirement": null,
+      "deliverable_items": [],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": "2026-08-14T12:00:00+00:00",
+      "created_at": "2026-08-18T08:12:59.46+00:00"
+    },
+    {
+      "id": "task_1787041983185_joc1x",
+      "node_id": "proj_1787041914979_xvreu",
+      "parent_id": null,
+      "name": "筛选域名并选定",
+      "owner": "郭鑫",
+      "due_date": "2026-08-03",
+      "estimated_duration": "0.5天",
+      "status": "done",
+      "has_deliverable": true,
+      "deliverable_requirement": "1. 域名完成购买注册",
+      "deliverable_items": [
+        {
+          "id": "deliv_init_1",
+          "name": "域名完成购买注册",
+          "requirement": ""
+        }
+      ],
+      "deliverable_submission": "8.3日下午确定heyihuajun.com并完成注册",
+      "deliverable_submitted_at": "2026-08-03T12:00:00+00:00",
+      "deliverable_attachments": [],
+      "done_at": "2026-08-03T12:00:00+00:00",
+      "created_at": "2026-08-18T08:33:03.185+00:00"
+    },
+    {
+      "id": "task_1787046805802_bfrla",
+      "node_id": "proj_1787041566194_rt1xi",
+      "parent_id": null,
+      "name": "制作视频并进行初版交付",
+      "owner": "郭鑫",
+      "due_date": "2026-08-14",
+      "estimated_duration": "5天",
+      "status": "done",
+      "has_deliverable": true,
+      "deliverable_requirement": "1. 初版视频交付件",
+      "deliverable_items": [
+        {
+          "id": "deliv_init_1",
+          "name": "初版视频交付件",
+          "requirement": ""
+        }
+      ],
+      "deliverable_submission": "完成第一版视频，但是由于临时调整了名字导致第二天才交付",
+      "deliverable_submitted_at": "2026-08-15T12:00:00+00:00",
+      "deliverable_attachments": [],
+      "done_at": "2026-08-15T12:00:00+00:00",
+      "created_at": "2026-08-18T09:53:25.802+00:00"
+    },
+    {
+      "id": "task_1787042166687_0bg9g",
+      "node_id": "proj_1787041914979_xvreu",
+      "parent_id": null,
+      "name": "域名的备案也需要以公司购买的服务器才可以",
+      "owner": "郭鑫",
+      "due_date": "2026-08-25",
+      "estimated_duration": null,
+      "status": "pending",
+      "has_deliverable": false,
+      "deliverable_requirement": null,
+      "deliverable_items": [],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": null,
+      "created_at": "2026-08-18T08:36:06.687+00:00"
+    },
+    {
+      "id": "task_1787042989404_wfefr",
+      "node_id": "proj_1787042398956_497dk",
+      "parent_id": null,
+      "name": "8月17日收到要重新选择名字",
+      "owner": "郭鑫",
+      "due_date": "2026-08-18",
+      "estimated_duration": null,
+      "status": "done",
+      "has_deliverable": false,
+      "deliverable_requirement": null,
+      "deliverable_items": [],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": "2026-08-18T12:00:00+00:00",
+      "created_at": "2026-08-18T08:49:49.404+00:00"
+    },
+    {
+      "id": "task_1787043230964_o6npr",
+      "node_id": "proj_1787043159243_t1s5t",
+      "parent_id": null,
+      "name": "生成AI产品宣传图",
+      "owner": "郭鑫",
+      "due_date": "2026-08-14",
+      "estimated_duration": null,
+      "status": "done",
+      "has_deliverable": true,
+      "deliverable_requirement": "1. 参考北森生成的产品图片",
+      "deliverable_items": [
+        {
+          "id": "deliv_init_1",
+          "name": "参考北森生成的产品图片",
+          "requirement": ""
+        }
+      ],
+      "deliverable_submission": "已经提交",
+      "deliverable_submitted_at": "2026-08-14T12:00:00+00:00",
+      "deliverable_attachments": [],
+      "done_at": "2026-08-14T12:00:00+00:00",
+      "created_at": "2026-08-18T08:53:50.964+00:00"
+    },
+    {
+      "id": "task_1787043367063_4zzor",
+      "node_id": "proj_1787043159243_t1s5t",
+      "parent_id": null,
+      "name": "企业咨询行业-AI 营销与获客方案-八家同行对标调研报告",
+      "owner": "郭鑫",
+      "due_date": "2026-08-07",
+      "estimated_duration": null,
+      "status": "done",
+      "has_deliverable": true,
+      "deliverable_requirement": "1. 调研报告",
+      "deliverable_items": [
+        {
+          "id": "deliv_init_1",
+          "name": "调研报告",
+          "requirement": ""
+        }
+      ],
+      "deliverable_submission": "调研报告已提交",
+      "deliverable_submitted_at": "2026-08-07T12:00:00+00:00",
+      "deliverable_attachments": [],
+      "done_at": "2026-08-07T12:00:00+00:00",
+      "created_at": "2026-08-18T08:56:07.063+00:00"
+    },
+    {
+      "id": "task_1787043449890_sii52",
+      "node_id": "proj_1787043159243_t1s5t",
+      "parent_id": null,
+      "name": "AI 产品包装营销推广方案报告",
+      "owner": "郭鑫",
+      "due_date": "2026-08-17",
+      "estimated_duration": null,
+      "status": "done",
+      "has_deliverable": false,
+      "deliverable_requirement": null,
+      "deliverable_items": [],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": "2026-08-17T12:00:00+00:00",
+      "created_at": "2026-08-18T08:57:29.89+00:00"
+    },
+    {
+      "id": "task_1787046664504_hlx07",
+      "node_id": "proj_1787041566194_rt1xi",
+      "parent_id": null,
+      "name": "7号接触到提高视频制作优先级",
+      "owner": "郭鑫",
+      "due_date": "2026-08-07",
+      "estimated_duration": null,
+      "status": "done",
+      "has_deliverable": true,
+      "deliverable_requirement": "1. 视频文案内容",
+      "deliverable_items": [
+        {
+          "id": "deliv_init_1",
+          "name": "视频文案内容",
+          "requirement": ""
+        }
+      ],
+      "deliverable_submission": "7号下午提交文案并对齐，确定按11个方向先生成视频。",
+      "deliverable_submitted_at": "2026-08-07T12:00:00+00:00",
+      "deliverable_attachments": [],
+      "done_at": "2026-08-07T12:00:00+00:00",
+      "created_at": "2026-08-18T09:51:04.504+00:00"
+    },
+    {
+      "id": "task_1787046957440_7xyrl",
+      "node_id": "proj_1787041566194_rt1xi",
+      "parent_id": null,
+      "name": "与王艺老师沟通，再次确认文案情况",
+      "owner": "郭鑫",
+      "due_date": "2026-08-18",
+      "estimated_duration": "1天",
+      "status": "done",
+      "has_deliverable": false,
+      "deliverable_requirement": null,
+      "deliverable_items": [],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": "2026-08-18T12:00:00+00:00",
+      "created_at": "2026-08-18T09:55:57.44+00:00"
+    },
+    {
       "id": "task_1787052273904_eg6ew",
       "node_id": "node_1787039060653_l8eqp",
+      "parent_id": null,
       "name": "拆解第四阶段任务并与王老师，彭老师对齐",
       "owner": "郭鑫",
       "due_date": null,
@@ -322,6 +613,7 @@
     {
       "id": "task_1787052284699_uabzk",
       "node_id": "node_1787039298811_qztna",
+      "parent_id": null,
       "name": "拆解第五阶段任务并与王老师，彭老师对齐",
       "owner": "郭鑫",
       "due_date": null,
@@ -337,13 +629,402 @@
       "created_at": "2026-08-18T11:24:44.699+00:00"
     },
     {
+      "id": "task_1787052519545_z13cj",
+      "node_id": "node_1787038998445_ig75e",
+      "parent_id": null,
+      "name": "联调+Debug",
+      "owner": "郭鑫",
+      "due_date": null,
+      "estimated_duration": null,
+      "status": "pending",
+      "has_deliverable": false,
+      "deliverable_requirement": null,
+      "deliverable_items": [],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": null,
+      "created_at": "2026-08-18T11:28:39.545+00:00"
+    },
+    {
+      "id": "task_1787052925499_0uj8u",
+      "node_id": "node_1787039298811_qztna",
+      "parent_id": null,
+      "name": "测试+部署",
+      "owner": "郭鑫",
+      "due_date": null,
+      "estimated_duration": null,
+      "status": "pending",
+      "has_deliverable": true,
+      "deliverable_requirement": "1. 验收报告",
+      "deliverable_items": [
+        {
+          "id": "deliv_init_1",
+          "name": "验收报告",
+          "requirement": ""
+        }
+      ],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": null,
+      "created_at": "2026-08-18T11:35:25.499+00:00"
+    },
+    {
+      "id": "task_1787052511167_uf6jq",
+      "node_id": "node_1787038998445_ig75e",
+      "parent_id": null,
+      "name": "模块开发",
+      "owner": "郭鑫",
+      "due_date": "2026-09-09",
+      "estimated_duration": "2.5周",
+      "status": "pending",
+      "has_deliverable": true,
+      "deliverable_requirement": "1. 逐功能 spec+plan+验证（沿用 superpowers）",
+      "deliverable_items": [
+        {
+          "id": "deliv_item_81_yoyr",
+          "name": "逐功能 spec+plan+验证（沿用 superpowers）",
+          "requirement": ""
+        }
+      ],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": null,
+      "created_at": "2026-08-18T11:28:31.168+00:00"
+    },
+    {
+      "id": "task_1787055624875_2h2it",
+      "node_id": "proj_1787042398956_497dk",
+      "parent_id": null,
+      "name": "仍在熊老师沟通商标细节",
+      "owner": "郭鑫",
+      "due_date": null,
+      "estimated_duration": null,
+      "status": "done",
+      "has_deliverable": true,
+      "deliverable_requirement": null,
+      "deliverable_items": [],
+      "deliverable_submission": "这部分工作应该暂时告一段落，后续如果有再进行新增吧",
+      "deliverable_submitted_at": "2026-08-24T03:35:10.075Z",
+      "deliverable_attachments": [
+        {
+          "id": "att_1787542505584_5r4da",
+          "url": "https://files.bitqai.com/protrack/att_image_1787542504796_rp3bs.png",
+          "name": "企业微信截图_48406c34-8ad9-48dd-92da-1abb4f0b6905.png",
+          "size": 162692,
+          "type": "image",
+          "uploaded_at": "2026-08-24T03:35:05.584Z"
+        },
+        {
+          "id": "att_1787542510075_se0b4",
+          "url": "https://files.bitqai.com/protrack/att_image_1787542507872_1m1ep.png",
+          "name": "企业微信截图_0062e317-78ce-4c89-982d-7d13f70f3b93.png",
+          "size": 1770805,
+          "type": "image",
+          "uploaded_at": "2026-08-24T03:35:10.075Z"
+        }
+      ],
+      "done_at": "2026-08-24T03:35:10.075Z",
+      "created_at": "2026-08-18T12:20:24.875+00:00"
+    },
+    {
+      "id": "task_1787046907955_hm5hk",
+      "node_id": "proj_1787041566194_rt1xi",
+      "parent_id": null,
+      "name": "重写文案",
+      "owner": "郭鑫",
+      "due_date": "2026-08-17",
+      "estimated_duration": "1天",
+      "status": "done",
+      "has_deliverable": true,
+      "deliverable_requirement": "1. Vela AI 产品宣传片 · 文案与脚本",
+      "deliverable_items": [
+        {
+          "id": "deliv_init_1",
+          "name": "Vela AI 产品宣传片 · 文案与脚本",
+          "requirement": ""
+        }
+      ],
+      "deliverable_submission": "正常交付，但是需要重写",
+      "deliverable_submitted_at": "2026-08-17T12:00:00+00:00",
+      "deliverable_attachments": [],
+      "done_at": "2026-08-17T12:00:00+00:00",
+      "created_at": "2026-08-18T09:55:07.955+00:00"
+    },
+    {
+      "id": "task_1787042100678_elh4p",
+      "node_id": "proj_1787041914979_xvreu",
+      "parent_id": null,
+      "name": "服务器临时先用个人的部署项目，待购买",
+      "owner": "郭鑫",
+      "due_date": "2026-08-25",
+      "estimated_duration": null,
+      "status": "pending",
+      "has_deliverable": false,
+      "deliverable_requirement": null,
+      "deliverable_items": [],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": null,
+      "created_at": "2026-08-18T08:35:00.678+00:00"
+    },
+    {
+      "id": "task_1787042927664_tu3fo",
+      "node_id": "proj_1787042398956_497dk",
+      "parent_id": null,
+      "name": "根据深入检索的内容生成最终的报告",
+      "owner": "郭鑫",
+      "due_date": "2026-08-13",
+      "estimated_duration": null,
+      "status": "done",
+      "has_deliverable": true,
+      "deliverable_requirement": "1. 候选商标名称检索分析报告",
+      "deliverable_items": [
+        {
+          "id": "deliv_init_1",
+          "name": "候选商标名称检索分析报告",
+          "requirement": ""
+        }
+      ],
+      "deliverable_submission": "已提交",
+      "deliverable_submitted_at": "2026-08-13T12:00:00+00:00",
+      "deliverable_attachments": [],
+      "done_at": "2026-08-13T12:00:00+00:00",
+      "created_at": "2026-08-18T08:48:47.664+00:00"
+    },
+    {
+      "id": "task_1787052749399_uyo1b",
+      "node_id": "node_1787039047763_nsa1s",
+      "parent_id": null,
+      "name": "联调+Debug",
+      "owner": "郭鑫",
+      "due_date": null,
+      "estimated_duration": null,
+      "status": "pending",
+      "has_deliverable": true,
+      "deliverable_requirement": "1. 修复清单",
+      "deliverable_items": [
+        {
+          "id": "deliv_item_89_7dsk",
+          "name": "修复清单",
+          "requirement": ""
+        }
+      ],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": null,
+      "created_at": "2026-08-18T11:32:29.399+00:00"
+    },
+    {
+      "id": "task_1787040526208_4woal",
+      "node_id": "node_1787038423205_03kdm",
+      "parent_id": null,
+      "name": "架构设计（前后端/数据库/API）",
+      "owner": "郭鑫",
+      "due_date": "2026-07-10",
+      "estimated_duration": "3.5天",
+      "status": "done",
+      "has_deliverable": false,
+      "deliverable_requirement": null,
+      "deliverable_items": [],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": "2026-07-08T12:00:00+00:00",
+      "created_at": "2026-08-18T08:08:46.208+00:00"
+    },
+    {
+      "id": "task_1787040609586_9yp52",
+      "node_id": "node_1787038423205_03kdm",
+      "parent_id": null,
+      "name": "模块开发（逐个功能实现）",
+      "owner": "郭鑫",
+      "due_date": "2026-08-14",
+      "estimated_duration": "27天",
+      "status": "done",
+      "has_deliverable": false,
+      "deliverable_requirement": null,
+      "deliverable_items": [],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": "2026-08-07T12:00:00+00:00",
+      "created_at": "2026-08-18T08:10:09.586+00:00"
+    },
+    {
+      "id": "task_1787040726894_v3jxs",
+      "node_id": "node_1787038423205_03kdm",
+      "parent_id": null,
+      "name": "联调 + debug",
+      "owner": "郭鑫",
+      "due_date": "2026-08-14",
+      "estimated_duration": "7天",
+      "status": "done",
+      "has_deliverable": false,
+      "deliverable_requirement": null,
+      "deliverable_items": [],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": "2026-08-12T12:00:00+00:00",
+      "created_at": "2026-08-18T08:12:06.894+00:00"
+    },
+    {
+      "id": "task_1787040748817_o9vwd",
+      "node_id": "node_1787038423205_03kdm",
+      "parent_id": null,
+      "name": "重构优化",
+      "owner": "郭鑫",
+      "due_date": "2026-08-14",
+      "estimated_duration": "8天",
+      "status": "done",
+      "has_deliverable": false,
+      "deliverable_requirement": null,
+      "deliverable_items": [],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": "2026-08-11T12:00:00+00:00",
+      "created_at": "2026-08-18T08:12:28.817+00:00"
+    },
+    {
+      "id": "task_1787055286612_6lo7j",
+      "node_id": "proj_1787043159243_t1s5t",
+      "parent_id": null,
+      "name": "你研究下 麦肯锡、华夏基石、百思特、传世智慧、乔诺、杰成合力的AI产品，每个2-3句话总结他们产品卖点和价值给我",
+      "owner": "郭鑫",
+      "due_date": null,
+      "estimated_duration": null,
+      "status": "done",
+      "has_deliverable": true,
+      "deliverable_requirement": null,
+      "deliverable_items": [],
+      "deliverable_submission": "这个在8.19提交后没有新的安排。标记📌为完成完成",
+      "deliverable_submitted_at": "2026-08-19T12:00:00+00:00",
+      "deliverable_attachments": [],
+      "done_at": "2026-08-19T12:00:00+00:00",
+      "created_at": "2026-08-18T12:14:46.612+00:00"
+    },
+    {
+      "id": "task_1787046736269_d8vl7",
+      "node_id": "proj_1787041566194_rt1xi",
+      "parent_id": null,
+      "name": "AI视频制作流程学习与了解",
+      "owner": "郭鑫",
+      "due_date": "2026-08-09",
+      "estimated_duration": "2天",
+      "status": "done",
+      "has_deliverable": false,
+      "deliverable_requirement": null,
+      "deliverable_items": [],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": "2026-08-09T12:00:00+00:00",
+      "created_at": "2026-08-18T09:52:16.269+00:00"
+    },
+    {
+      "id": "task_1787042431548_s4r4u",
+      "node_id": "proj_1787042398956_497dk",
+      "parent_id": null,
+      "name": "提供中文商标，英文商标各100个",
+      "owner": "郭鑫",
+      "due_date": "2026-08-11",
+      "estimated_duration": "1天",
+      "status": "done",
+      "has_deliverable": true,
+      "deliverable_requirement": "1. 100个中文商标以及检索报告\n2. 100个英文商标以及检索报告",
+      "deliverable_items": [
+        {
+          "id": "deliv_item_69_ewuv",
+          "name": "100个中文商标以及检索报告",
+          "requirement": ""
+        },
+        {
+          "id": "deliv_item_71_bie3",
+          "name": "100个英文商标以及检索报告",
+          "requirement": ""
+        }
+      ],
+      "deliverable_submission": "都已交付",
+      "deliverable_submitted_at": "2026-08-11T12:00:00+00:00",
+      "deliverable_attachments": [],
+      "done_at": "2026-08-11T12:00:00+00:00",
+      "created_at": "2026-08-18T08:40:31.548+00:00"
+    },
+    {
+      "id": "task_1787052756449_q41a9",
+      "node_id": "node_1787039047763_nsa1s",
+      "parent_id": null,
+      "name": "测试+部署",
+      "owner": "郭鑫",
+      "due_date": null,
+      "estimated_duration": null,
+      "status": "pending",
+      "has_deliverable": true,
+      "deliverable_requirement": "1. 验收报告",
+      "deliverable_items": [
+        {
+          "id": "deliv_item_91_ayhk",
+          "name": "验收报告",
+          "requirement": ""
+        }
+      ],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": null,
+      "created_at": "2026-08-18T11:32:36.449+00:00"
+    },
+    {
+      "id": "task_1787052766496_0m0iu",
+      "node_id": "node_1787039060653_l8eqp",
+      "parent_id": null,
+      "name": "模块开发",
+      "owner": "郭鑫",
+      "due_date": null,
+      "estimated_duration": null,
+      "status": "pending",
+      "has_deliverable": false,
+      "deliverable_requirement": null,
+      "deliverable_items": [],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": null,
+      "created_at": "2026-08-18T11:32:46.496+00:00"
+    },
+    {
+      "id": "task_1787052837007_0m9gk",
+      "node_id": "node_1787039060653_l8eqp",
+      "parent_id": null,
+      "name": "联调+Debug",
+      "owner": "郭鑫",
+      "due_date": null,
+      "estimated_duration": null,
+      "status": "pending",
+      "has_deliverable": false,
+      "deliverable_requirement": null,
+      "deliverable_items": [],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": null,
+      "created_at": "2026-08-18T11:33:57.007+00:00"
+    },
+    {
       "id": "task_1787047452977_piw2a",
       "node_id": "node_1787038998445_ig75e",
+      "parent_id": null,
       "name": "拆解第二阶段任务并与王老师，彭老师对齐",
       "owner": "郭鑫",
       "due_date": "2026-08-24",
       "estimated_duration": "3-4天",
-      "status": "pending",
+      "status": "done",
       "has_deliverable": true,
       "deliverable_requirement": "1. 阶段 PRD文档 (该阶段做什么、用户故事、验收标准（对应第一阶段的\"环节流转详情\"）)\n2. 阶段技术设计文档 (数据模型、API、模块划分、与上一阶段的架构衔接（对应\"应用设计+模块清单\"）)\n3. 阶段 UI 设计 (页面清单、交互流程、界面结构（对应\"核心页面UI结构示例\"）)\n4. 阶段计划 Plan (任务分解、里程碑、时间排期（对应 superpowers plan，升级为阶段级）)\n5. 阶段验收报告 (完成度、测试结果、已知问题、遗留事项)",
       "deliverable_items": [
@@ -373,55 +1054,33 @@
           "requirement": "完成度、测试结果、已知问题、遗留事项"
         }
       ],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": null,
-      "created_at": "2026-08-18T10:04:12.977+00:00"
-    },
-    {
-      "id": "task_1787042100678_elh4p",
-      "node_id": "proj_1787041914979_xvreu",
-      "name": "服务器临时先用个人的部署项目，待购买",
-      "owner": "郭鑫",
-      "due_date": "2026-08-25",
-      "estimated_duration": null,
-      "status": "pending",
-      "has_deliverable": false,
-      "deliverable_requirement": null,
-      "deliverable_items": [],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": null,
-      "created_at": "2026-08-18T08:35:00.678+00:00"
-    },
-    {
-      "id": "task_1787052511167_uf6jq",
-      "node_id": "node_1787038998445_ig75e",
-      "name": "模块开发",
-      "owner": "郭鑫",
-      "due_date": null,
-      "estimated_duration": null,
-      "status": "pending",
-      "has_deliverable": true,
-      "deliverable_requirement": "1. 逐功能 spec+plan+验证（沿用 superpowers）",
-      "deliverable_items": [
+      "deliverable_submission": "相关开发文档与需求已上传。",
+      "deliverable_submitted_at": "2026-08-24T03:52:49.905Z",
+      "deliverable_attachments": [
         {
-          "id": "deliv_item_81_yoyr",
-          "name": "逐功能 spec+plan+验证（沿用 superpowers）",
-          "requirement": ""
+          "id": "att_1787539575779_qoljn",
+          "url": "https://files.bitqai.com/protrack/att_pdf_1787539575247_ujqex.pdf",
+          "name": "core-table-phase2.pdf",
+          "size": 161911,
+          "type": "pdf",
+          "uploaded_at": "2026-08-24T02:46:15.779Z"
+        },
+        {
+          "id": "att_1787543569905_xt8iq",
+          "url": "https://files.bitqai.com/protrack/att_image_1787543569401_orxn1.png",
+          "name": "企业微信截图_013c85bb-3bc4-4cd0-8aad-25a3cdb1c25a.png",
+          "size": 31489,
+          "type": "image",
+          "uploaded_at": "2026-08-24T03:52:49.905Z"
         }
       ],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": null,
-      "created_at": "2026-08-18T11:28:31.168+00:00"
+      "done_at": "2026-08-24T03:52:49.905Z",
+      "created_at": "2026-08-18T10:04:12.977+00:00"
     },
     {
       "id": "task_1787052527293_oa1wg",
       "node_id": "node_1787038998445_ig75e",
+      "parent_id": null,
       "name": "测试+部署",
       "owner": "郭鑫",
       "due_date": null,
@@ -437,218 +1096,14 @@
       "created_at": "2026-08-18T11:28:47.293+00:00"
     },
     {
-      "id": "task_1787038562135_uvhmy",
-      "node_id": "node_1787038423205_03kdm",
-      "name": "市场验证（市场情况，确定差异化方向）",
-      "owner": "郭鑫",
-      "due_date": "2026-07-03",
-      "estimated_duration": null,
-      "status": "done",
-      "has_deliverable": true,
-      "deliverable_requirement": "竞品分析文档与产品定位与产品路线图 Roadmap",
-      "deliverable_items": [],
-      "deliverable_submission": "产品定位与产品路线图 Roadmap",
-      "deliverable_submitted_at": "2026-07-02T12:00:00+00:00",
-      "deliverable_attachments": [],
-      "done_at": "2026-07-02T12:00:00+00:00",
-      "created_at": "2026-08-18T07:36:02.135+00:00"
-    },
-    {
-      "id": "task_1787052738625_pkk7c",
-      "node_id": "node_1787039047763_nsa1s",
-      "name": "模块开发",
+      "id": "task_1787052845364_ihv3b",
+      "node_id": "node_1787039060653_l8eqp",
+      "parent_id": null,
+      "name": "测试+部署",
       "owner": "郭鑫",
       "due_date": null,
       "estimated_duration": null,
       "status": "pending",
-      "has_deliverable": true,
-      "deliverable_requirement": "1. 逐功能 spec+plan+验证（沿用 superpowers）",
-      "deliverable_items": [
-        {
-          "id": "deliv_item_87_qwus",
-          "name": "逐功能 spec+plan+验证（沿用 superpowers）",
-          "requirement": ""
-        }
-      ],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": null,
-      "created_at": "2026-08-18T11:32:18.625+00:00"
-    },
-    {
-      "id": "task_1787039673468_gwi07",
-      "node_id": "node_1787038423205_03kdm",
-      "name": "需求拆解（明确当前版本做什么）",
-      "owner": "郭鑫",
-      "due_date": "2026-07-07",
-      "estimated_duration": null,
-      "status": "done",
-      "has_deliverable": false,
-      "deliverable_requirement": null,
-      "deliverable_items": [],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": "2026-07-05T12:00:00+00:00",
-      "created_at": "2026-08-18T07:54:33.468+00:00"
-    },
-    {
-      "id": "task_1787052749399_uyo1b",
-      "node_id": "node_1787039047763_nsa1s",
-      "name": "联调+Debug",
-      "owner": "郭鑫",
-      "due_date": null,
-      "estimated_duration": null,
-      "status": "pending",
-      "has_deliverable": true,
-      "deliverable_requirement": "1. 修复清单",
-      "deliverable_items": [
-        {
-          "id": "deliv_item_89_7dsk",
-          "name": "修复清单",
-          "requirement": ""
-        }
-      ],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": null,
-      "created_at": "2026-08-18T11:32:29.399+00:00"
-    },
-    {
-      "id": "task_1787040526208_4woal",
-      "node_id": "node_1787038423205_03kdm",
-      "name": "架构设计（前后端/数据库/API）",
-      "owner": "郭鑫",
-      "due_date": "2026-07-10",
-      "estimated_duration": "3.5天",
-      "status": "done",
-      "has_deliverable": false,
-      "deliverable_requirement": null,
-      "deliverable_items": [],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": "2026-07-08T12:00:00+00:00",
-      "created_at": "2026-08-18T08:08:46.208+00:00"
-    },
-    {
-      "id": "task_1787040609586_9yp52",
-      "node_id": "node_1787038423205_03kdm",
-      "name": "模块开发（逐个功能实现）",
-      "owner": "郭鑫",
-      "due_date": "2026-08-14",
-      "estimated_duration": "27天",
-      "status": "done",
-      "has_deliverable": false,
-      "deliverable_requirement": null,
-      "deliverable_items": [],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": "2026-08-07T12:00:00+00:00",
-      "created_at": "2026-08-18T08:10:09.586+00:00"
-    },
-    {
-      "id": "task_1787040726894_v3jxs",
-      "node_id": "node_1787038423205_03kdm",
-      "name": "联调 + debug",
-      "owner": "郭鑫",
-      "due_date": "2026-08-14",
-      "estimated_duration": "7天",
-      "status": "done",
-      "has_deliverable": false,
-      "deliverable_requirement": null,
-      "deliverable_items": [],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": "2026-08-12T12:00:00+00:00",
-      "created_at": "2026-08-18T08:12:06.894+00:00"
-    },
-    {
-      "id": "task_1787040748817_o9vwd",
-      "node_id": "node_1787038423205_03kdm",
-      "name": "重构优化",
-      "owner": "郭鑫",
-      "due_date": "2026-08-14",
-      "estimated_duration": "8天",
-      "status": "done",
-      "has_deliverable": false,
-      "deliverable_requirement": null,
-      "deliverable_items": [],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": "2026-08-11T12:00:00+00:00",
-      "created_at": "2026-08-18T08:12:28.817+00:00"
-    },
-    {
-      "id": "task_1787040779460_ygm4a",
-      "node_id": "node_1787038423205_03kdm",
-      "name": "测试 + 部署",
-      "owner": "郭鑫",
-      "due_date": "2026-08-14",
-      "estimated_duration": "3天",
-      "status": "done",
-      "has_deliverable": false,
-      "deliverable_requirement": null,
-      "deliverable_items": [],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": "2026-08-14T12:00:00+00:00",
-      "created_at": "2026-08-18T08:12:59.46+00:00"
-    },
-    {
-      "id": "task_1787046736269_d8vl7",
-      "node_id": "proj_1787041566194_rt1xi",
-      "name": "AI视频制作流程学习与了解",
-      "owner": "郭鑫",
-      "due_date": "2026-08-09",
-      "estimated_duration": "2天",
-      "status": "done",
-      "has_deliverable": false,
-      "deliverable_requirement": null,
-      "deliverable_items": [],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": "2026-08-09T12:00:00+00:00",
-      "created_at": "2026-08-18T09:52:16.269+00:00"
-    },
-    {
-      "id": "task_1787046907955_hm5hk",
-      "node_id": "proj_1787041566194_rt1xi",
-      "name": "重写文案",
-      "owner": "郭鑫",
-      "due_date": "2026-08-17",
-      "estimated_duration": "1天",
-      "status": "done",
-      "has_deliverable": true,
-      "deliverable_requirement": "1. Vela AI 产品宣传片 · 文案与脚本",
-      "deliverable_items": [
-        {
-          "id": "deliv_init_1",
-          "name": "Vela AI 产品宣传片 · 文案与脚本",
-          "requirement": ""
-        }
-      ],
-      "deliverable_submission": "正常交付，但是需要重写",
-      "deliverable_submitted_at": "2026-08-17T12:00:00+00:00",
-      "deliverable_attachments": [],
-      "done_at": "2026-08-17T12:00:00+00:00",
-      "created_at": "2026-08-18T09:55:07.955+00:00"
-    },
-    {
-      "id": "task_1787042166687_0bg9g",
-      "node_id": "proj_1787041914979_xvreu",
-      "name": "域名的备案也需要以公司购买的服务器才可以",
-      "owner": "郭鑫",
-      "due_date": "2026-08-25",
-      "estimated_duration": null,
-      "status": "pending",
       "has_deliverable": false,
       "deliverable_requirement": null,
       "deliverable_items": [],
@@ -656,182 +1111,12 @@
       "deliverable_submitted_at": null,
       "deliverable_attachments": [],
       "done_at": null,
-      "created_at": "2026-08-18T08:36:06.687+00:00"
-    },
-    {
-      "id": "task_1787042927664_tu3fo",
-      "node_id": "proj_1787042398956_497dk",
-      "name": "根据深入检索的内容生成最终的报告",
-      "owner": "郭鑫",
-      "due_date": "2026-08-13",
-      "estimated_duration": null,
-      "status": "done",
-      "has_deliverable": true,
-      "deliverable_requirement": "1. 候选商标名称检索分析报告",
-      "deliverable_items": [
-        {
-          "id": "deliv_init_1",
-          "name": "候选商标名称检索分析报告",
-          "requirement": ""
-        }
-      ],
-      "deliverable_submission": "已提交",
-      "deliverable_submitted_at": "2026-08-13T12:00:00+00:00",
-      "deliverable_attachments": [],
-      "done_at": "2026-08-13T12:00:00+00:00",
-      "created_at": "2026-08-18T08:48:47.664+00:00"
-    },
-    {
-      "id": "task_1787042431548_s4r4u",
-      "node_id": "proj_1787042398956_497dk",
-      "name": "提供中文商标，英文商标各100个",
-      "owner": "郭鑫",
-      "due_date": "2026-08-11",
-      "estimated_duration": "1天",
-      "status": "done",
-      "has_deliverable": true,
-      "deliverable_requirement": "1. 100个中文商标以及检索报告\n2. 100个英文商标以及检索报告",
-      "deliverable_items": [
-        {
-          "id": "deliv_item_69_ewuv",
-          "name": "100个中文商标以及检索报告",
-          "requirement": ""
-        },
-        {
-          "id": "deliv_item_71_bie3",
-          "name": "100个英文商标以及检索报告",
-          "requirement": ""
-        }
-      ],
-      "deliverable_submission": "都已交付",
-      "deliverable_submitted_at": "2026-08-11T12:00:00+00:00",
-      "deliverable_attachments": [],
-      "done_at": "2026-08-11T12:00:00+00:00",
-      "created_at": "2026-08-18T08:40:31.548+00:00"
-    },
-    {
-      "id": "task_1787042989404_wfefr",
-      "node_id": "proj_1787042398956_497dk",
-      "name": "8月17日收到要重新选择名字",
-      "owner": "郭鑫",
-      "due_date": "2026-08-18",
-      "estimated_duration": null,
-      "status": "done",
-      "has_deliverable": false,
-      "deliverable_requirement": null,
-      "deliverable_items": [],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": "2026-08-18T12:00:00+00:00",
-      "created_at": "2026-08-18T08:49:49.404+00:00"
-    },
-    {
-      "id": "task_1787043230964_o6npr",
-      "node_id": "proj_1787043159243_t1s5t",
-      "name": "生成AI产品宣传图",
-      "owner": "郭鑫",
-      "due_date": "2026-08-14",
-      "estimated_duration": null,
-      "status": "done",
-      "has_deliverable": true,
-      "deliverable_requirement": "1. 参考北森生成的产品图片",
-      "deliverable_items": [
-        {
-          "id": "deliv_init_1",
-          "name": "参考北森生成的产品图片",
-          "requirement": ""
-        }
-      ],
-      "deliverable_submission": "已经提交",
-      "deliverable_submitted_at": "2026-08-14T12:00:00+00:00",
-      "deliverable_attachments": [],
-      "done_at": "2026-08-14T12:00:00+00:00",
-      "created_at": "2026-08-18T08:53:50.964+00:00"
-    },
-    {
-      "id": "task_1787043367063_4zzor",
-      "node_id": "proj_1787043159243_t1s5t",
-      "name": "企业咨询行业-AI 营销与获客方案-八家同行对标调研报告",
-      "owner": "郭鑫",
-      "due_date": "2026-08-07",
-      "estimated_duration": null,
-      "status": "done",
-      "has_deliverable": true,
-      "deliverable_requirement": "1. 调研报告",
-      "deliverable_items": [
-        {
-          "id": "deliv_init_1",
-          "name": "调研报告",
-          "requirement": ""
-        }
-      ],
-      "deliverable_submission": "调研报告已提交",
-      "deliverable_submitted_at": "2026-08-07T12:00:00+00:00",
-      "deliverable_attachments": [],
-      "done_at": "2026-08-07T12:00:00+00:00",
-      "created_at": "2026-08-18T08:56:07.063+00:00"
-    },
-    {
-      "id": "task_1787043449890_sii52",
-      "node_id": "proj_1787043159243_t1s5t",
-      "name": "AI 产品包装营销推广方案报告",
-      "owner": "郭鑫",
-      "due_date": "2026-08-17",
-      "estimated_duration": null,
-      "status": "done",
-      "has_deliverable": false,
-      "deliverable_requirement": null,
-      "deliverable_items": [],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": "2026-08-17T12:00:00+00:00",
-      "created_at": "2026-08-18T08:57:29.89+00:00"
-    },
-    {
-      "id": "task_1787046664504_hlx07",
-      "node_id": "proj_1787041566194_rt1xi",
-      "name": "7号接触到提高视频制作优先级",
-      "owner": "郭鑫",
-      "due_date": "2026-08-07",
-      "estimated_duration": null,
-      "status": "done",
-      "has_deliverable": true,
-      "deliverable_requirement": "1. 视频文案内容",
-      "deliverable_items": [
-        {
-          "id": "deliv_init_1",
-          "name": "视频文案内容",
-          "requirement": ""
-        }
-      ],
-      "deliverable_submission": "7号下午提交文案并对齐，确定按11个方向先生成视频。",
-      "deliverable_submitted_at": "2026-08-07T12:00:00+00:00",
-      "deliverable_attachments": [],
-      "done_at": "2026-08-07T12:00:00+00:00",
-      "created_at": "2026-08-18T09:51:04.504+00:00"
-    },
-    {
-      "id": "task_1787041042047_7ooad",
-      "node_id": "node_1787040949737_z8c7z",
-      "name": "生成测试账号",
-      "owner": "郭鑫",
-      "due_date": "2026-08-18",
-      "estimated_duration": null,
-      "status": "done",
-      "has_deliverable": false,
-      "deliverable_requirement": null,
-      "deliverable_items": [],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": "2026-08-18T12:00:00+00:00",
-      "created_at": "2026-08-18T08:17:22.047+00:00"
+      "created_at": "2026-08-18T11:34:05.364+00:00"
     },
     {
       "id": "task_1787041115830_8xe7z",
       "node_id": "node_1787040949737_z8c7z",
+      "parent_id": null,
       "name": "将测试账号提醒到个人并期望完成测试",
       "owner": "郭鑫",
       "due_date": "2026-08-21",
@@ -868,82 +1153,9 @@
       "created_at": "2026-08-18T08:18:35.83+00:00"
     },
     {
-      "id": "task_1787052756449_q41a9",
-      "node_id": "node_1787039047763_nsa1s",
-      "name": "测试+部署",
-      "owner": "郭鑫",
-      "due_date": null,
-      "estimated_duration": null,
-      "status": "pending",
-      "has_deliverable": true,
-      "deliverable_requirement": "1. 验收报告",
-      "deliverable_items": [
-        {
-          "id": "deliv_item_91_ayhk",
-          "name": "验收报告",
-          "requirement": ""
-        }
-      ],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": null,
-      "created_at": "2026-08-18T11:32:36.449+00:00"
-    },
-    {
-      "id": "task_1787052766496_0m0iu",
-      "node_id": "node_1787039060653_l8eqp",
-      "name": "模块开发",
-      "owner": "郭鑫",
-      "due_date": null,
-      "estimated_duration": null,
-      "status": "pending",
-      "has_deliverable": false,
-      "deliverable_requirement": null,
-      "deliverable_items": [],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": null,
-      "created_at": "2026-08-18T11:32:46.496+00:00"
-    },
-    {
-      "id": "task_1787052837007_0m9gk",
-      "node_id": "node_1787039060653_l8eqp",
-      "name": "联调+Debug",
-      "owner": "郭鑫",
-      "due_date": null,
-      "estimated_duration": null,
-      "status": "pending",
-      "has_deliverable": false,
-      "deliverable_requirement": null,
-      "deliverable_items": [],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": null,
-      "created_at": "2026-08-18T11:33:57.007+00:00"
-    },
-    {
-      "id": "task_1787052845364_ihv3b",
-      "node_id": "node_1787039060653_l8eqp",
-      "name": "测试+部署",
-      "owner": "郭鑫",
-      "due_date": null,
-      "estimated_duration": null,
-      "status": "pending",
-      "has_deliverable": false,
-      "deliverable_requirement": null,
-      "deliverable_items": [],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": null,
-      "created_at": "2026-08-18T11:34:05.364+00:00"
-    },
-    {
       "id": "task_1787052867661_azdyz",
       "node_id": "node_1787039298811_qztna",
+      "parent_id": null,
       "name": "模块开发",
       "owner": "郭鑫",
       "due_date": null,
@@ -967,6 +1179,7 @@
     {
       "id": "task_1787052897583_9svjv",
       "node_id": "node_1787039298811_qztna",
+      "parent_id": null,
       "name": "联调+Debug",
       "owner": "郭鑫",
       "due_date": null,
@@ -988,132 +1201,13 @@
       "created_at": "2026-08-18T11:34:57.583+00:00"
     },
     {
-      "id": "task_1787052925499_0uj8u",
-      "node_id": "node_1787039298811_qztna",
-      "name": "测试+部署",
-      "owner": "郭鑫",
-      "due_date": null,
-      "estimated_duration": null,
-      "status": "pending",
-      "has_deliverable": true,
-      "deliverable_requirement": "1. 验收报告",
-      "deliverable_items": [
-        {
-          "id": "deliv_init_1",
-          "name": "验收报告",
-          "requirement": ""
-        }
-      ],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": null,
-      "created_at": "2026-08-18T11:35:25.499+00:00"
-    },
-    {
-      "id": "task_1787055286612_6lo7j",
-      "node_id": "proj_1787043159243_t1s5t",
-      "name": "你研究下 麦肯锡、华夏基石、百思特、传世智慧、乔诺、杰成合力的AI产品，每个2-3句话总结他们产品卖点和价值给我",
-      "owner": "郭鑫",
-      "due_date": null,
-      "estimated_duration": null,
-      "status": "pending",
-      "has_deliverable": false,
-      "deliverable_requirement": null,
-      "deliverable_items": [],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": null,
-      "created_at": "2026-08-18T12:14:46.612+00:00"
-    },
-    {
-      "id": "task_1787055624875_2h2it",
-      "node_id": "proj_1787042398956_497dk",
-      "name": "仍在熊老师沟通商标细节",
-      "owner": "郭鑫",
-      "due_date": null,
-      "estimated_duration": null,
-      "status": "pending",
-      "has_deliverable": false,
-      "deliverable_requirement": null,
-      "deliverable_items": [],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": null,
-      "created_at": "2026-08-18T12:20:24.875+00:00"
-    },
-    {
-      "id": "task_1787041983185_joc1x",
-      "node_id": "proj_1787041914979_xvreu",
-      "name": "筛选域名并选定",
-      "owner": "郭鑫",
-      "due_date": "2026-08-03",
-      "estimated_duration": "0.5天",
-      "status": "done",
-      "has_deliverable": true,
-      "deliverable_requirement": "1. 域名完成购买注册",
-      "deliverable_items": [
-        {
-          "id": "deliv_init_1",
-          "name": "域名完成购买注册",
-          "requirement": ""
-        }
-      ],
-      "deliverable_submission": "8.3日下午确定heyihuajun.com并完成注册",
-      "deliverable_submitted_at": "2026-08-03T12:00:00+00:00",
-      "deliverable_attachments": [],
-      "done_at": "2026-08-03T12:00:00+00:00",
-      "created_at": "2026-08-18T08:33:03.185+00:00"
-    },
-    {
-      "id": "task_1787046805802_bfrla",
-      "node_id": "proj_1787041566194_rt1xi",
-      "name": "制作视频并进行初版交付",
-      "owner": "郭鑫",
-      "due_date": "2026-08-14",
-      "estimated_duration": "5天",
-      "status": "done",
-      "has_deliverable": true,
-      "deliverable_requirement": "1. 初版视频交付件",
-      "deliverable_items": [
-        {
-          "id": "deliv_init_1",
-          "name": "初版视频交付件",
-          "requirement": ""
-        }
-      ],
-      "deliverable_submission": "完成第一版视频，但是由于临时调整了名字导致第二天才交付",
-      "deliverable_submitted_at": "2026-08-15T12:00:00+00:00",
-      "deliverable_attachments": [],
-      "done_at": "2026-08-15T12:00:00+00:00",
-      "created_at": "2026-08-18T09:53:25.802+00:00"
-    },
-    {
-      "id": "task_1787046957440_7xyrl",
-      "node_id": "proj_1787041566194_rt1xi",
-      "name": "与王艺老师沟通，再次确认文案情况",
-      "owner": "郭鑫",
-      "due_date": "2026-08-18",
-      "estimated_duration": "1天",
-      "status": "done",
-      "has_deliverable": false,
-      "deliverable_requirement": null,
-      "deliverable_items": [],
-      "deliverable_submission": null,
-      "deliverable_submitted_at": null,
-      "deliverable_attachments": [],
-      "done_at": "2026-08-18T12:00:00+00:00",
-      "created_at": "2026-08-18T09:55:57.44+00:00"
-    },
-    {
-      "id": "task_1787052519545_z13cj",
+      "id": "task_1787550766377_1tphz",
       "node_id": "node_1787038998445_ig75e",
-      "name": "联调+Debug",
+      "parent_id": "task_1787052511167_uf6jq",
+      "name": "进入开发流程前的文档都具备，同时开始逐功能模块开发。",
       "owner": "郭鑫",
-      "due_date": null,
-      "estimated_duration": null,
+      "due_date": "2026-08-24",
+      "estimated_duration": "1",
       "status": "pending",
       "has_deliverable": false,
       "deliverable_requirement": null,
@@ -1122,7 +1216,7 @@
       "deliverable_submitted_at": null,
       "deliverable_attachments": [],
       "done_at": null,
-      "created_at": "2026-08-18T11:28:39.545+00:00"
+      "created_at": "2026-08-24T05:52:46.377+00:00"
     }
   ],
   "templates": [
@@ -1358,23 +1452,23 @@
       "attachments": []
     },
     {
-      "id": "cmt_1787046683162_y4h7m",
-      "node_id": null,
-      "task_id": "task_1787046664504_hlx07",
-      "parent_id": null,
-      "author": "郭鑫",
-      "content": "【交付件归档】7号下午提交文案并对齐，确定按11个方向先生成视频。",
-      "created_at": "2026-08-07T12:00:00+00:00",
-      "image_url": null,
-      "attachments": []
-    },
-    {
       "id": "cmt_1787043384546_2053l",
       "node_id": null,
       "task_id": "task_1787043367063_4zzor",
       "parent_id": null,
       "author": "郭鑫",
       "content": "【交付件归档】调研报告已提交",
+      "created_at": "2026-08-07T12:00:00+00:00",
+      "image_url": null,
+      "attachments": []
+    },
+    {
+      "id": "cmt_1787046683162_y4h7m",
+      "node_id": null,
+      "task_id": "task_1787046664504_hlx07",
+      "parent_id": null,
+      "author": "郭鑫",
+      "content": "【交付件归档】7号下午提交文案并对齐，确定按11个方向先生成视频。",
       "created_at": "2026-08-07T12:00:00+00:00",
       "image_url": null,
       "attachments": []
@@ -1497,6 +1591,17 @@
       "author": "郭鑫",
       "content": "早上给熊老师发了“六家管理咨询公司AI产品调研报告-专业版.docx”，后续可能还会要跟进",
       "created_at": "2026-08-19T01:44:51.905+00:00",
+      "image_url": null,
+      "attachments": []
+    },
+    {
+      "id": "cmt_1787542432291_gcskd",
+      "node_id": null,
+      "task_id": "task_1787055286612_6lo7j",
+      "parent_id": null,
+      "author": "郭鑫",
+      "content": "【交付件归档】这个在8.19提交后没有新的安排。标记📌为完成完成",
+      "created_at": "2026-08-19T03:00:00+00:00",
       "image_url": null,
       "attachments": []
     },
@@ -1636,9 +1741,474 @@
           "uploaded_at": "2026-08-21T12:00:00+00:00"
         }
       ]
+    },
+    {
+      "id": "cmt_1787543583700_zo7jo",
+      "node_id": null,
+      "task_id": "task_1787047452977_piw2a",
+      "parent_id": null,
+      "author": "郭鑫",
+      "content": "【交付件归档】相关开发文档与需求已上传。\n附带文件 (2个): core-table-phase2.pdf, 企业微信截图_013c85bb-3bc4-4cd0-8aad-25a3cdb1c25a.png",
+      "created_at": "2026-08-24T02:00:00+00:00",
+      "image_url": "https://files.bitqai.com/protrack/att_image_1787543569401_orxn1.png",
+      "attachments": [
+        {
+          "id": "att_1787539575779_qoljn",
+          "url": "https://files.bitqai.com/protrack/att_pdf_1787539575247_ujqex.pdf",
+          "name": "core-table-phase2.pdf",
+          "size": 161911,
+          "type": "pdf",
+          "uploaded_at": "2026-08-24T02:46:15.779Z"
+        },
+        {
+          "id": "att_1787543569905_xt8iq",
+          "url": "https://files.bitqai.com/protrack/att_image_1787543569401_orxn1.png",
+          "name": "企业微信截图_013c85bb-3bc4-4cd0-8aad-25a3cdb1c25a.png",
+          "size": 31489,
+          "type": "image",
+          "uploaded_at": "2026-08-24T03:52:49.905Z"
+        }
+      ]
+    },
+    {
+      "id": "cmt_1787539581318_3a0f2",
+      "node_id": null,
+      "task_id": "task_1787047452977_piw2a",
+      "parent_id": null,
+      "author": "郭鑫",
+      "content": "上午已与王萦明老师对齐“功能情况与工期权衡表”",
+      "created_at": "2026-08-24T02:46:21.318+00:00",
+      "image_url": null,
+      "attachments": [
+        {
+          "id": "att_1787539575779_qoljn",
+          "url": "https://files.bitqai.com/protrack/att_pdf_1787539575247_ujqex.pdf",
+          "name": "core-table-phase2.pdf",
+          "size": 161911,
+          "type": "pdf",
+          "uploaded_at": "2026-08-24T02:46:15.779Z"
+        }
+      ]
+    },
+    {
+      "id": "cmt_1787540023906_65i61",
+      "node_id": null,
+      "task_id": "task_1787047452977_piw2a",
+      "parent_id": null,
+      "author": "郭鑫",
+      "content": "“功能情况与工期权衡表”说明文档",
+      "created_at": "2026-08-24T02:53:43.906+00:00",
+      "image_url": null,
+      "attachments": [
+        {
+          "id": "att_1787540009197_ow77a",
+          "url": "https://files.bitqai.com/protrack/att_md_1787540007877_ofvpt.md",
+          "name": "2-core-table-guide.md",
+          "size": 8532,
+          "type": "md",
+          "uploaded_at": "2026-08-24T02:53:29.197Z"
+        }
+      ]
+    },
+    {
+      "id": "cmt_1787541376276_cshav",
+      "node_id": null,
+      "task_id": "task_1787047452977_piw2a",
+      "parent_id": null,
+      "author": "郭鑫",
+      "content": "已与彭老师沟通，但没有对齐时间，因此先把绝对要开发的事项进行推进。",
+      "created_at": "2026-08-24T03:16:16.276+00:00",
+      "image_url": null,
+      "attachments": []
+    },
+    {
+      "id": "cmt_1787542549067_0za8x",
+      "node_id": null,
+      "task_id": "task_1787055624875_2h2it",
+      "parent_id": null,
+      "author": "郭鑫",
+      "content": "验证市场上是否已存在名为 “Colega AI” 的成熟产品",
+      "created_at": "2026-08-24T03:35:49.067+00:00",
+      "image_url": "https://files.bitqai.com/protrack/att_image_1787542504796_rp3bs.png",
+      "attachments": [
+        {
+          "id": "att_1787542505584_5r4da",
+          "url": "https://files.bitqai.com/protrack/att_image_1787542504796_rp3bs.png",
+          "name": "企业微信截图_48406c34-8ad9-48dd-92da-1abb4f0b6905.png",
+          "size": 162692,
+          "type": "image",
+          "uploaded_at": "2026-08-24T03:35:05.584Z"
+        },
+        {
+          "id": "att_1787542510075_se0b4",
+          "url": "https://files.bitqai.com/protrack/att_image_1787542507872_1m1ep.png",
+          "name": "企业微信截图_0062e317-78ce-4c89-982d-7d13f70f3b93.png",
+          "size": 1770805,
+          "type": "image",
+          "uploaded_at": "2026-08-24T03:35:10.075Z"
+        }
+      ]
+    },
+    {
+      "id": "cmt_1787543731666_j9dpq",
+      "node_id": "node_1787038998445_ig75e",
+      "task_id": "task_1787052511167_uf6jq",
+      "parent_id": null,
+      "author": "郭鑫",
+      "content": "【排期调整归档】\n调整理由：按实际需求工期和彭老师要求尽可能早一点交付要求。\n- 计划截止日: 未排期\n+ 计划截止日: 2026-09-09\n- 预估周期: 未设置\n+ 预估周期: 2.5周\n- 排期调整原因: 按实际需求工期和彭老师要求尽可能早一点交付要求。",
+      "created_at": "2026-08-24T03:55:31.666+00:00",
+      "image_url": null,
+      "attachments": []
+    },
+    {
+      "id": "cmt_1787553295741_wmqer",
+      "node_id": null,
+      "task_id": "task_1787047452977_piw2a",
+      "parent_id": null,
+      "author": "郭鑫",
+      "content": "第二阶段核心功能流转图",
+      "created_at": "2026-08-24T06:34:55.741+00:00",
+      "image_url": "https://files.bitqai.com/protrack/att_image_1787553272836_e761u.png",
+      "attachments": [
+        {
+          "id": "att_1787553275049_ba8np",
+          "url": "https://files.bitqai.com/protrack/att_image_1787553272836_e761u.png",
+          "name": "企业微信截图_34c5507c-b35b-469d-a2f3-d9633435c29c.png",
+          "size": 371727,
+          "type": "image",
+          "uploaded_at": "2026-08-24T06:34:35.049Z"
+        }
+      ]
+    },
+    {
+      "id": "cmt_1787553077905_wxvgd",
+      "node_id": null,
+      "task_id": "task_1787055624875_2h2it",
+      "parent_id": null,
+      "author": "郭鑫",
+      "content": "【交付件归档】这部分工作应该暂时告一段落，后续如果有再进行新增吧\n附带文件 (2个): 企业微信截图_48406c34-8ad9-48dd-92da-1abb4f0b6905.png, 企业微信截图_0062e317-78ce-4c89-982d-7d13f70f3b93.png",
+      "created_at": "2026-08-24T03:35:10.075Z",
+      "image_url": "https://files.bitqai.com/protrack/att_image_1787542504796_rp3bs.png",
+      "attachments": [
+        {
+          "id": "att_1787542505584_5r4da",
+          "url": "https://files.bitqai.com/protrack/att_image_1787542504796_rp3bs.png",
+          "name": "企业微信截图_48406c34-8ad9-48dd-92da-1abb4f0b6905.png",
+          "size": 162692,
+          "type": "image",
+          "uploaded_at": "2026-08-24T03:35:05.584Z"
+        },
+        {
+          "id": "att_1787542510075_se0b4",
+          "url": "https://files.bitqai.com/protrack/att_image_1787542507872_1m1ep.png",
+          "name": "企业微信截图_0062e317-78ce-4c89-982d-7d13f70f3b93.png",
+          "size": 1770805,
+          "type": "image",
+          "uploaded_at": "2026-08-24T03:35:10.075Z"
+        }
+      ]
     }
   ],
   "activities": [
+    {
+      "id": "act_1787553295742_d53b3",
+      "project_id": "proj_1787038257116_wkrdf",
+      "node_id": null,
+      "task_id": "task_1787047452977_piw2a",
+      "type": "comment_added",
+      "title": "郭鑫 记录了「拆解第二阶段任务并与王老师，彭老师对齐」任务的进展备注与证据链",
+      "detail": "第二阶段核心功能流转图",
+      "author": "郭鑫",
+      "timestamp": "2026-08-24T06:34:55.742+00:00",
+      "image_url": "https://files.bitqai.com/protrack/att_image_1787553272836_e761u.png",
+      "attachments": [
+        {
+          "id": "att_1787553275049_ba8np",
+          "url": "https://files.bitqai.com/protrack/att_image_1787553272836_e761u.png",
+          "name": "企业微信截图_34c5507c-b35b-469d-a2f3-d9633435c29c.png",
+          "size": 371727,
+          "type": "image",
+          "uploaded_at": "2026-08-24T06:34:35.049Z"
+        }
+      ]
+    },
+    {
+      "id": "act_1787553077905_igwjj",
+      "project_id": "proj_1787042398956_497dk",
+      "node_id": "proj_1787042398956_497dk",
+      "task_id": "task_1787055624875_2h2it",
+      "type": "deliverable_submitted",
+      "title": "郭鑫 提交了交付件并完成了「仍在熊老师沟通商标细节」",
+      "detail": "- 任务状态: pending (进行中)\n+ 任务状态: done (已完成)\n+ 实际完成日: 2026-08-24\n+ 交付成果与验收结论: 这部分工作应该暂时告一段落，后续如果有再进行新增吧\n+ 归档附件: 企业微信截图_48406c34-8ad9-48dd-92da-1abb4f0b6905.png, 企业微信截图_0062e317-78ce-4c89-982d-7d13f70f3b93.png",
+      "author": "郭鑫",
+      "timestamp": "2026-08-24T06:31:17.905+00:00",
+      "image_url": "https://files.bitqai.com/protrack/att_image_1787542504796_rp3bs.png",
+      "attachments": [
+        {
+          "id": "att_1787542505584_5r4da",
+          "url": "https://files.bitqai.com/protrack/att_image_1787542504796_rp3bs.png",
+          "name": "企业微信截图_48406c34-8ad9-48dd-92da-1abb4f0b6905.png",
+          "size": 162692,
+          "type": "image",
+          "uploaded_at": "2026-08-24T03:35:05.584Z"
+        },
+        {
+          "id": "att_1787542510075_se0b4",
+          "url": "https://files.bitqai.com/protrack/att_image_1787542507872_1m1ep.png",
+          "name": "企业微信截图_0062e317-78ce-4c89-982d-7d13f70f3b93.png",
+          "size": 1770805,
+          "type": "image",
+          "uploaded_at": "2026-08-24T03:35:10.075Z"
+        }
+      ]
+    },
+    {
+      "id": "act_1787551876719_3fol5",
+      "project_id": "proj_1787038257116_wkrdf",
+      "node_id": "node_1787038998445_ig75e",
+      "task_id": null,
+      "type": "task_deleted",
+      "title": "删除了任务「进入开发流程前的文档都具备，同时开始逐功能模块开发。」",
+      "detail": "- 任务名称: 进入开发流程前的文档都具备，同时开始逐功能模块开发。\n- 负责人: 郭鑫\n- 计划截止日: 2026-08-24\n- 任务状态: 未完成",
+      "author": "郭鑫",
+      "timestamp": "2026-08-24T06:11:16.719+00:00",
+      "image_url": null,
+      "attachments": []
+    },
+    {
+      "id": "act_1787551865320_qvvt1",
+      "project_id": "proj_1787038257116_wkrdf",
+      "node_id": "node_1787038998445_ig75e",
+      "task_id": null,
+      "type": "task_deleted",
+      "title": "删除了任务「进入开发流程前的文档都具备，同时开始逐功能模块开发。」",
+      "detail": "- 任务名称: 进入开发流程前的文档都具备，同时开始逐功能模块开发。\n- 负责人: 郭鑫\n- 计划截止日: 2026-08-24\n- 任务状态: 未完成",
+      "author": "郭鑫",
+      "timestamp": "2026-08-24T06:11:05.321+00:00",
+      "image_url": null,
+      "attachments": []
+    },
+    {
+      "id": "act_1787550820124_4p2e7",
+      "project_id": "proj_1787038257116_wkrdf",
+      "node_id": "node_1787038998445_ig75e",
+      "task_id": null,
+      "type": "task_created",
+      "title": "郭鑫 在任务「模块开发」下新增了子任务「进入开发流程前的文档都具备，同时开始逐功能模块开发。」",
+      "detail": "+ 任务名称: 进入开发流程前的文档都具备，同时开始逐功能模块开发。\n+ 负责人: 郭鑫\n+ 计划截止日: 2026-08-24\n+ 预估周期: 1天\n+ 交付件要求: 无交付要求\n+ 所属模块: 第二阶段：人员映射与目标分摊（人-岗绑定）\n+ 所属父任务ID: task_1787052511167_uf6jq",
+      "author": "郭鑫",
+      "timestamp": "2026-08-24T05:53:40.124+00:00",
+      "image_url": null,
+      "attachments": []
+    },
+    {
+      "id": "act_1787550799273_74biv",
+      "project_id": "proj_1787038257116_wkrdf",
+      "node_id": "node_1787038998445_ig75e",
+      "task_id": null,
+      "type": "task_created",
+      "title": "郭鑫 在任务「模块开发」下新增了子任务「进入开发流程前的文档都具备，同时开始逐功能模块开发。」",
+      "detail": "+ 任务名称: 进入开发流程前的文档都具备，同时开始逐功能模块开发。\n+ 负责人: 郭鑫\n+ 计划截止日: 2026-08-24\n+ 预估周期: 1\n+ 交付件要求: 无交付要求\n+ 所属模块: 第二阶段：人员映射与目标分摊（人-岗绑定）\n+ 所属父任务ID: task_1787052511167_uf6jq",
+      "author": "郭鑫",
+      "timestamp": "2026-08-24T05:53:19.273+00:00",
+      "image_url": null,
+      "attachments": []
+    },
+    {
+      "id": "act_1787550766377_p9tm1",
+      "project_id": "proj_1787038257116_wkrdf",
+      "node_id": "node_1787038998445_ig75e",
+      "task_id": "task_1787550766377_1tphz",
+      "type": "task_created",
+      "title": "郭鑫 在任务「模块开发」下新增了子任务「进入开发流程前的文档都具备，同时开始逐功能模块开发。」",
+      "detail": "+ 任务名称: 进入开发流程前的文档都具备，同时开始逐功能模块开发。\n+ 负责人: 郭鑫\n+ 计划截止日: 2026-08-24\n+ 预估周期: 1\n+ 交付件要求: 无交付要求\n+ 所属模块: 第二阶段：人员映射与目标分摊（人-岗绑定）\n+ 所属父任务ID: task_1787052511167_uf6jq",
+      "author": "郭鑫",
+      "timestamp": "2026-08-24T05:52:46.377+00:00",
+      "image_url": null,
+      "attachments": []
+    },
+    {
+      "id": "act_1787550732509_1ri39",
+      "project_id": "proj_1787038257116_wkrdf",
+      "node_id": "node_1787038998445_ig75e",
+      "task_id": null,
+      "type": "task_deleted",
+      "title": "删除了任务「进入开发流程前的文档都具备，同时开始逐功能模块开发。」",
+      "detail": "- 任务名称: 进入开发流程前的文档都具备，同时开始逐功能模块开发。\n- 负责人: 郭鑫\n- 计划截止日: 2026-08-24\n- 任务状态: 未完成",
+      "author": "郭鑫",
+      "timestamp": "2026-08-24T05:52:12.509+00:00",
+      "image_url": null,
+      "attachments": []
+    },
+    {
+      "id": "act_1787543794202_q3x2n",
+      "project_id": "proj_1787038257116_wkrdf",
+      "node_id": "node_1787038998445_ig75e",
+      "task_id": null,
+      "type": "task_created",
+      "title": "郭鑫 在任务「模块开发」下新增了子任务「进入开发流程前的文档都具备，同时开始逐功能模块开发。」",
+      "detail": "+ 任务名称: 进入开发流程前的文档都具备，同时开始逐功能模块开发。\n+ 负责人: 郭鑫\n+ 计划截止日: 2026-08-24\n+ 预估周期: 1\n+ 交付件要求: 无交付要求\n+ 所属模块: 第二阶段：人员映射与目标分摊（人-岗绑定）\n+ 所属父任务ID: task_1787052511167_uf6jq",
+      "author": "郭鑫",
+      "timestamp": "2026-08-24T03:56:34.202+00:00",
+      "image_url": null,
+      "attachments": []
+    },
+    {
+      "id": "act_1787543731666_0nri0",
+      "project_id": "proj_1787038257116_wkrdf",
+      "node_id": "node_1787038998445_ig75e",
+      "task_id": "task_1787052511167_uf6jq",
+      "type": "task_updated",
+      "title": "郭鑫 编辑了任务「模块开发」的内容与排期",
+      "detail": "- 计划截止日: 未排期\n+ 计划截止日: 2026-09-09\n- 预估周期: 未设置\n+ 预估周期: 2.5周\n- 排期调整原因: 按实际需求工期和彭老师要求尽可能早一点交付要求。",
+      "author": "郭鑫",
+      "timestamp": "2026-08-24T03:55:31.666+00:00",
+      "image_url": null,
+      "attachments": []
+    },
+    {
+      "id": "act_1787543583700_17k2b",
+      "project_id": "proj_1787038257116_wkrdf",
+      "node_id": "node_1787038998445_ig75e",
+      "task_id": "task_1787047452977_piw2a",
+      "type": "deliverable_submitted",
+      "title": "郭鑫 提交了交付件并完成了「拆解第二阶段任务并与王老师，彭老师对齐」 (按期完工)",
+      "detail": "- 任务状态: pending (进行中)\n+ 任务状态: done (已完成 (按期完工))\n+ 实际完成日: 2026-08-24\n+ 交付成果与验收结论: 相关开发文档与需求已上传。\n+ 归档附件: core-table-phase2.pdf, 企业微信截图_013c85bb-3bc4-4cd0-8aad-25a3cdb1c25a.png",
+      "author": "郭鑫",
+      "timestamp": "2026-08-24T03:53:03.7+00:00",
+      "image_url": "https://files.bitqai.com/protrack/att_image_1787543569401_orxn1.png",
+      "attachments": [
+        {
+          "id": "att_1787539575779_qoljn",
+          "url": "https://files.bitqai.com/protrack/att_pdf_1787539575247_ujqex.pdf",
+          "name": "core-table-phase2.pdf",
+          "size": 161911,
+          "type": "pdf",
+          "uploaded_at": "2026-08-24T02:46:15.779Z"
+        },
+        {
+          "id": "att_1787543569905_xt8iq",
+          "url": "https://files.bitqai.com/protrack/att_image_1787543569401_orxn1.png",
+          "name": "企业微信截图_013c85bb-3bc4-4cd0-8aad-25a3cdb1c25a.png",
+          "size": 31489,
+          "type": "image",
+          "uploaded_at": "2026-08-24T03:52:49.905Z"
+        }
+      ]
+    },
+    {
+      "id": "act_1787542549067_xgvjs",
+      "project_id": "proj_1787042398956_497dk",
+      "node_id": null,
+      "task_id": "task_1787055624875_2h2it",
+      "type": "comment_added",
+      "title": "“最新进展”发布了「仍在熊老师沟通商标细节」任务的进展备注与证据链",
+      "detail": "验证市场上是否已存在名为 “Colega AI” 的成熟产品",
+      "author": "郭鑫",
+      "timestamp": "2026-08-24T03:35:49.067+00:00",
+      "image_url": "https://files.bitqai.com/protrack/att_image_1787542504796_rp3bs.png",
+      "attachments": [
+        {
+          "id": "att_1787542505584_5r4da",
+          "url": "https://files.bitqai.com/protrack/att_image_1787542504796_rp3bs.png",
+          "name": "企业微信截图_48406c34-8ad9-48dd-92da-1abb4f0b6905.png",
+          "size": 162692,
+          "type": "image",
+          "uploaded_at": "2026-08-24T03:35:05.584Z"
+        },
+        {
+          "id": "att_1787542510075_se0b4",
+          "url": "https://files.bitqai.com/protrack/att_image_1787542507872_1m1ep.png",
+          "name": "企业微信截图_0062e317-78ce-4c89-982d-7d13f70f3b93.png",
+          "size": 1770805,
+          "type": "image",
+          "uploaded_at": "2026-08-24T03:35:10.075Z"
+        }
+      ]
+    },
+    {
+      "id": "act_1787542463504_irb5r",
+      "project_id": "proj_1787043159243_t1s5t",
+      "node_id": "proj_1787043159243_t1s5t",
+      "task_id": null,
+      "type": "project_updated",
+      "title": "郭鑫 将项目状态调整为「已结项」",
+      "detail": null,
+      "author": "郭鑫",
+      "timestamp": "2026-08-24T03:34:23.504+00:00",
+      "image_url": null,
+      "attachments": []
+    },
+    {
+      "id": "act_1787542432291_rpw86",
+      "project_id": "proj_1787043159243_t1s5t",
+      "node_id": "proj_1787043159243_t1s5t",
+      "task_id": "task_1787055286612_6lo7j",
+      "type": "deliverable_submitted",
+      "title": "郭鑫 提交了交付件并完成了「你研究下 麦肯锡、华夏基石、百思特、传世智慧、乔诺、杰成合力的AI产品，每个2-3句话总结他们产品卖点和价值给我」",
+      "detail": "- 任务状态: pending (进行中)\n+ 任务状态: done (已完成)\n+ 实际完成日: 2026-08-19\n+ 交付成果与验收结论: 这个在8.19提交后没有新的安排。标记📌为完成完成",
+      "author": "郭鑫",
+      "timestamp": "2026-08-24T03:33:52.291+00:00",
+      "image_url": null,
+      "attachments": []
+    },
+    {
+      "id": "act_1787541376277_y3uph",
+      "project_id": "proj_1787038257116_wkrdf",
+      "node_id": null,
+      "task_id": "task_1787047452977_piw2a",
+      "type": "comment_added",
+      "title": "“最新动态”记录了「拆解第二阶段任务并与王老师，彭老师对齐」任务关键业务进展与工作指示",
+      "detail": "已与彭老师沟通，但没有对齐时间，因此先把绝对要开发的事项进行推进。",
+      "author": "郭鑫",
+      "timestamp": "2026-08-24T03:16:16.277+00:00",
+      "image_url": null,
+      "attachments": []
+    },
+    {
+      "id": "act_1787540023906_kru3c",
+      "project_id": "proj_1787038257116_wkrdf",
+      "node_id": null,
+      "task_id": "task_1787047452977_piw2a",
+      "type": "comment_added",
+      "title": "郭鑫 发布了进展备注与证据链",
+      "detail": "“功能情况与工期权衡表”说明文档",
+      "author": "郭鑫",
+      "timestamp": "2026-08-24T02:53:43.906+00:00",
+      "image_url": null,
+      "attachments": [
+        {
+          "id": "att_1787540009197_ow77a",
+          "url": "https://files.bitqai.com/protrack/att_md_1787540007877_ofvpt.md",
+          "name": "2-core-table-guide.md",
+          "size": 8532,
+          "type": "md",
+          "uploaded_at": "2026-08-24T02:53:29.197Z"
+        }
+      ]
+    },
+    {
+      "id": "act_1787539581319_5h7o9",
+      "project_id": "proj_1787038257116_wkrdf",
+      "node_id": null,
+      "task_id": "task_1787047452977_piw2a",
+      "type": "comment_added",
+      "title": "郭鑫 发布了进展备注与证据链",
+      "detail": "上午已与王萦明老师对齐“功能情况与工期权衡表”",
+      "author": "郭鑫",
+      "timestamp": "2026-08-24T02:46:21.319+00:00",
+      "image_url": null,
+      "attachments": [
+        {
+          "id": "att_1787539575779_qoljn",
+          "url": "https://files.bitqai.com/protrack/att_pdf_1787539575247_ujqex.pdf",
+          "name": "core-table-phase2.pdf",
+          "size": 161911,
+          "type": "pdf",
+          "uploaded_at": "2026-08-24T02:46:15.779Z"
+        }
+      ]
+    },
     {
       "id": "act_1787533397648_d0gl9",
       "project_id": "proj_1787038257116_wkrdf",

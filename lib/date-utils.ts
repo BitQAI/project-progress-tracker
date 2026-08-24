@@ -18,6 +18,25 @@ export function getTodayBeijingString(): string {
 }
 
 /**
+ * 规范化完成时间/提交时间的 ISO 时间戳：
+ * 1. 若包含 'T'，说明携带了具体时刻，直接使用；
+ * 2. 若为 YYYY-MM-DD 日期字符串：
+ *    - 如果是【今天】(东八区今天的日期)，说明是在今天点击/提交，直接采用当前实时时刻 (new Date().toISOString())；
+ *    - 如果是【非今天】(如补录过去或未来日期)，设置为东八区中午 12:00:00 (即 UTC 04:00:00.000Z)，避免误加 T12:00:00.000Z 导致东八区显示为晚上 20:00。
+ */
+export function normalizeDoneAtTimestamp(inputDateStr?: string | null): string {
+  if (!inputDateStr) return new Date().toISOString();
+  if (inputDateStr.includes('T')) return inputDateStr;
+
+  const todayStr = getTodayBeijingString();
+  if (inputDateStr === todayStr) {
+    return new Date().toISOString();
+  }
+
+  return `${inputDateStr}T04:00:00.000Z`;
+}
+
+/**
  * 格式化时间为东八区完整日期时间 (YYYY-MM-DD HH:mm)
  */
 export function formatBeijingDateTime(dateInput?: string | number | Date | null): string {
