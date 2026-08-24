@@ -314,12 +314,12 @@ export function getGanttTimelineRange(items: GanttItem[]): {
   const pMax = max.split('-').map(Number);
   const monthFirstDayStr = `${pMin[0]}-${String(pMin[1]).padStart(2, '0')}-01`;
 
-  // 结束月份最后一天 (UTC)
+  // 结束月份最后一天 (严格使用 UTC+8 思路避免跨月误差)
   const lastDay = new Date(Date.UTC(pMax[0], pMax[1], 0)).getUTCDate();
   const monthLastDayStr = `${pMax[0]}-${String(pMax[1]).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
 
-  const paddedMin = monthFirstDayStr <= min ? monthFirstDayStr : addDays(min, -3);
-  const paddedMax = monthLastDayStr >= max ? monthLastDayStr : addDays(max, 5);
+  const paddedMin = monthFirstDayStr;
+  const paddedMax = monthLastDayStr;
   const totalDays = Math.max(14, diffDays(paddedMin, paddedMax) + 1);
 
   return {

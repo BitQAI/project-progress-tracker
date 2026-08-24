@@ -19,6 +19,7 @@ import {
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
+import { safeFetchText } from '@/lib/fetch-utils';
 import { FileAttachment, AttachmentType } from '@/lib/types';
 
 interface AttachmentPreviewModalProps {
@@ -80,18 +81,14 @@ function AttachmentPreviewModalContent({
         ? attachment.url
         : `/api/proxy?url=${encodeURIComponent(attachment.url)}`;
 
-      try {
-        const res = await fetch(fetchUrl);
-        if (!res.ok) throw new Error(`无法获取 Markdown 内容 (${res.status})`);
-        const text = await res.text();
-        if (!ignore) {
-          setMdContent(text);
+      const res = await safeFetchText(fetchUrl);
+      if (!ignore) {
+        if (res.ok && res.data !== undefined) {
+          setMdContent(res.data);
           setIsLoadingMd(false);
-        }
-      } catch (err: any) {
-        if (!ignore) {
-          console.error('Fetch markdown error:', err);
-          setMdLoadError(err.message || '获取 Markdown 文件内容失败');
+        } else {
+          console.error('Fetch markdown error:', res.error);
+          setMdLoadError(res.error || '获取 Markdown 文件内容失败');
           setIsLoadingMd(false);
         }
       }

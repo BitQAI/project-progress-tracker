@@ -7,14 +7,23 @@
  */
 export function getTodayBeijingString(): string {
   const d = new Date();
-  const formatter = new Intl.DateTimeFormat('zh-CN', {
-    timeZone: 'Asia/Shanghai',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  });
-  // 转换形如 '2026/08/19' -> '2026-08-19'
-  return formatter.format(d).replace(/\//g, '-');
+  try {
+    const formatter = new Intl.DateTimeFormat('zh-CN', {
+      timeZone: 'Asia/Shanghai',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+    const parts = formatter.formatToParts(d);
+    const year = parts.find((p) => p.type === 'year')?.value;
+    const month = parts.find((p) => p.type === 'month')?.value;
+    const day = parts.find((p) => p.type === 'day')?.value;
+    return `${year}-${month}-${day}`;
+  } catch {
+    // 降级方案
+    const iso = d.toISOString(); // 虽然是 UTC，但作为一个极端的 fallback
+    return iso.split('T')[0];
+  }
 }
 
 /**
@@ -44,7 +53,8 @@ export function formatBeijingDateTime(dateInput?: string | number | Date | null)
   try {
     const d = typeof dateInput === 'string' ? new Date(dateInput) : dateInput instanceof Date ? dateInput : new Date(dateInput);
     if (isNaN(d.getTime())) return String(dateInput);
-    return new Intl.DateTimeFormat('zh-CN', {
+    
+    const formatter = new Intl.DateTimeFormat('zh-CN', {
       timeZone: 'Asia/Shanghai',
       year: 'numeric',
       month: '2-digit',
@@ -52,7 +62,15 @@ export function formatBeijingDateTime(dateInput?: string | number | Date | null)
       hour: '2-digit',
       minute: '2-digit',
       hour12: false,
-    }).format(d).replace(/\//g, '-');
+    });
+    const parts = formatter.formatToParts(d);
+    const year = parts.find((p) => p.type === 'year')?.value;
+    const month = parts.find((p) => p.type === 'month')?.value;
+    const day = parts.find((p) => p.type === 'day')?.value;
+    const hour = parts.find((p) => p.type === 'hour')?.value;
+    const minute = parts.find((p) => p.type === 'minute')?.value;
+    
+    return `${year}-${month}-${day} ${hour}:${minute}`;
   } catch {
     return String(dateInput);
   }
@@ -66,14 +84,22 @@ export function formatBeijingShortDateTime(dateInput?: string | number | Date | 
   try {
     const d = typeof dateInput === 'string' ? new Date(dateInput) : dateInput instanceof Date ? dateInput : new Date(dateInput);
     if (isNaN(d.getTime())) return String(dateInput);
-    return new Intl.DateTimeFormat('zh-CN', {
+    
+    const formatter = new Intl.DateTimeFormat('zh-CN', {
       timeZone: 'Asia/Shanghai',
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
       hour12: false,
-    }).format(d).replace(/\//g, '-');
+    });
+    const parts = formatter.formatToParts(d);
+    const month = parts.find((p) => p.type === 'month')?.value;
+    const day = parts.find((p) => p.type === 'day')?.value;
+    const hour = parts.find((p) => p.type === 'hour')?.value;
+    const minute = parts.find((p) => p.type === 'minute')?.value;
+    
+    return `${month}-${day} ${hour}:${minute}`;
   } catch {
     return String(dateInput);
   }
@@ -87,12 +113,19 @@ export function formatBeijingDate(dateInput?: string | number | Date | null): st
   try {
     const d = typeof dateInput === 'string' ? new Date(dateInput) : dateInput instanceof Date ? dateInput : new Date(dateInput);
     if (isNaN(d.getTime())) return String(dateInput);
-    return new Intl.DateTimeFormat('zh-CN', {
+    
+    const formatter = new Intl.DateTimeFormat('zh-CN', {
       timeZone: 'Asia/Shanghai',
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
-    }).format(d).replace(/\//g, '-');
+    });
+    const parts = formatter.formatToParts(d);
+    const year = parts.find((p) => p.type === 'year')?.value;
+    const month = parts.find((p) => p.type === 'month')?.value;
+    const day = parts.find((p) => p.type === 'day')?.value;
+    
+    return `${year}-${month}-${day}`;
   } catch {
     return String(dateInput);
   }
