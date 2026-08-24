@@ -94,6 +94,7 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
           timestamp: act.timestamp,
           formattedTime: formatExecutiveTime(act.timestamp),
           imageUrl: actImageUrl || undefined,
+          attachments: act.attachments || undefined,
         };
       } else if (act.type === 'task_done') {
         const doneMatch = act.title.match(/「([^」]+)」/);
@@ -111,6 +112,7 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
           owner: act.author,
           timestamp: act.timestamp,
           formattedTime: formatExecutiveTime(act.timestamp),
+          attachments: act.attachments || undefined,
         };
       } else if (act.type === 'comment_added' || act.type === 'briefing') {
         let headline = act.title || '';
@@ -129,7 +131,7 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
               targetName = node.name;
             }
           }
-          const hasAttachments = !!(actImageUrl);
+          const hasAttachments = !!(actImageUrl || (act.attachments && act.attachments.length > 0));
           if (hasAttachments) {
             headline = `${act.author} 记录了「${targetName}」${isTask ? '任务' : ''}的进展备注与证据链`;
           } else {
@@ -150,6 +152,7 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
           timestamp: act.timestamp,
           formattedTime: formatExecutiveTime(act.timestamp),
           imageUrl: actImageUrl || undefined,
+          attachments: act.attachments || undefined,
         };
       } else if (act.type === 'task_updated' || act.type === 'node_updated') {
         const updateMatch = act.title.match(/「([^」]+)」/);
@@ -167,6 +170,7 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
           owner: act.author,
           timestamp: act.timestamp,
           formattedTime: formatExecutiveTime(act.timestamp),
+          attachments: act.attachments || undefined,
         };
       } else if (act.type === 'task_created' || act.type === 'project_created') {
         item = {
@@ -182,6 +186,7 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
           owner: act.author,
           timestamp: act.timestamp,
           formattedTime: formatExecutiveTime(act.timestamp),
+          attachments: act.attachments || undefined,
         };
       }
 
@@ -216,6 +221,7 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
         timestamp: timeStr,
         formattedTime: formatExecutiveTime(timeStr),
         imageUrl: isImage(submissionUrl) ? submissionUrl : undefined,
+        attachments: t.deliverable_attachments || undefined,
       });
       seenIds.add(actId);
     } else {
@@ -232,6 +238,7 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
         owner: t.owner,
         timestamp: timeStr,
         formattedTime: formatExecutiveTime(timeStr),
+        attachments: t.deliverable_attachments || undefined,
       });
       seenIds.add(actId);
     }
@@ -272,6 +279,7 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
       timestamp: c.created_at,
       formattedTime: formatExecutiveTime(c.created_at),
       imageUrl: c.image_url || undefined,
+      attachments: c.attachments || undefined,
     });
     seenIds.add(actId);
   }

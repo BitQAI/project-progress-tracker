@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ProjectActivityItem } from '@/lib/types';
+import { ProjectActivityItem, FileAttachment, AttachmentType } from '@/lib/types';
 import { GitDiffView } from './GitDiffView';
 import { formatBeijingShortDateTime } from '@/lib/date-utils';
+import { AttachmentPreviewModal } from './AttachmentPreviewModal';
 import {
   Activity,
   FileCheck,
@@ -21,6 +22,8 @@ import {
   ChevronDown,
   ChevronUp,
   Image as ImageIcon,
+  FileCode,
+  FileText,
   X,
 } from 'lucide-react';
 
@@ -43,6 +46,8 @@ export function ProjectActivityFeed({
   const [newUpdateText, setNewUpdateText] = useState('');
   const [isPosting, setIsPosting] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [previewAttachment, setPreviewAttachment] = useState<FileAttachment | null>(null);
+  const [previewAttachmentList, setPreviewAttachmentList] = useState<FileAttachment[]>([]);
 
   // 懒加载状态：默认显示近 5 条最新动态，滚动触底时增量加载
   const [visibleCount, setVisibleCount] = useState(5);
@@ -68,6 +73,35 @@ export function ProjectActivityFeed({
       console.error('Post brief update error:', err);
     } finally {
       setIsPosting(false);
+    }
+  };
+
+  const getAttachments = (act: ProjectActivityItem) => {
+    const list: FileAttachment[] = [];
+    if (act.attachments && act.attachments.length > 0) {
+      return act.attachments;
+    }
+    if (act.image_url) {
+      list.push({
+        id: `fallback_${act.id}`,
+        name: '附图证据',
+        url: act.image_url,
+        type: 'image',
+      });
+    }
+    return list;
+  };
+
+  const getFormatIcon = (type: AttachmentType) => {
+    switch (type) {
+      case 'image':
+        return <ImageIcon className="h-3.5 w-3.5 text-blue-500" />;
+      case 'md':
+        return <FileCode className="h-3.5 w-3.5 text-emerald-500" />;
+      case 'pdf':
+        return <FileText className="h-3.5 w-3.5 text-rose-500" />;
+      default:
+        return <FileText className="h-3.5 w-3.5 text-zinc-500" />;
     }
   };
 
@@ -192,13 +226,13 @@ export function ProjectActivityFeed({
                     ? `最新：${latestAct.title}`
                     : projectDescription || '暂无更多前情背景'}
                 </span>
-                {latestAct?.image_url && (
+                {latestAct && getAttachments(latestAct).length > 0 && (
                   <span
                     className="relative inline-flex items-center justify-center shrink-0 rounded bg-blue-50 border border-blue-200 p-0.5"
-                    title="包含附图证据"
+                    title={`包含 ${getAttachments(latestAct).length} 个附件证据`}
                   >
-                    <ImageIcon className="h-3 w-3 text-blue-500" />
-                    <span className="absolute -top-0.5 -right-0.5 flex h-1 w-1 rounded-full bg-blue-500"></span>
+                    {getFormatIcon(getAttachments(latestAct)[0].type)}
+                    <span className="absolute -top-0.5 -right-0.5 flex h-1.5 w-1.5 rounded-full bg-blue-500"></span>
                   </span>
                 )}
               </span>
@@ -286,29 +320,42 @@ export function ProjectActivityFeed({
                         </div>
                         
                         {/* 移动端与PC风格一致的小缩略图 (若有) */}
-                        {act.image_url && (
-                          <div className="mt-1 flex items-start">
-                            <button
-                              onClick={(e) => {
-                                e.preventDefault();
-                                setLightboxUrl(act.image_url || null);
-                              }}
-                              className="relative group/thumb inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm border border-blue-200 bg-blue-50/50 hover:border-blue-400 transition-all cursor-pointer shadow-3xs"
-                              title="点击预览高清图证"
-                            >
-                              <div className="h-full w-full rounded-sm overflow-hidden">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                  src={act.image_url}
-                                  alt="附图证据"
-                                  className="h-full w-full object-cover"
-                                />
-                              </div>
-                              <span className="absolute -top-0.5 -right-0.5 flex h-1.5 w-1.5 z-10">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500"></span>
-                              </span>
-                            </button>
+                        {getAttachments(act).length > 0 && (
+                          <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                            {getAttachments(act).map((att) => {
+                              const isImg = att.type === 'image';
+                              return (
+                                <button
+                                  key={att.id || att.url}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setPreviewAttachment(att);
+                                    setPreviewAttachmentList(getAttachments(act));
+                                  }}
+                                  className="relative group/thumb inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm border border-zinc-200 bg-zinc-50/50 hover:border-blue-400 transition-all cursor-pointer shadow-3xs"
+                                  title={`点击预览: ${att.name}`}
+                                >
+                                  {isImg ? (
+                                    <div className="h-full w-full rounded-sm overflow-hidden">
+                                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                                      <img
+                                        src={att.url}
+                                        alt={att.name}
+                                        className="h-full w-full object-cover"
+                                      />
+                                    </div>
+                                  ) : (
+                                    <div className="flex items-center justify-center h-full w-full bg-zinc-50 rounded-sm">
+                                      {getFormatIcon(att.type)}
+                                    </div>
+                                  )}
+                                  <span className="absolute -top-0.5 -right-0.5 flex h-1.5 w-1.5 z-10">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500"></span>
+                                  </span>
+                                </button>
+                              );
+                            })}
                           </div>
                         )}
 
@@ -328,29 +375,43 @@ export function ProjectActivityFeed({
                           <span className="font-medium text-zinc-900 break-words">{act.title}</span>
 
                           {/* 附图证据标识 */}
-                          {act.image_url && (
-                            <button
-                              onClick={(e) => {
-                                e.preventDefault();
-                                setLightboxUrl(act.image_url || null);
-                              }}
-                              className="relative group/thumb inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm border border-blue-200 bg-blue-50/50 overflow-visible hover:scale-115 hover:border-blue-500 transition-all cursor-pointer shadow-3xs"
-                              title="点击预览高清图证"
-                            >
-                              <div className="h-full w-full rounded-sm overflow-hidden">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                  src={act.image_url}
-                                  alt="附图证据"
-                                  className="h-full w-full object-cover group-hover/thumb:scale-110 transition-transform duration-200"
-                                />
-                              </div>
-                              {/* 呼吸状态光环与指示蓝点 */}
-                              <span className="absolute -top-0.5 -right-0.5 flex h-1.5 w-1.5">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500"></span>
-                              </span>
-                            </button>
+                          {getAttachments(act).length > 0 && (
+                            <div className="flex items-center gap-1.5 overflow-visible">
+                              {getAttachments(act).map((att) => {
+                                const isImg = att.type === 'image';
+                                return (
+                                  <button
+                                    key={att.id || att.url}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      setPreviewAttachment(att);
+                                      setPreviewAttachmentList(getAttachments(act));
+                                    }}
+                                    className="relative group/thumb inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm border border-zinc-200 bg-zinc-50/50 overflow-visible hover:scale-115 hover:border-blue-500 transition-all cursor-pointer shadow-3xs"
+                                    title={`点击预览: ${att.name}`}
+                                  >
+                                    {isImg ? (
+                                      <div className="h-full w-full rounded-sm overflow-hidden">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                          src={att.url}
+                                          alt={att.name}
+                                          className="h-full w-full object-cover group-hover/thumb:scale-110 transition-transform duration-200"
+                                        />
+                                      </div>
+                                    ) : (
+                                      <div className="flex items-center justify-center h-full w-full bg-zinc-50 rounded-sm">
+                                        {getFormatIcon(att.type)}
+                                      </div>
+                                    )}
+                                    <span className="absolute -top-0.5 -right-0.5 flex h-1.5 w-1.5">
+                                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500"></span>
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
                           )}
                         </div>
                         <div className="flex items-center gap-1.5 shrink-0">
@@ -382,6 +443,20 @@ export function ProjectActivityFeed({
             </p>
           )}
         </div>
+      )}
+
+      {/* 附件在线预览模态框 */}
+      {previewAttachment && (
+        <AttachmentPreviewModal
+          isOpen={!!previewAttachment}
+          attachment={previewAttachment}
+          attachmentList={previewAttachmentList}
+          onSelectAttachment={(att) => setPreviewAttachment(att)}
+          onClose={() => {
+            setPreviewAttachment(null);
+            setPreviewAttachmentList([]);
+          }}
+        />
       )}
 
       {/* 磨砂玻璃超清 Lightbox */}

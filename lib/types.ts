@@ -223,5 +223,6 @@ export interface ExecutiveActivityItem {
   timestamp: string;
   formattedTime: string;
   imageUrl?: string | null;
+  attachments?: FileAttachment[];
 }
 
