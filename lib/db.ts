@@ -51,6 +51,33 @@ export function getDb(): AppDatabase {
   }
 
   if (!inMemoryDb.activities) inMemoryDb.activities = [];
+
+  // 自动化数据修复机制：当历史任务中 parent_id 属性丢失或为 null，
+  // 但 pm_activity_logs (activities) 中有对应的子任务创建/更新日志，
+  // 则通过日志中的 "+ 所属父任务ID: xxx" 自动修复并回填数据库。
+  let hasRepaired = false;
+  if (inMemoryDb.tasks && inMemoryDb.tasks.length > 0 && inMemoryDb.activities.length > 0) {
+    for (const task of inMemoryDb.tasks) {
+      if (!task.parent_id) {
+        // 在 activities 中寻找有针对此 task_id 的子任务描述
+        const relatedAct = inMemoryDb.activities.find(
+          (act) => act.task_id === task.id && act.detail && act.detail.includes('所属父任务ID:')
+        );
+        if (relatedAct && relatedAct.detail) {
+          const match = relatedAct.detail.match(/所属父任务ID:\s*(task_[a-zA-Z0-9_]+)/i);
+          if (match && match[1]) {
+            task.parent_id = match[1];
+            hasRepaired = true;
+          }
+        }
+      }
+    }
+  }
+
+  if (hasRepaired) {
+    persistDbLocalSync();
+  }
+
   return inMemoryDb!;
 }
 
