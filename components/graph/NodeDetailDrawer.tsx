@@ -62,7 +62,7 @@ export function NodeDetailDrawer({
   return (
     <aside
       aria-label="节点详情"
-      className="absolute right-4 top-20 z-20 w-80 sm:w-96 rounded-xl border border-zinc-200 bg-white/95 p-4 shadow-xl backdrop-blur-md transition-all duration-200 max-h-[calc(100vh-120px)] flex flex-col overflow-visible"
+      className="absolute right-4 top-4 bottom-4 z-20 w-80 sm:w-96 rounded-xl border border-zinc-200 bg-white/95 p-4 shadow-xl backdrop-blur-md transition-all duration-200 flex flex-col overflow-hidden"
     >
       {/* 抽屉头部 */}
       <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
@@ -327,93 +327,6 @@ export function NodeDetailDrawer({
                 </button>
               </div>
             )}
-
-            {/* WBS 动作配置区 */}
-            {type !== 'root' && (
-              <div className="pt-3.5 border-t border-zinc-100 mt-4.5 space-y-2">
-                <h4 className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">WBS 节点操作</h4>
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  {type !== 'task' && (
-                    <button
-                      onClick={() => setAction('add_sub_node')}
-                      className="flex items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white py-2 font-medium text-zinc-700 hover:bg-zinc-50 transition-colors"
-                    >
-                      <Plus className="h-3.5 w-3.5 text-zinc-500" />
-                      <span>添加子分组</span>
-                    </button>
-                  )}
-                  <button
-                    onClick={() => setAction('add_task')}
-                    className="flex items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white py-2 font-medium text-zinc-700 hover:bg-zinc-50 transition-colors"
-                  >
-                    <Plus className="h-3.5 w-3.5 text-zinc-500" />
-                    <span>{type === 'task' ? '添加子任务' : '添加任务'}</span>
-                  </button>
-                  <button
-                    onClick={() => setAction('edit')}
-                    className="flex items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white py-2 font-medium text-zinc-700 hover:bg-zinc-50 transition-colors"
-                  >
-                    <Edit2 className="h-3.5 w-3.5 text-zinc-500" />
-                    <span>编辑信息</span>
-                  </button>
-                  <button
-                    onClick={() => setAction('edit')} // fallback or direct modal
-                    className="flex items-center justify-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50/50 py-2 font-semibold text-blue-700 hover:bg-blue-100 transition-colors"
-                    onClickCapture={(e) => {
-                      e.stopPropagation();
-                      setAction('edit');
-                    }}
-                  >
-                    <Edit2 className="h-3.5 w-3.5 text-blue-500" />
-                    <span>编辑详情</span>
-                  </button>
-                  <button
-                    onClick={() => setAction('edit')} // override for AI parse
-                    className="col-span-2 flex items-center justify-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50/40 py-2.5 font-bold text-violet-700 hover:bg-violet-100 transition-all shadow-3xs"
-                    onClickCapture={(e) => {
-                      e.stopPropagation();
-                      setAction('add_task'); // placeholder or set to AI
-                      // We will open AI parser
-                      const timer = setTimeout(() => {
-                        setAction('add_task');
-                      }, 0);
-                      setAction('view');
-                      // Wait, we can just trigger AI modal directly!
-                      const modalTrigger = () => {
-                        setAction('add_task');
-                        // Set to parse directly
-                        const pId = selectedNode.projectId || data.id;
-                        setAction('view');
-                        // Trigger AI modal
-                        setTimeout(() => {
-                          const customEvent = new CustomEvent('trigger-ai-parse', {
-                            detail: {
-                              projectId: pId,
-                              type,
-                              data,
-                            }
-                          });
-                          window.dispatchEvent(customEvent);
-                        }, 20);
-                      };
-                      modalTrigger();
-                    }}
-                  >
-                    <Bot className="h-4 w-4 text-violet-600" />
-                    <span>AI 智能分解 WBS (自然语言)</span>
-                  </button>
-                </div>
-                {type !== 'project' && (
-                  <button
-                    onClick={() => setAction('delete_confirm')}
-                    className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50/20 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-100 transition-colors mt-2"
-                  >
-                    <Trash2 className="h-3.5 w-3.5 text-rose-500" />
-                    <span>{type === 'task' ? '删除当前任务' : '删除当前分组节点'}</span>
-                  </button>
-                )}
-              </div>
-            )}
           </>
         ) : (
           <div className="space-y-3.5">
@@ -535,6 +448,84 @@ export function NodeDetailDrawer({
           </div>
         )}
       </div>
+
+      {/* WBS 动作配置区 (固定于抽屉底部) */}
+      {action === 'view' && type !== 'root' && (
+        <div className="pt-3.5 border-t border-zinc-100 mt-1 flex-none bg-white">
+          <h4 className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">WBS 节点操作</h4>
+          <div className="flex items-stretch gap-1 w-full bg-zinc-50/50 p-1 rounded-xl border border-zinc-200/80">
+            {type !== 'task' ? (
+              <>
+                <button
+                  onClick={() => setAction('add_sub_node')}
+                  className="flex-1 flex flex-col items-center justify-center gap-1 rounded-lg border border-zinc-200 bg-white py-1.5 px-0.5 text-[10px] sm:text-[11px] font-medium text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 active:bg-zinc-100 transition-all min-w-0 select-none cursor-pointer"
+                  title="添加子分组"
+                >
+                  <Plus className="h-3.5 w-3.5 text-zinc-500" />
+                  <span className="truncate">加子分组</span>
+                </button>
+                <button
+                  onClick={() => setAction('add_task')}
+                  className="flex-1 flex flex-col items-center justify-center gap-1 rounded-lg border border-zinc-200 bg-white py-1.5 px-0.5 text-[10px] sm:text-[11px] font-medium text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 active:bg-zinc-100 transition-all min-w-0 select-none cursor-pointer"
+                  title="添加任务"
+                >
+                  <Plus className="h-3.5 w-3.5 text-zinc-500" />
+                  <span className="truncate">加任务</span>
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setAction('add_task')}
+                className="flex-1 flex flex-col items-center justify-center gap-1 rounded-lg border border-zinc-200 bg-white py-1.5 px-0.5 text-[10px] sm:text-[11px] font-medium text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 active:bg-zinc-100 transition-all min-w-0 select-none cursor-pointer"
+                title="添加子任务"
+              >
+                <Plus className="h-3.5 w-3.5 text-zinc-500" />
+                <span className="truncate">加子任务</span>
+              </button>
+            )}
+
+            <button
+              onClick={() => setAction('edit')}
+              className="flex-1 flex flex-col items-center justify-center gap-1 rounded-lg border border-zinc-200 bg-white py-1.5 px-0.5 text-[10px] sm:text-[11px] font-medium text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 active:bg-zinc-100 transition-all min-w-0 select-none cursor-pointer"
+              title="编辑属性详情"
+            >
+              <Edit2 className="h-3.5 w-3.5 text-zinc-500" />
+              <span className="truncate">编辑详情</span>
+            </button>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                const pId = selectedNode.projectId || data.id;
+                const customEvent = new CustomEvent('trigger-ai-parse', {
+                  detail: {
+                    projectId: pId,
+                    type,
+                    data,
+                  }
+                });
+                window.dispatchEvent(customEvent);
+              }}
+              className="flex-1 flex flex-col items-center justify-center gap-1 rounded-lg border border-violet-200 bg-violet-50/50 py-1.5 px-0.5 text-[10px] sm:text-[11px] font-bold text-violet-700 hover:bg-violet-100 hover:border-violet-300 active:bg-violet-200/50 transition-all min-w-0 select-none cursor-pointer"
+              title="AI 语义提炼"
+            >
+              <Bot className="h-3.5 w-3.5 text-violet-600 animate-pulse" />
+              <span className="truncate font-bold">AI语义提炼</span>
+            </button>
+
+            {type !== 'project' && (
+              <button
+                onClick={() => setAction('delete_confirm')}
+                className="flex-1 flex flex-col items-center justify-center gap-1 rounded-lg border border-rose-200 bg-rose-50/30 py-1.5 px-0.5 text-[10px] sm:text-[11px] font-bold text-rose-600 hover:bg-rose-100/80 hover:border-rose-300 active:bg-rose-200/50 transition-all min-w-0 select-none cursor-pointer"
+                title="级联删除节点"
+              >
+                <Trash2 className="h-3.5 w-3.5 text-rose-500" />
+                <span className="truncate">删除</span>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Floating Modals and Dialogs */}
       {action === 'edit' && type === 'project' && (

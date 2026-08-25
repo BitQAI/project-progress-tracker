@@ -272,8 +272,8 @@ export async function updateNode(
 
     node.name = name;
     node.owner = owner;
-    if (description !== undefined) node.description = description.trim() || undefined;
-    if (estimatedDuration !== undefined) node.estimated_duration = estimatedDuration.trim() || undefined;
+    if (description !== undefined) node.description = description?.trim() || undefined;
+    if (estimatedDuration !== undefined) node.estimated_duration = estimatedDuration?.trim() || undefined;
 
     if (changes.length > 0) {
       const isRoot = node.parent_id === null;

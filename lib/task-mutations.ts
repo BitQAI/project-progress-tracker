@@ -126,7 +126,7 @@ export async function updateTask(
     task.owner = owner;
     task.due_date = dueDate || null;
     if (estimatedDuration !== undefined) {
-      task.estimated_duration = estimatedDuration.trim() || undefined;
+      task.estimated_duration = estimatedDuration?.trim() || undefined;
     }
     if (hasDeliverable !== undefined) {
       task.has_deliverable = hasDeliverable;
