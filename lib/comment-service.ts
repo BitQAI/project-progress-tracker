@@ -110,3 +110,51 @@ export async function addComment(params: {
   await persistDb();
   return id;
 }
+
+export async function getProjectComments(projectId: string): Promise<(CommentWithReplies & { targetName?: string; isTask?: boolean })[]> {
+  const db = getDb();
+  
+  const projectComments = db.comments.filter((c) => {
+    if (c.node_id) {
+      return findRootProjectId(db, c.node_id) === projectId;
+    }
+    if (c.task_id) {
+      return findRootProjectIdByTask(db, c.task_id).projectId === projectId;
+    }
+    return false;
+  });
+
+  const commentMap = new Map<string, CommentWithReplies & { targetName?: string; isTask?: boolean }>();
+  const results: (CommentWithReplies & { targetName?: string; isTask?: boolean })[] = [];
+
+  projectComments.forEach((c) => {
+    let targetName = '项目';
+    let isTask = false;
+    if (c.task_id) {
+      const task = db.tasks.find((t) => t.id === c.task_id);
+      if (task) {
+        targetName = task.name;
+        isTask = true;
+      }
+    } else if (c.node_id) {
+      const node = db.nodes.find((n) => n.id === c.node_id);
+      if (node) {
+        targetName = node.name;
+      }
+    }
+
+    commentMap.set(c.id, { ...c, targetName, isTask, replies: [] });
+  });
+
+  projectComments.forEach((c) => {
+    const current = commentMap.get(c.id)!;
+    if (c.parent_id && commentMap.has(c.parent_id)) {
+      commentMap.get(c.parent_id)!.replies!.push(current);
+    } else {
+      results.push(current);
+    }
+  });
+
+  results.sort((a, b) => b.created_at.localeCompare(a.created_at));
+  return results;
+}

@@ -10,6 +10,7 @@ import {
   ChevronDown,
   Edit2,
   Bot,
+  MessageSquare,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -17,6 +18,7 @@ interface ProjectHeaderProps {
   tree: NodeTreeNode;
   onEditClick: () => void;
   onStatusChange: (status: ProjectStatus) => void;
+  onOpenProjectComments?: () => void;
   onOpenAiParse?: (params: {
     targetLevel: 'project_subnodes';
     targetNodeId: string;
@@ -25,7 +27,7 @@ interface ProjectHeaderProps {
   }) => void;
 }
 
-export function ProjectHeader({ tree, onEditClick, onStatusChange, onOpenAiParse }: ProjectHeaderProps) {
+export function ProjectHeader({ tree, onEditClick, onStatusChange, onOpenProjectComments, onOpenAiParse }: ProjectHeaderProps) {
   return (
     <div
       id="project-detail-compact-header"
@@ -110,6 +112,19 @@ export function ProjectHeader({ tree, onEditClick, onStatusChange, onOpenAiParse
           >
             <Bot className="h-3.5 w-3.5 text-blue-600" />
             <span>AI 智能拆解</span>
+          </button>
+        )}
+
+        {onOpenProjectComments && (
+          <button
+            type="button"
+            id="header-project-comments-btn"
+            onClick={onOpenProjectComments}
+            className="inline-flex items-center gap-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 px-2.5 py-0.5 text-[11px] sm:text-xs font-semibold transition-colors shadow-3xs"
+            title="查看整个项目的所有留言备注与附件，支持全局筛选"
+          >
+            <MessageSquare className="h-3.5 w-3.5 text-emerald-600" />
+            <span>项目留言与附件</span>
           </button>
         )}
 

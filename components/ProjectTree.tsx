@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { NodeTreeNode } from '@/lib/types';
 import { TreeNodeItem } from './TreeNodeItem';
 import { CommentDrawer } from './CommentDrawer';
+import { ProjectCommentsDrawer } from './ProjectCommentsDrawer';
 import { ConfirmDialog } from './ConfirmDialog';
 import { DeliverableSubmitModal } from './DeliverableSubmitModal';
 import { ProjectActivityFeed } from './ProjectActivityFeed';
@@ -22,6 +23,7 @@ interface ProjectTreeProps {
 export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
   const [activeView, setActiveView] = useState<'tree' | 'gantt'>('tree');
   const [hideCompleted, setHideCompleted] = useState(false);
+  const [isProjectCommentsOpen, setIsProjectCommentsOpen] = useState(false);
 
   const {
     tree,
@@ -58,6 +60,7 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
         tree={tree}
         onEditClick={() => setIsEditingProject(true)}
         onStatusChange={handleStatusChange}
+        onOpenProjectComments={() => setIsProjectCommentsOpen(true)}
         onOpenAiParse={handleOpenAiParse}
       />
 
@@ -214,6 +217,14 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
         subtitle={commentTarget.subtitle}
         nodeId={commentTarget.nodeId}
         taskId={commentTarget.taskId}
+      />
+
+      {/* 项目全量留言与附件筛选看板 */}
+      <ProjectCommentsDrawer
+        isOpen={isProjectCommentsOpen}
+        onClose={() => setIsProjectCommentsOpen(false)}
+        project={tree}
+        onRefreshProject={reloadTree}
       />
 
       {/* 编辑项目基本信息弹窗 */}

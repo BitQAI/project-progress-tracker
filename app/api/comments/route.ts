@@ -1,19 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getComments, addComment } from '@/lib/comment-service';
+import { getComments, addComment, getProjectComments } from '@/lib/comment-service';
 import { ensureDbLoaded } from '@/lib/db';
 
 export async function GET(req: NextRequest) {
   try {
     await ensureDbLoaded();
     const { searchParams } = new URL(req.url);
+    const projectId = searchParams.get('projectId') || undefined;
     const nodeId = searchParams.get('nodeId') || undefined;
     const taskId = searchParams.get('taskId') || undefined;
 
-    if (!nodeId && !taskId) {
-      return NextResponse.json({ ok: false, error: '必须指定 nodeId 或 taskId' }, { status: 400 });
+    if (!nodeId && !taskId && !projectId) {
+      return NextResponse.json({ ok: false, error: '必须指定 projectId, nodeId 或 taskId' }, { status: 400 });
     }
 
-    const comments = await getComments({ nodeId, taskId });
+    let comments;
+    if (projectId) {
+      comments = await getProjectComments(projectId);
+    } else {
+      comments = await getComments({ nodeId, taskId });
+    }
     return NextResponse.json({ ok: true, data: comments });
   } catch (error: any) {
     console.error('Get comments error:', error);
