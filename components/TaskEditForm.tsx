@@ -101,34 +101,40 @@ export function TaskEditForm({ task, onSave, onCancel }: TaskEditFormProps) {
           placeholder="任务名称"
         />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-        <div className="flex items-center gap-1.5">
-          <span className="text-zinc-500 shrink-0">负责人:</span>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+        <div>
+          <label className="block text-[11px] font-semibold text-zinc-500 mb-1">
+            负责人 <span className="text-red-500">*</span>
+          </label>
           <input
             type="text"
             required
             value={owner}
             onChange={(e) => setOwner(e.target.value)}
-            className="flex-1 rounded-md border border-zinc-300 bg-white px-2 py-1 text-zinc-900 focus:outline-none"
+            className="w-full rounded-md border border-zinc-300 bg-white px-2.5 py-1 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-zinc-500 shrink-0">计划截止日:</span>
+        <div>
+          <label className="block text-[11px] font-semibold text-zinc-500 mb-1">
+            计划截止日
+          </label>
           <input
             type="date"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
-            className="flex-1 rounded-md border border-zinc-300 bg-white px-2 py-1 text-zinc-900 focus:outline-none"
+            className="w-full rounded-md border border-zinc-300 bg-white px-2.5 py-1 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-zinc-500 shrink-0">预估周期:</span>
+        <div>
+          <label className="block text-[11px] font-semibold text-zinc-500 mb-1">
+            预估周期
+          </label>
           <input
             type="text"
             value={estimatedDuration}
             onChange={(e) => setEstimatedDuration(e.target.value)}
             placeholder="如: 3天 / 1周"
-            className="flex-1 rounded-md border border-zinc-300 bg-white px-2 py-1 text-zinc-900 focus:outline-none"
+            className="w-full rounded-md border border-zinc-300 bg-white px-2.5 py-1 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
       </div>

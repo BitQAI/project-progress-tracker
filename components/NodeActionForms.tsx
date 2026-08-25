@@ -73,33 +73,39 @@ export function AddTaskForm({
         className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium"
       />
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-        <div className="flex items-center gap-1.5">
-          <span className="text-zinc-500 shrink-0">负责人:</span>
+        <div>
+          <label className="block text-[11px] font-semibold text-zinc-500 mb-1">
+            负责人 <span className="text-red-500">*</span>
+          </label>
           <input
             type="text"
             required
             value={taskOwner}
             onChange={(e) => setTaskOwner(e.target.value)}
-            className="w-full rounded border border-zinc-200 bg-white px-2 py-1 text-zinc-900 focus:outline-none"
+            className="w-full rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-zinc-500 shrink-0">截止日期:</span>
+        <div>
+          <label className="block text-[11px] font-semibold text-zinc-500 mb-1">
+            截止日期
+          </label>
           <input
             type="date"
             value={taskDueDate}
             onChange={(e) => setTaskDueDate(e.target.value)}
-            className="w-full rounded border border-zinc-200 bg-white px-2 py-1 text-zinc-900 focus:outline-none"
+            className="w-full rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-zinc-500 shrink-0">预估周期:</span>
+        <div>
+          <label className="block text-[11px] font-semibold text-zinc-500 mb-1">
+            预估周期
+          </label>
           <input
             type="text"
             value={taskEstimatedDuration}
             onChange={(e) => setTaskEstimatedDuration(e.target.value)}
             placeholder="如: 3天 / 1周 / 4h"
-            className="w-full rounded border border-zinc-200 bg-white px-2 py-1 text-zinc-900 focus:outline-none"
+            className="w-full rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
       </div>
