@@ -97,7 +97,7 @@ export function RootProgressNode({ data }: NodeProps & { data: RootNodeData }) {
         <div className={`rounded-lg p-2 border ${metrics.overdueProjectsCount > 0 ? 'bg-rose-50 border-rose-200' : 'bg-zinc-50 border-zinc-100'}`}>
           <div className="flex items-center justify-center gap-1 text-[11px] text-rose-700 mb-0.5">
             <ShieldAlert className="h-3 w-3 text-rose-500" />
-            <span>逾期风险</span>
+            <span>逾期数</span>
           </div>
           <span className={`text-sm font-bold ${metrics.overdueProjectsCount > 0 ? 'text-rose-600' : 'text-zinc-400'}`}>
             {metrics.overdueProjectsCount}

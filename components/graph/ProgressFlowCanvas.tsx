@@ -25,6 +25,7 @@ import { buildFlowElements } from './flow-layout-utils';
 import { GraphFilterState, LayoutDirection } from './types';
 import { safeFetchJson } from '@/lib/fetch-utils';
 import { AiTextParseModal } from '@/components/ai-parse/AiTextParseModal';
+import { CommentDrawer } from '@/components/CommentDrawer';
 
 const nodeTypes = {
   rootNode: RootProgressNode,
@@ -71,6 +72,19 @@ function FlowInner({ initialData, onRefreshData, isLoading = false }: ProgressFl
     data: any;
     projectId?: string;
   } | null>(null);
+
+  // 5. 评论与证据链抽屉的目标状态
+  const [commentTarget, setCommentTarget] = useState<{
+    isOpen: boolean;
+    title: string;
+    subtitle: string;
+    nodeId?: string;
+    taskId?: string;
+  }>({
+    isOpen: false,
+    title: '',
+    subtitle: '',
+  });
 
   // 展开/收起单个节点
   const handleToggleExpand = useCallback((id: string) => {
@@ -349,8 +363,27 @@ function FlowInner({ initialData, onRefreshData, isLoading = false }: ProgressFl
           onClose={() => setSelectedNode(null)}
           onToggleTask={handleToggleTask}
           onRefreshData={onRefreshData}
+          onOpenComments={(target) =>
+            setCommentTarget({
+              isOpen: true,
+              title: target.title,
+              subtitle: target.subtitle,
+              nodeId: target.nodeId,
+              taskId: target.taskId,
+            })
+          }
         />
       </div>
+
+      {/* 评论与证据链留档抽屉 */}
+      <CommentDrawer
+        isOpen={commentTarget.isOpen}
+        onClose={() => setCommentTarget((prev) => ({ ...prev, isOpen: false }))}
+        title={commentTarget.title}
+        subtitle={commentTarget.subtitle}
+        nodeId={commentTarget.nodeId}
+        taskId={commentTarget.taskId}
+      />
 
       {/* 智能 WBS 拆解弹窗 */}
       {aiParseContext && (

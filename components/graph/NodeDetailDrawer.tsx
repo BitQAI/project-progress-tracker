@@ -18,7 +18,8 @@ import {
   Edit2,
   Trash2,
   Bot,
-  ChevronLeft
+  ChevronLeft,
+  MessageSquare
 } from 'lucide-react';
 import { NodeTreeNode, DbTask, DashboardMetrics } from '@/lib/types';
 import { AddTaskForm, AddSubNodeForm, EditSubNodeForm } from '@/components/NodeActionForms';
@@ -38,6 +39,7 @@ interface NodeDetailDrawerProps {
   onClose: () => void;
   onToggleTask: (taskId: string, currentStatus: string) => void;
   onRefreshData?: () => void;
+  onOpenComments?: (target: { nodeId?: string; taskId?: string; title: string; subtitle: string }) => void;
 }
 
 export function NodeDetailDrawer({
@@ -45,6 +47,7 @@ export function NodeDetailDrawer({
   onClose,
   onToggleTask,
   onRefreshData,
+  onOpenComments,
 }: NodeDetailDrawerProps) {
   const [action, setAction] = React.useState<'view' | 'add_sub_node' | 'add_task' | 'edit' | 'delete_confirm'>('view');
   const [prevId, setPrevId] = React.useState<string | null>(null);
@@ -84,13 +87,37 @@ export function NodeDetailDrawer({
             </button>
           )}
         </div>
-        <button
-          onClick={onClose}
-          className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-colors"
-          title="关闭"
-        >
-          <X className="h-4 w-4" />
-        </button>
+        <div className="flex items-center gap-1.5">
+          {action === 'view' && type !== 'root' && onOpenComments && (
+            <button
+              onClick={() => {
+                const title = type === 'task' 
+                  ? `任务证据链: ${data.name}` 
+                  : `节点进展与证据链: ${data.name}`;
+                const subtitle = type === 'task'
+                  ? `负责人: ${data.owner} | 截止日: ${data.due_date || '未定'}`
+                  : `负责人: ${data.owner}`;
+                onOpenComments({
+                  nodeId: type === 'task' ? undefined : data.id,
+                  taskId: type === 'task' ? data.id : undefined,
+                  title,
+                  subtitle,
+                });
+              }}
+              className="rounded-lg p-1.5 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800 transition-colors flex items-center justify-center cursor-pointer select-none border border-zinc-150/60 bg-zinc-50/20"
+              title="查看/追加证据链与进度备注"
+            >
+              <MessageSquare className="h-3.5 w-3.5 text-emerald-600 animate-pulse" />
+            </button>
+          )}
+          <button
+            onClick={onClose}
+            className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-colors"
+            title="关闭"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       {/* 抽屉主体内容 */}
