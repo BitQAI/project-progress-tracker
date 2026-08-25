@@ -122,7 +122,7 @@ export function useProjectTreeActions(initialTree: NodeTreeNode, onRefresh?: () 
           name: task.name,
           owner: task.owner,
           dueDate: task.due_date,
-          estimatedDuration: task.estimated_duration,
+          estimatedDuration: task.estimated_duration !== undefined ? task.estimated_duration : '',
           hasDeliverable: task.has_deliverable,
           deliverableRequirement: task.deliverable_requirement,
           deliverableItems: task.deliverable_items,

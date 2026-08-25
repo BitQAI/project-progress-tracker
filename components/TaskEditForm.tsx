@@ -71,7 +71,7 @@ export function TaskEditForm({ task, onSave, onCancel }: TaskEditFormProps) {
         name: name.trim(),
         owner: owner.trim(),
         due_date: dueDate ? dueDate : null,
-        estimated_duration: estimatedDuration.trim() || undefined,
+        estimated_duration: estimatedDuration.trim(),
         status: isDoneState ? 'done' : 'pending',
         done_at: isDoneState ? editDoneDate : null,
         has_deliverable: hasDeliverable,

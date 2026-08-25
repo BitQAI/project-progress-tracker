@@ -455,7 +455,7 @@ export function NodeDetailDrawer({
                       name: updatedTask.name,
                       owner: updatedTask.owner,
                       dueDate: updatedTask.due_date,
-                      estimatedDuration: updatedTask.estimated_duration,
+                      estimatedDuration: updatedTask.estimated_duration !== undefined ? updatedTask.estimated_duration : '',
                       hasDeliverable: updatedTask.has_deliverable,
                       deliverableRequirement: updatedTask.deliverable_requirement,
                       deliverableItems: updatedTask.deliverable_items,

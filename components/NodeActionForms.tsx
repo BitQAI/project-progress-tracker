@@ -302,8 +302,8 @@ export function EditSubNodeForm({
     onSubmit(
       subNodeName.trim(),
       subNodeOwner.trim(),
-      subNodeDesc.trim() || undefined,
-      subNodeDuration.trim() || undefined,
+      subNodeDesc.trim(),
+      subNodeDuration.trim(),
       subNodeDueDate ? subNodeDueDate : undefined,
       isScheduleChanged ? changeReason.trim() : undefined
     );
