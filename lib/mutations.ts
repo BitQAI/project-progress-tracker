@@ -105,18 +105,49 @@ export async function createProjectFromTemplate(
       .filter((d) => d.stage_id === stage.id)
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
-    for (const del of deliverables) {
+    // 创建模板项 ID 到实际 Task ID 的映射，以便为子任务设置 parent_id
+    const templateIdToTaskIdMap: Record<string, string> = {};
+
+    // 第一阶段：创建父任务（parent_id 为空者）
+    const parentDeliverables = deliverables.filter((d) => !d.parent_id);
+    const childDeliverables = deliverables.filter((d) => !!d.parent_id);
+
+    for (const del of parentDeliverables) {
       totalTasks++;
       const taskId = generateId('task');
+      templateIdToTaskIdMap[del.id] = taskId;
       db.tasks.push({
         id: taskId,
         node_id: stageNodeId,
+        parent_id: null,
         name: del.name,
         owner,
         due_date: defaultDueDate,
         status: 'pending',
-        has_deliverable: true,
-        deliverable_requirement: `请交付与归档「${del.name}」相关产出物或验收证明`,
+        has_deliverable: del.has_deliverable === true,
+        deliverable_requirement: del.deliverable_requirement || '',
+        deliverable_submission: null,
+        deliverable_submitted_at: null,
+        done_at: null,
+        created_at: now,
+      });
+    }
+
+    // 第二阶段：创建子任务并关联到父任务
+    for (const del of childDeliverables) {
+      totalTasks++;
+      const subtaskId = generateId('task');
+      const actualParentId = templateIdToTaskIdMap[del.parent_id!];
+      db.tasks.push({
+        id: subtaskId,
+        node_id: stageNodeId,
+        parent_id: actualParentId || null,
+        name: del.name,
+        owner,
+        due_date: defaultDueDate,
+        status: 'pending',
+        has_deliverable: del.has_deliverable === true,
+        deliverable_requirement: del.deliverable_requirement || '',
         deliverable_submission: null,
         deliverable_submitted_at: null,
         done_at: null,

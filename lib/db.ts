@@ -38,8 +38,23 @@ export function getDb(): AppDatabase {
       if (!inMemoryDb || !Array.isArray(inMemoryDb.nodes)) {
         inMemoryDb = getInitialDatabase();
         persistDbLocalSync();
-      } else if (!Array.isArray(inMemoryDb.activities)) {
-        inMemoryDb.activities = [];
+      } else {
+        if (!Array.isArray(inMemoryDb.activities)) {
+          inMemoryDb.activities = [];
+        }
+        // 确保模板库始终升级并同步到最新优化的版本
+        const initialDb = getInitialDatabase();
+        if (
+          !inMemoryDb.templates ||
+          inMemoryDb.templates.length < 7 ||
+          !inMemoryDb.templates.some((t) => t.id === 'tpl_consulting_strategy') ||
+          !inMemoryDb.templates.some((t) => t.name.includes('战略规划与商业模式'))
+        ) {
+          inMemoryDb.templates = initialDb.templates;
+          inMemoryDb.templateStages = initialDb.templateStages;
+          inMemoryDb.templateDeliverables = initialDb.templateDeliverables;
+          persistDbLocalSync();
+        }
       }
     } catch {
       inMemoryDb = getInitialDatabase();
@@ -456,8 +471,43 @@ export async function ensureDbLoaded(forceReload = false): Promise<AppDatabase> 
             }),
           };
 
-          // 核心对齐与补全机制：如果任务的 deliverable_attachments 为空，但关联的证据链评论（如交付件归档）中包含附件或图片，自动对齐到任务上
           let hasAutoReconciled = false;
+
+          // 自动重构与升级机制：检测到 Supabase 存在老版本或缺失系统模板时，自动使用最新定义的黄金及咨询模板替换，并回流同步至关系库
+          const initialDb = getInitialDatabase();
+          const systemTemplateIds = new Set([
+            'tpl_software_standard',
+            'tpl_hardware_trial',
+            'tpl_enterprise_erp_refactor',
+            'tpl_consulting_strategy',
+            'tpl_consulting_organization',
+            'tpl_consulting_process',
+            'tpl_consulting_compensation',
+            'tpl_consulting_master'
+          ]);
+
+          const userTemplates = inMemoryDb.templates.filter((t) => !systemTemplateIds.has(t.id));
+          const userStages = inMemoryDb.templateStages.filter((s) => !systemTemplateIds.has(s.template_id));
+          const systemStageIds = new Set(initialDb.templateStages.map((s) => s.id));
+          const userDeliverables = inMemoryDb.templateDeliverables.filter((d) => !systemStageIds.has(d.stage_id));
+
+          const finalTemplates = [...initialDb.templates, ...userTemplates];
+          const finalStages = [...initialDb.templateStages, ...userStages];
+          const finalDeliverables = [...initialDb.templateDeliverables, ...userDeliverables];
+
+          if (
+            inMemoryDb.templates.length !== finalTemplates.length ||
+            !inMemoryDb.templates.some((t) => t.id === 'tpl_consulting_master') ||
+            inMemoryDb.templateStages.length !== finalStages.length ||
+            inMemoryDb.templateDeliverables.length !== finalDeliverables.length
+          ) {
+            inMemoryDb.templates = finalTemplates;
+            inMemoryDb.templateStages = finalStages;
+            inMemoryDb.templateDeliverables = finalDeliverables;
+            hasAutoReconciled = true;
+          }
+
+          // 核心对齐与补全机制：如果任务的 deliverable_attachments 为空，但关联的证据链评论（如交付件归档）中包含附件或图片，自动对齐到任务上
           inMemoryDb.tasks.forEach((task) => {
             if (!task.deliverable_attachments || task.deliverable_attachments.length === 0) {
               const taskComments = (inMemoryDb?.comments || []).filter((c) => c.task_id === task.id);

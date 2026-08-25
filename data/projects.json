@@ -1,32 +1,6 @@
 {
   "nodes": [
     {
-      "id": "node_1787038423205_03kdm",
-      "parent_id": "proj_1787038257116_wkrdf",
-      "name": "第一阶段：组织目标与岗位体系构建（自上而下拆解）",
-      "owner": "郭鑫",
-      "order": 1,
-      "status": "in_progress",
-      "priority": "P1",
-      "description": "公司/部门/岗位目标树 标准化组织绩效目标、岗位JD、岗位绩效目标 岗位目标承载清单（每个岗位应该“承担什么结果”）",
-      "estimated_duration": "36人天",
-      "due_date": "2026-08-14",
-      "created_at": "2026-08-18T07:33:43.205+00:00"
-    },
-    {
-      "id": "node_1787034644812_19lkh",
-      "parent_id": "proj_1787034273833_t0513",
-      "name": "阶段1：信息采集 + 自动摘要",
-      "owner": "郭鑫",
-      "order": 1,
-      "status": "unstarted",
-      "priority": "P1",
-      "description": null,
-      "estimated_duration": null,
-      "due_date": null,
-      "created_at": "2026-08-18T06:30:44.812+00:00"
-    },
-    {
       "id": "node_1787041345199_iqcwh",
       "parent_id": "proj_1787041302427_h90di",
       "name": "阶段1：AI问答入口（基础智能化）",
@@ -53,6 +27,32 @@
       "created_at": "2026-08-18T08:15:49.737+00:00"
     },
     {
+      "id": "node_1787038423205_03kdm",
+      "parent_id": "proj_1787038257116_wkrdf",
+      "name": "第一阶段：组织目标与岗位体系构建（自上而下拆解）",
+      "owner": "郭鑫",
+      "order": 1,
+      "status": "in_progress",
+      "priority": "P1",
+      "description": "公司/部门/岗位目标树 标准化组织绩效目标、岗位JD、岗位绩效目标 岗位目标承载清单（每个岗位应该“承担什么结果”）",
+      "estimated_duration": "36人天",
+      "due_date": "2026-08-14",
+      "created_at": "2026-08-18T07:33:43.205+00:00"
+    },
+    {
+      "id": "node_1787034644812_19lkh",
+      "parent_id": "proj_1787034273833_t0513",
+      "name": "阶段1：信息采集 + 自动摘要",
+      "owner": "郭鑫",
+      "order": 1,
+      "status": "unstarted",
+      "priority": "P1",
+      "description": null,
+      "estimated_duration": null,
+      "due_date": null,
+      "created_at": "2026-08-18T06:30:44.812+00:00"
+    },
+    {
       "id": "proj_1787038257116_wkrdf",
       "parent_id": null,
       "name": "AI智能绩效系统（主线）长周期分阶段项目",
@@ -64,19 +64,6 @@
       "estimated_duration": null,
       "due_date": null,
       "created_at": "2026-08-18T07:30:57.116+00:00"
-    },
-    {
-      "id": "node_1787038998445_ig75e",
-      "parent_id": "proj_1787038257116_wkrdf",
-      "name": "第二阶段：人员映射与目标分摊（人-岗绑定）",
-      "owner": "郭鑫",
-      "order": 2,
-      "status": "in_progress",
-      "priority": "P1",
-      "description": "实现“人不直接定目标，而是继承岗位目标”。",
-      "estimated_duration": "3周",
-      "due_date": "2026-09-11",
-      "created_at": "2026-08-18T07:43:18.445+00:00"
     },
     {
       "id": "node_1787041357145_h8vhq",
@@ -105,30 +92,30 @@
       "created_at": "2026-08-18T06:31:41.344+00:00"
     },
     {
-      "id": "node_1787039047763_nsa1s",
+      "id": "node_1787038998445_ig75e",
       "parent_id": "proj_1787038257116_wkrdf",
-      "name": "第三阶段：目标执行与过程管理（动态追踪）",
+      "name": "第二阶段：人员映射与目标分摊（人-岗绑定）",
+      "owner": "郭鑫",
+      "order": 2,
+      "status": "in_progress",
+      "priority": "P1",
+      "description": "实现“人不直接定目标，而是继承岗位目标”。",
+      "estimated_duration": "3周",
+      "due_date": "2026-09-11",
+      "created_at": "2026-08-18T07:43:18.445+00:00"
+    },
+    {
+      "id": "node_1787034712462_chngh",
+      "parent_id": "proj_1787034273833_t0513",
+      "name": "阶段3：组织级认知系统（自动推送）",
       "owner": "郭鑫",
       "order": 3,
       "status": "unstarted",
       "priority": "P1",
-      "description": "从“年终考核”转向“过程管理 + 风险干预”。",
-      "estimated_duration": "4周",
-      "due_date": "2026-10-16",
-      "created_at": "2026-08-18T07:44:07.764+00:00"
-    },
-    {
-      "id": "proj_1787041302427_h90di",
-      "parent_id": null,
-      "name": "AI官网体系建设（支线①）",
-      "owner": "郭鑫",
-      "order": 3,
-      "status": "unstarted",
-      "priority": "P3",
       "description": null,
-      "estimated_duration": "1.5周",
+      "estimated_duration": null,
       "due_date": null,
-      "created_at": "2026-08-18T08:21:42.427+00:00"
+      "created_at": "2026-08-18T06:31:52.462+00:00"
     },
     {
       "id": "proj_1787034273833_t0513",
@@ -144,6 +131,19 @@
       "created_at": "2026-08-18T06:24:33.833+00:00"
     },
     {
+      "id": "proj_1787041302427_h90di",
+      "parent_id": null,
+      "name": "AI官网体系建设（支线①）",
+      "owner": "郭鑫",
+      "order": 3,
+      "status": "unstarted",
+      "priority": "P3",
+      "description": null,
+      "estimated_duration": "1.5周",
+      "due_date": null,
+      "created_at": "2026-08-18T08:21:42.427+00:00"
+    },
+    {
       "id": "node_1787041366851_fpcbz",
       "parent_id": "proj_1787041302427_h90di",
       "name": "阶段3：转化智能化",
@@ -157,17 +157,17 @@
       "created_at": "2026-08-18T08:22:46.851+00:00"
     },
     {
-      "id": "node_1787034712462_chngh",
-      "parent_id": "proj_1787034273833_t0513",
-      "name": "阶段3：组织级认知系统（自动推送）",
+      "id": "node_1787039047763_nsa1s",
+      "parent_id": "proj_1787038257116_wkrdf",
+      "name": "第三阶段：目标执行与过程管理（动态追踪）",
       "owner": "郭鑫",
       "order": 3,
       "status": "unstarted",
       "priority": "P1",
-      "description": null,
-      "estimated_duration": null,
-      "due_date": null,
-      "created_at": "2026-08-18T06:31:52.462+00:00"
+      "description": "从“年终考核”转向“过程管理 + 风险干预”。",
+      "estimated_duration": "4周",
+      "due_date": "2026-10-16",
+      "created_at": "2026-08-18T07:44:07.764+00:00"
     },
     {
       "id": "proj_1787041566194_rt1xi",
@@ -399,6 +399,60 @@
       "deliverable_attachments": [],
       "done_at": null,
       "created_at": "2026-08-24T09:22:29.431+00:00"
+    },
+    {
+      "id": "task_1787636258092_6irq6",
+      "node_id": "node_1787038998445_ig75e",
+      "parent_id": "task_1787052511167_uf6jq",
+      "name": "开发花名册管理页面及员工岗位绑定功能",
+      "owner": "郭鑫",
+      "due_date": "2026-08-29",
+      "estimated_duration": "1.5天",
+      "status": "pending",
+      "has_deliverable": false,
+      "deliverable_requirement": null,
+      "deliverable_items": [],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": null,
+      "created_at": "2026-08-25T05:37:38.092+00:00"
+    },
+    {
+      "id": "task_1787636258092_f9ggt",
+      "node_id": "node_1787038998445_ig75e",
+      "parent_id": "task_1787052511167_uf6jq",
+      "name": "实现多格式文件上传及 AI 识别批量导入功能",
+      "owner": "郭鑫",
+      "due_date": "2026-08-29",
+      "estimated_duration": "2天",
+      "status": "pending",
+      "has_deliverable": false,
+      "deliverable_requirement": null,
+      "deliverable_items": [],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": null,
+      "created_at": "2026-08-25T05:37:38.092+00:00"
+    },
+    {
+      "id": "task_1787636258092_akcok",
+      "node_id": "node_1787038998445_ig75e",
+      "parent_id": "task_1787052511167_uf6jq",
+      "name": "实现 RBAC 权限管理模型及角色分配逻辑",
+      "owner": "郭鑫",
+      "due_date": "2026-08-29",
+      "estimated_duration": "2天",
+      "status": "pending",
+      "has_deliverable": false,
+      "deliverable_requirement": null,
+      "deliverable_items": [],
+      "deliverable_submission": null,
+      "deliverable_submitted_at": null,
+      "deliverable_attachments": [],
+      "done_at": null,
+      "created_at": "2026-08-25T05:37:38.092+00:00"
     },
     {
       "id": "task_1787052738625_pkk7c",
@@ -1246,59 +1300,185 @@
   "templates": [
     {
       "id": "tpl_software_standard",
-      "name": "标准软件研发流程模板",
-      "description": null,
-      "created_at": "2026-08-18T06:11:58.188+00:00"
+      "name": "大模型落地与智能研发标准流程模板",
+      "description": "适用于生成式AI、知识库智能检索(RAG)与智能坐席等系统研发流程及标准敏捷项目落地。",
+      "created_at": "2026-08-25T08:32:44.837Z"
     },
     {
       "id": "tpl_hardware_trial",
-      "name": "智能硬件试产与量产流程",
-      "description": null,
-      "created_at": "2026-08-18T06:11:58.188+00:00"
+      "name": "数字化绩效管理系统长周期建设模板",
+      "description": "适用于企业级自上而下的岗位目标体系构建、人岗目标绑定和AI辅助评估等复杂绩效管理流程。",
+      "created_at": "2026-08-25T08:32:44.837Z"
+    },
+    {
+      "id": "tpl_enterprise_erp_refactor",
+      "name": "新一代企业级供应链 ERP 重构模板",
+      "description": "适用于传统供应链、智能仓储、WMS及波次算法系统等核心业务流程升级重构。",
+      "created_at": "2026-08-25T08:32:44.837Z"
+    },
+    {
+      "id": "tpl_consulting_strategy",
+      "name": "战略规划与商业模式咨询交付模板",
+      "description": "适用于中大型企业集团或高成长企业的中长期愿景定位、核心竞争策略规划及平衡计分卡(BSC)战略解码落地。",
+      "created_at": "2026-08-25T08:32:44.837Z"
+    },
+    {
+      "id": "tpl_consulting_organization",
+      "name": "集团管控模式与组织架构设计咨询交付模板",
+      "description": "适用于多板块集团或多元化企业界定治理关系、划分部门职责界限并开展岗位说明书编制的变革项目。",
+      "created_at": "2026-08-25T08:32:44.837Z"
+    },
+    {
+      "id": "tpl_consulting_process",
+      "name": "端到端业务流程优化与授权权责手册交付模板",
+      "description": "适用于解决审批迟缓、职责扯皮的端到端业务链条梳理，明确核心业务的高效授权表。",
+      "created_at": "2026-08-25T08:32:44.837Z"
+    },
+    {
+      "id": "tpl_consulting_compensation",
+      "name": "薪酬福利绩效体系与合伙人中长期激励交付模板",
+      "description": "适用于构建科学职级通道、宽带薪酬、固浮比策略、OKR/KPI考核以及高管股权期权设计。",
+      "created_at": "2026-08-25T08:32:44.837Z"
     }
   ],
   "templateStages": [
     {
       "id": "stg_1",
       "template_id": "tpl_software_standard",
-      "name": "阶段一：需求与方案评审",
-      "order": 1
-    },
-    {
-      "id": "hstg_1",
-      "template_id": "tpl_hardware_trial",
-      "name": "EVT（工程验证阶段）",
+      "name": "阶段一：需求验证与提示词工程 (Prompt)",
       "order": 1
     },
     {
       "id": "stg_2",
       "template_id": "tpl_software_standard",
-      "name": "阶段二：核心模块研发",
+      "name": "阶段二：架构设计与向量知识库 (RAG) 构建",
       "order": 2
-    },
-    {
-      "id": "hstg_2",
-      "template_id": "tpl_hardware_trial",
-      "name": "DVT（设计验证阶段）",
-      "order": 2
-    },
-    {
-      "id": "hstg_3",
-      "template_id": "tpl_hardware_trial",
-      "name": "PVT（生产验证阶段）",
-      "order": 3
     },
     {
       "id": "stg_3",
       "template_id": "tpl_software_standard",
-      "name": "阶段三：质量测试与回归",
+      "name": "阶段三：AI Agent 坐席工作台核心开发",
       "order": 3
     },
     {
       "id": "stg_4",
       "template_id": "tpl_software_standard",
-      "name": "阶段四：发布与上线交付",
+      "name": "阶段四：专家测试、发布与全量部署交付",
       "order": 4
+    },
+    {
+      "id": "hstg_1",
+      "template_id": "tpl_hardware_trial",
+      "name": "第一阶段：组织目标与岗位体系构建",
+      "order": 1
+    },
+    {
+      "id": "hstg_2",
+      "template_id": "tpl_hardware_trial",
+      "name": "第二阶段：人员映射与目标分摊",
+      "order": 2
+    },
+    {
+      "id": "hstg_3",
+      "template_id": "tpl_hardware_trial",
+      "name": "第三阶段：目标执行与过程管理",
+      "order": 3
+    },
+    {
+      "id": "hstg_4",
+      "template_id": "tpl_hardware_trial",
+      "name": "第四阶段：绩效评估与反馈闭环",
+      "order": 4
+    },
+    {
+      "id": "estg_1",
+      "template_id": "tpl_enterprise_erp_refactor",
+      "name": "阶段一：现有业务流程审计与重构评估",
+      "order": 1
+    },
+    {
+      "id": "estg_2",
+      "template_id": "tpl_enterprise_erp_refactor",
+      "name": "阶段二：智能仓储 WMS 与 PDA 扫码联调",
+      "order": 2
+    },
+    {
+      "id": "estg_3",
+      "template_id": "tpl_enterprise_erp_refactor",
+      "name": "阶段三：系统集成、全量演练与切流上线",
+      "order": 3
+    },
+    {
+      "id": "stg_strat_1",
+      "template_id": "tpl_consulting_strategy",
+      "name": "第一阶段：战略诊断与市场竞争洞察",
+      "order": 1
+    },
+    {
+      "id": "stg_strat_2",
+      "template_id": "tpl_consulting_strategy",
+      "name": "第二阶段：中长期战略规划与定位设计",
+      "order": 2
+    },
+    {
+      "id": "stg_strat_3",
+      "template_id": "tpl_consulting_strategy",
+      "name": "第三阶段：战略解码与平衡计分卡(BSC)指标落地",
+      "order": 3
+    },
+    {
+      "id": "stg_org_1",
+      "template_id": "tpl_consulting_organization",
+      "name": "第一阶段：管控现状诊断与集团管控边界重塑",
+      "order": 1
+    },
+    {
+      "id": "stg_org_2",
+      "template_id": "tpl_consulting_organization",
+      "name": "第二阶段：集团总部与分子公司组织架构设计",
+      "order": 2
+    },
+    {
+      "id": "stg_org_3",
+      "template_id": "tpl_consulting_organization",
+      "name": "第三阶段：全岗定岗定编与岗位说明书编制",
+      "order": 3
+    },
+    {
+      "id": "stg_proc_1",
+      "template_id": "tpl_consulting_process",
+      "name": "第一阶段：端到端流程审计与效率瓶颈诊断",
+      "order": 1
+    },
+    {
+      "id": "stg_proc_2",
+      "template_id": "tpl_consulting_process",
+      "name": "第二阶段：核心业务流程(L1-L4)重塑与泳道图设计",
+      "order": 2
+    },
+    {
+      "id": "stg_proc_3",
+      "template_id": "tpl_consulting_process",
+      "name": "第三阶段：流程配套制度、权责手册与日常合规手册",
+      "order": 3
+    },
+    {
+      "id": "stg_comp_1",
+      "template_id": "tpl_consulting_compensation",
+      "name": "第一阶段：岗位价值评估(IPE模型)与职级通道设计",
+      "order": 1
+    },
+    {
+      "id": "stg_comp_2",
+      "template_id": "tpl_consulting_compensation",
+      "name": "第二阶段：宽带薪酬结构、套薪策略与预算平滑测算",
+      "order": 2
+    },
+    {
+      "id": "stg_comp_3",
+      "template_id": "tpl_consulting_compensation",
+      "name": "第三阶段：企业绩效管理办法与合伙人长期期权激励方案",
+      "order": 3
     }
   ],
   "templateDeliverables": [
@@ -1306,139 +1486,281 @@
       "id": "del_1_1",
       "stage_id": "stg_1",
       "name": "产品需求规格说明书 (PRD)",
-      "order": 1
-    },
-    {
-      "id": "del_2_1",
-      "stage_id": "stg_2",
-      "name": "后端核心业务 API 与数据层开发",
-      "order": 1
-    },
-    {
-      "id": "del_3_1",
-      "stage_id": "stg_3",
-      "name": "测试用例编写与全量功能回归",
-      "order": 1
-    },
-    {
-      "id": "del_4_1",
-      "stage_id": "stg_4",
-      "name": "生产环境配置与灰度发布",
-      "order": 1
-    },
-    {
-      "id": "hdel_1_1",
-      "stage_id": "hstg_1",
-      "name": "原理图与 PCB 打样验证",
-      "order": 1
-    },
-    {
-      "id": "hdel_2_1",
-      "stage_id": "hstg_2",
-      "name": "模具开模与注塑试模",
-      "order": 1
-    },
-    {
-      "id": "hdel_3_1",
-      "stage_id": "hstg_3",
-      "name": "产线治具与自动化烧录工具",
-      "order": 1
-    },
-    {
-      "id": "del_3_2",
-      "stage_id": "stg_3",
-      "name": "压力与安全渗透测试报告",
-      "order": 2
-    },
-    {
-      "id": "hdel_1_2",
-      "stage_id": "hstg_1",
-      "name": "结构手板拼装与干涉检查",
-      "order": 2
-    },
-    {
-      "id": "del_4_2",
-      "stage_id": "stg_4",
-      "name": "操作手册与技术交接文档",
-      "order": 2
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付与归档《竞品分析、AI功能定位与系统产品路线图 Roadmap》"
     },
     {
       "id": "del_1_2",
       "stage_id": "stg_1",
-      "name": "系统架构与技术选型文档",
-      "order": 2
+      "name": "核心 Prompt 效果评测报告",
+      "order": 2,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付 Prompt 自动化评测数据集与 Baseline 胜出率分析报告"
     },
     {
-      "id": "hdel_2_2",
-      "stage_id": "hstg_2",
-      "name": "高低温跌落与可靠性测试",
-      "order": 2
+      "id": "del_2_1",
+      "stage_id": "stg_2",
+      "name": "系统架构设计与迁移脚本",
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付前后端交互 API 契约设计、关系型数据库表结构设计与迁移脚本"
     },
     {
       "id": "del_2_2",
       "stage_id": "stg_2",
-      "name": "前端界面与组件库封装",
-      "order": 2
+      "name": "语义分段与重排检索算法优化报告",
+      "order": 2,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付 Rerank 重排召回对比数据表与高并发流式 SSE 接口联调凭证"
+    },
+    {
+      "id": "del_3_1",
+      "stage_id": "stg_3",
+      "name": "人机协作与会话流实时接管模块",
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付前端界面与 WebSocket 协同组件、Redis 消息防重机制时序图"
+    },
+    {
+      "id": "del_3_2",
+      "stage_id": "stg_3",
+      "name": "逐个功能 Spec + Plan 拆解对齐",
+      "order": 2,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付逐功能 spec+plan+验证凭证（沿用 superpowers 规范）"
+    },
+    {
+      "id": "del_4_1",
+      "stage_id": "stg_4",
+      "name": "顾问专家及业务用户测试反馈报告",
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "收集魏老师、彭老师等顾问专家测试反馈并整理为文本意见书"
+    },
+    {
+      "id": "del_4_2",
+      "stage_id": "stg_4",
+      "name": "生产部署、安全漏洞及性能压测报告",
+      "order": 2,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付盖章版安全等级评估、首屏加载及漏洞复测报告"
+    },
+    {
+      "id": "hdel_1_1",
+      "stage_id": "hstg_1",
+      "name": "目标树与岗位职责承载清单",
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "标准化组织绩效目标、岗位 JD、岗位目标承载清单"
+    },
+    {
+      "id": "hdel_1_2",
+      "stage_id": "hstg_1",
+      "name": "系统一期部署与测试账号配置表",
+      "order": 2,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付系统部署成功截图及首批测试账号分配清单"
+    },
+    {
+      "id": "hdel_2_1",
+      "stage_id": "hstg_2",
+      "name": "岗位继承目标功能设计与PRD",
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付“人-岗绑定、花名册管理”PRD 文档与核心页面 UI 结构示例"
+    },
+    {
+      "id": "hdel_2_2",
+      "stage_id": "hstg_2",
+      "name": "多格式文件上传与 AI 批量导入报告",
+      "order": 2,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付员工岗位绑定功能开发、多格式文件上传及 AI 识别批量导入验证报告"
+    },
+    {
+      "id": "hdel_3_1",
+      "stage_id": "hstg_3",
+      "name": "过程追踪与风险干预策略说明",
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付“过程管理 + 风险干预”功能逻辑与实时警报机制说明"
     },
     {
       "id": "hdel_3_2",
       "stage_id": "hstg_3",
-      "name": "小批量试产直通率统计",
-      "order": 2
+      "name": "业务数据联调对齐与系统部署凭证",
+      "order": 2,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付与业务数据对齐清单及增量部署完成凭证"
     },
     {
-      "id": "del_2_3",
-      "stage_id": "stg_2",
-      "name": "第三方服务与 OAuth 鉴权对接",
-      "order": 3
+      "id": "hdel_4_1",
+      "stage_id": "hstg_4",
+      "name": "AI辅助评估决策模型验证报告",
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付“多角色协同、证据驱动”AI 评分辅助决策模型的验证报告"
     },
     {
-      "id": "del_3_3",
-      "stage_id": "stg_3",
-      "name": "跨端/多分辨率适配验收",
-      "order": 3
+      "id": "hdel_4_2",
+      "stage_id": "hstg_4",
+      "name": "终期验收报告与合规审计证书",
+      "order": 2,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付系统终期验收盖章件与合规差距分析报告"
     },
     {
-      "id": "hdel_2_3",
-      "stage_id": "hstg_2",
-      "name": "EMC/安规预扫测试",
-      "order": 3
+      "id": "edel_1_1",
+      "stage_id": "estg_1",
+      "name": "供应链仓储出入库瓶颈审计报告",
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付现有 WMS 及波次拣货流程现场审计及痛点清单"
     },
     {
-      "id": "del_4_3",
-      "stage_id": "stg_4",
-      "name": "线上业务监控与告警配置",
-      "order": 3
+      "id": "edel_1_2",
+      "stage_id": "estg_1",
+      "name": "新一代 ERP 架构设计与技术路线 spec",
+      "order": 2,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付新一代微服务架构演进设计与分批替代计划文档"
     },
     {
-      "id": "hdel_3_3",
-      "stage_id": "hstg_3",
-      "name": "量产作业指导书 (SOP)",
-      "order": 3
+      "id": "edel_2_1",
+      "stage_id": "estg_2",
+      "name": "库位动态分配算法设计与验证报告",
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付库位动态分配逻辑、波次拣货算法数学模型及仿真运行数据"
     },
     {
-      "id": "hdel_1_3",
-      "stage_id": "hstg_1",
-      "name": "核心元器件选型评估",
-      "order": 3
+      "id": "edel_2_2",
+      "stage_id": "estg_2",
+      "name": "PDA 移动条码盲扫现场调试结论",
+      "order": 2,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付 500 件商品现场批量出入库调试视频及硬件兼容测试报告"
     },
     {
-      "id": "del_1_3",
-      "stage_id": "stg_1",
-      "name": "UI/UX 高保真交互原型",
-      "order": 3
+      "id": "edel_3_1",
+      "stage_id": "estg_3",
+      "name": "新旧 ERP 数据平滑迁移对账单",
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付新旧系统全量历史仓储数据迁移对账清单与 100% 数据一致性证明"
     },
     {
-      "id": "del_1_4",
-      "stage_id": "stg_1",
-      "name": "数据库表结构设计与迁移脚本",
-      "order": 4
+      "id": "edel_3_2",
+      "stage_id": "estg_3",
+      "name": "量产作业指导书 (SOP) 与操作手册",
+      "order": 2,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付仓储管理作业指导书 (SOP)、系统操作手册及技术交接归档"
     },
     {
-      "id": "del_2_4",
-      "stage_id": "stg_2",
-      "name": "单测覆盖率达到 80%+",
-      "order": 4
+      "id": "del_strat_1_1",
+      "stage_id": "stg_strat_1",
+      "name": "宏观 PEST 与标杆竞争对标深度分析报告",
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付《外部 PEST 宏观政策环境及标杆竞争对手对标分析报告》"
+    },
+    {
+      "id": "del_strat_1_2",
+      "stage_id": "stg_strat_1",
+      "name": "企业内部资源审计与 SWOT 诊断矩阵",
+      "order": 2,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付《企业内部核心资源能力审计清单、访谈备忘录及 SWOT 关键战略定位方向》"
+    },
+    {
+      "id": "del_strat_2_1",
+      "stage_id": "stg_strat_2",
+      "name": "中长期战略定位与核心业务组合大纲",
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付《使命愿景、发展阶段里程碑及中长期主业+新增长极业务组合布局手册》"
+    },
+    {
+      "id": "del_strat_3_1",
+      "stage_id": "stg_strat_3",
+      "name": "年度战略地图与平衡计分卡(BSC)量化承载表",
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付《集团年度战略地图(一图)、各部门平衡计分卡BSC指标(一卡)与战略任务表(一表)》"
+    },
+    {
+      "id": "del_org_1_1",
+      "stage_id": "stg_org_1",
+      "name": "集团管控现状诊断清单与管控模式方案",
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付《现有管控痛点审计表、战略/运营/财务三类管控模式匹配方案模型》"
+    },
+    {
+      "id": "del_org_2_1",
+      "stage_id": "stg_org_2",
+      "name": "新版组织架构图与各部门职责权责手册",
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付《集团总部及分子公司核心组织框图、各部门核心职责定位与权责边界手册》"
+    },
+    {
+      "id": "del_org_3_1",
+      "stage_id": "stg_org_3",
+      "name": "定岗定编测算表与标准岗位说明书(JD)库",
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付《全岗位名册、人员编制精细化算薪定编表》与《企业标准岗位说明书(JD)数据库》"
+    },
+    {
+      "id": "del_proc_1_1",
+      "stage_id": "stg_proc_1",
+      "name": "端到端流程审计现状分析与断点问题清单",
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付《业务流程流转周期测评表、跨部门协同断点及低效审批点诊断清单》"
+    },
+    {
+      "id": "del_proc_2_1",
+      "stage_id": "stg_proc_2",
+      "name": "高保真全泳道业务流程图与控制矩阵",
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付《核心业务全泳道跨部门流程图(Visio格式级)与对应L3-L4核心控制节点手册》"
+    },
+    {
+      "id": "del_proc_3_1",
+      "stage_id": "stg_proc_3",
+      "name": "分级授权审批权责手册(LoA)与日常审计指引",
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付《集团分级授权表决审批明细表(LoA)》、流程试运行复盘日志及流程日常合规指引"
+    },
+    {
+      "id": "del_comp_1_1",
+      "stage_id": "stg_comp_1",
+      "name": "岗位价值评估要素打分成果与职级发展矩阵",
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付美世/IPE三维评分模型底表、各序列岗级映射图表及岗位双通道晋升模型"
+    },
+    {
+      "id": "del_comp_2_1",
+      "stage_id": "stg_comp_2",
+      "name": "宽带薪酬区间设计、套薪模拟平滑测算分析",
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付《薪酬宽带级幅与带宽重叠度表》、模拟套薪比对底表(Excel)及财务支出总预算预测对冲分析"
+    },
+    {
+      "id": "del_comp_3_1",
+      "stage_id": "stg_comp_3",
+      "name": "绩效体系运行管理制度与合伙人长期激励规划",
+      "order": 1,
+      "has_deliverable": true,
+      "deliverable_requirement": "交付《全员绩效考核及奖金包分配管理办法》与高层骨干《超额利润分享/股票期权行权细则方案书》"
     }
   ],
   "comments": [
@@ -1956,6 +2278,19 @@
     }
   ],
   "activities": [
+    {
+      "id": "act_1787636258092_hi2o9",
+      "project_id": "proj_1787038257116_wkrdf",
+      "node_id": "node_1787038998445_ig75e",
+      "task_id": "task_1787052511167_uf6jq",
+      "type": "task_created",
+      "title": "郭鑫 在任务「模块开发」下通过 AI 智能拆解新增了 3 项子任务",
+      "detail": "+ 新增子任务:「开发花名册管理页面及员工岗位绑定功能」(所属父任务: 模块开发)\n+ 新增子任务:「实现多格式文件上传及 AI 识别批量导入功能」(所属父任务: 模块开发)\n+ 新增子任务:「实现 RBAC 权限管理模型及角色分配逻辑」(所属父任务: 模块开发)",
+      "author": "郭鑫",
+      "timestamp": "2026-08-25T05:37:38.092+00:00",
+      "image_url": null,
+      "attachments": []
+    },
     {
       "id": "act_1787624850340_3h46p",
       "project_id": "proj_1787038257116_wkrdf",

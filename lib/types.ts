@@ -69,8 +69,11 @@ export interface DbTemplateStage {
 export interface DbTemplateDeliverable {
   id: string;
   stage_id: string;
+  parent_id?: string | null;
   name: string;
   order: number;
+  has_deliverable?: boolean;
+  deliverable_requirement?: string;
 }
 
 export interface DbComment {

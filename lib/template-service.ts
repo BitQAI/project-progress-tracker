@@ -39,7 +39,20 @@ export async function getTemplates(): Promise<TemplateWithStages[]> {
 
 export async function createTemplate(
   name: string,
-  stages: { name: string; deliverables: string[] }[]
+  stages: {
+    name: string;
+    tasks?: {
+      name: string;
+      has_deliverable?: boolean;
+      deliverable_requirement?: string;
+      subtasks?: {
+        name: string;
+        has_deliverable?: boolean;
+        deliverable_requirement?: string;
+      }[];
+    }[];
+    deliverables?: string[];
+  }[]
 ): Promise<string> {
   const db = getDb();
   const tplId = generateId('tpl');
@@ -60,14 +73,48 @@ export async function createTemplate(
       order: sIdx + 1,
     });
 
-    stage.deliverables.forEach((delName, dIdx) => {
-      db.templateDeliverables.push({
-        id: generateId('del'),
-        stage_id: stageId,
-        name: delName,
-        order: dIdx + 1,
+    let orderCounter = 1;
+
+    if (stage.tasks && stage.tasks.length > 0) {
+      stage.tasks.forEach((task) => {
+        const taskId = generateId('del');
+        db.templateDeliverables.push({
+          id: taskId,
+          stage_id: stageId,
+          parent_id: null,
+          name: task.name,
+          order: orderCounter++,
+          has_deliverable: task.has_deliverable === true,
+          deliverable_requirement: task.deliverable_requirement || '',
+        });
+
+        if (task.subtasks && task.subtasks.length > 0) {
+          task.subtasks.forEach((subtask) => {
+            db.templateDeliverables.push({
+              id: generateId('del'),
+              stage_id: stageId,
+              parent_id: taskId,
+              name: subtask.name,
+              order: orderCounter++,
+              has_deliverable: subtask.has_deliverable === true,
+              deliverable_requirement: subtask.deliverable_requirement || '',
+            });
+          });
+        }
       });
-    });
+    } else if (stage.deliverables && stage.deliverables.length > 0) {
+      stage.deliverables.forEach((delName, dIdx) => {
+        db.templateDeliverables.push({
+          id: generateId('del'),
+          stage_id: stageId,
+          parent_id: null,
+          name: delName,
+          order: dIdx + 1,
+          has_deliverable: false,
+          deliverable_requirement: '',
+        });
+      });
+    }
   });
 
   await persistDb();

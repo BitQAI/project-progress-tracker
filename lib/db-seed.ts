@@ -11,55 +11,86 @@ import {
 export function getInitialDatabase(): AppDatabase {
   const now = new Date().toISOString();
 
-  // 1. 标准流程模板
-  const tpl1: DbTemplate = {
-    id: 'tpl_software_standard',
-    name: '标准软件研发流程模板',
+  // 1. 唯一且深度完整的标准流程模板：企业中长期战略规划与组织变革一体化咨询标准方案
+  const tplMaster: DbTemplate = {
+    id: 'tpl_consulting_master',
+    name: '企业中长期战略规划与组织变革一体化咨询标准方案',
+    description: '适用于中大型集团或高成长企业，涵盖企业战略诊断、主营业务组合、年度战略地图解码(BSC)、集团管控模式重塑、部门职责厘清、定岗定编测算及全套岗位说明书(JD)编制的端到端深度交付标准流程。',
     created_at: now,
   };
-  const tplStages1: DbTemplateStage[] = [
-    { id: 'stg_1', template_id: tpl1.id, name: '阶段一：需求与方案评审', order: 1 },
-    { id: 'stg_2', template_id: tpl1.id, name: '阶段二：核心模块研发', order: 2 },
-    { id: 'stg_3', template_id: tpl1.id, name: '阶段三：质量测试与回归', order: 3 },
-    { id: 'stg_4', template_id: tpl1.id, name: '阶段四：发布与上线交付', order: 4 },
-  ];
-  const tplDeliv1: DbTemplateDeliverable[] = [
-    { id: 'del_1_1', stage_id: 'stg_1', name: '产品需求规格说明书 (PRD)', order: 1 },
-    { id: 'del_1_2', stage_id: 'stg_1', name: '系统架构与技术选型文档', order: 2 },
-    { id: 'del_1_3', stage_id: 'stg_1', name: 'UI/UX 高保真交互原型', order: 3 },
-    { id: 'del_1_4', stage_id: 'stg_1', name: '数据库表结构设计与迁移脚本', order: 4 },
-    { id: 'del_2_1', stage_id: 'stg_2', name: '后端核心业务 API 与数据层开发', order: 1 },
-    { id: 'del_2_2', stage_id: 'stg_2', name: '前端界面与组件库封装', order: 2 },
-    { id: 'del_2_3', stage_id: 'stg_2', name: '第三方服务与 OAuth 鉴权对接', order: 3 },
-    { id: 'del_2_4', stage_id: 'stg_2', name: '单测覆盖率达到 80%+', order: 4 },
-    { id: 'del_3_1', stage_id: 'stg_3', name: '测试用例编写与全量功能回归', order: 1 },
-    { id: 'del_3_2', stage_id: 'stg_3', name: '压力与安全渗透测试报告', order: 2 },
-    { id: 'del_3_3', stage_id: 'stg_3', name: '跨端/多分辨率适配验收', order: 3 },
-    { id: 'del_4_1', stage_id: 'stg_4', name: '生产环境配置与灰度发布', order: 1 },
-    { id: 'del_4_2', stage_id: 'stg_4', name: '操作手册与技术交接文档', order: 2 },
-    { id: 'del_4_3', stage_id: 'stg_4', name: '线上业务监控与告警配置', order: 3 },
+
+  const tplStages: DbTemplateStage[] = [
+    { id: 'stg_1', template_id: tplMaster.id, name: '阶段一：战略诊断、内外部环境分析与标杆对标', order: 1 },
+    { id: 'stg_2', template_id: tplMaster.id, name: '阶段二：中长期战略设计与主干业务组合规划', order: 2 },
+    { id: 'stg_3', template_id: tplMaster.id, name: '阶段三：战略解码与平衡计分卡(BSC)量化分解', order: 3 },
+    { id: 'stg_4', template_id: tplMaster.id, name: '阶段四：集团管控模式重塑与中心组织架构重构', order: 4 },
+    { id: 'stg_5', template_id: tplMaster.id, name: '阶段五：岗位定岗定编与岗位说明书(JD)库建设', order: 5 },
   ];
 
-  const tpl2: DbTemplate = {
-    id: 'tpl_hardware_trial',
-    name: '智能硬件试产与量产流程',
-    created_at: now,
-  };
-  const tplStages2: DbTemplateStage[] = [
-    { id: 'hstg_1', template_id: tpl2.id, name: 'EVT（工程验证阶段）', order: 1 },
-    { id: 'hstg_2', template_id: tpl2.id, name: 'DVT（设计验证阶段）', order: 2 },
-    { id: 'hstg_3', template_id: tpl2.id, name: 'PVT（生产验证阶段）', order: 3 },
-  ];
-  const tplDeliv2: DbTemplateDeliverable[] = [
-    { id: 'hdel_1_1', stage_id: 'hstg_1', name: '原理图与 PCB 打样验证', order: 1 },
-    { id: 'hdel_1_2', stage_id: 'hstg_1', name: '结构手板拼装与干涉检查', order: 2 },
-    { id: 'hdel_1_3', stage_id: 'hstg_1', name: '核心元器件选型评估', order: 3 },
-    { id: 'hdel_2_1', stage_id: 'hstg_2', name: '模具开模与注塑试模', order: 1 },
-    { id: 'hdel_2_2', stage_id: 'hstg_2', name: '高低温跌落与可靠性测试', order: 2 },
-    { id: 'hdel_2_3', stage_id: 'hstg_2', name: 'EMC/安规预扫测试', order: 3 },
-    { id: 'hdel_3_1', stage_id: 'hstg_3', name: '产线治具与自动化烧录工具', order: 1 },
-    { id: 'hdel_3_2', stage_id: 'hstg_3', name: '小批量试产直通率统计', order: 2 },
-    { id: 'hdel_3_3', stage_id: 'hstg_3', name: '量产作业指导书 (SOP)', order: 3 },
+  const tplDeliverables: DbTemplateDeliverable[] = [
+    // 阶段一 任务与子任务
+    { id: 'del_1_1', stage_id: 'stg_1', parent_id: null, name: '宏观政策环境(PEST)与行业竞争态势分析', order: 1 },
+    { id: 'del_1_1_sub1', stage_id: 'stg_1', parent_id: 'del_1_1', name: 'PEST 宏观政策导向及行业准入壁垒分析', order: 1 },
+    { id: 'del_1_1_sub2', stage_id: 'stg_1', parent_id: 'del_1_1', name: '行业前五标杆企业商业模式与多维财务对标', order: 2, has_deliverable: true, deliverable_requirement: '交付《标杆企业商业模式与多维对标报告》' },
+
+    { id: 'del_1_2', stage_id: 'stg_1', parent_id: null, name: '企业内部核心资源审计与骨干访谈', order: 2 },
+    { id: 'del_1_2_sub1', stage_id: 'stg_1', parent_id: 'del_1_2', name: '高管及中层管理骨干一对一访谈与核心痛点归集', order: 1 },
+    { id: 'del_1_2_sub2', stage_id: 'stg_1', parent_id: 'del_1_2', name: '内部关键业务流程断点与核心能力缺口审计', order: 2, has_deliverable: true, deliverable_requirement: '交付《企业资源审计评估与内部痛点审计清单》' },
+
+    { id: 'del_1_3', stage_id: 'stg_1', parent_id: null, name: '战略定位机会(SWOT)交叉矩阵提炼与诊断汇报', order: 3 },
+    { id: 'del_1_3_sub1', stage_id: 'stg_1', parent_id: 'del_1_3', name: 'SO/ST/WO/WT 多重交叉战略组合推演与方向锁定', order: 1 },
+    { id: 'del_1_3_sub2', stage_id: 'stg_1', parent_id: 'del_1_3', name: '第一阶段战略诊断与核心课题向董事会汇报', order: 2, has_deliverable: true, deliverable_requirement: '交付《第一阶段战略诊断与核心课题汇报PPT（加盖审计章）》' },
+
+    // 阶段二 任务与子任务
+    { id: 'del_2_1', stage_id: 'stg_2', parent_id: null, name: '集团使命、愿景、核心价值观确立', order: 1 },
+    { id: 'del_2_1_sub1', stage_id: 'stg_2', parent_id: 'del_2_1', name: '企业文化精神提炼与三年/五年愿景指标设计', order: 1 },
+
+    { id: 'del_2_2', stage_id: 'stg_2', parent_id: null, name: '三曲线主干业务组合与新增长极规划', order: 2 },
+    { id: 'del_2_2_sub1', stage_id: 'stg_2', parent_id: 'del_2_2', name: '第一曲线（现金流主业）效率提升与数字化重构方案', order: 1 },
+    { id: 'del_2_2_sub2', stage_id: 'stg_2', parent_id: 'del_2_2', name: '第二曲线（高成长新星）市场渗透与组织配称方案', order: 2 },
+    { id: 'del_2_2_sub3', stage_id: 'stg_2', parent_id: 'del_2_2', name: '第三曲线（前瞻孵化）创新机制与投融资布局手册', order: 3, has_deliverable: true, deliverable_requirement: '交付《三曲线业务组合与中长期发展布局大纲手册》' },
+
+    { id: 'del_2_3', stage_id: 'stg_2', parent_id: null, name: '区域布局与战略总体规划案最终提报', order: 3 },
+    { id: 'del_2_3_sub1', stage_id: 'stg_2', parent_id: 'del_2_3', name: '核心区域与下沉市场开拓路线图及销售网络配称', order: 1 },
+    { id: 'del_2_3_sub2', stage_id: 'stg_2', parent_id: 'del_2_3', name: '中长期战略总体规划案向董事会最终提报', order: 2, has_deliverable: true, deliverable_requirement: '交付《企业中长期战略总体规划白皮书与商业计划书》' },
+
+    // 阶段三 任务与子任务
+    { id: 'del_3_1', stage_id: 'stg_3', parent_id: null, name: '集团年度战略地图(Strategy Map)绘制', order: 1 },
+    { id: 'del_3_1_sub1', stage_id: 'stg_3', parent_id: 'del_3_1', name: '财务、客户、内部流程、学习与成长四维度归因因果链设计', order: 1 },
+    { id: 'del_3_1_sub2', stage_id: 'stg_3', parent_id: 'del_3_1', name: '20 大核心战略议题指标关联矩阵绘制', order: 2, has_deliverable: true, deliverable_requirement: '交付《集团年度高保真战略地图（四维度高清大图）》' },
+
+    { id: 'del_3_2', stage_id: 'stg_3', parent_id: null, name: '平衡计分卡(BSC)指标解码与大表建立', order: 2 },
+    { id: 'del_3_2_sub1', stage_id: 'stg_3', parent_id: 'del_3_2', name: '集团级平衡计分卡 KPI 及 OKR 目标量化设定', order: 1 },
+    { id: 'del_3_2_sub2', stage_id: 'stg_3', parent_id: 'del_3_2', name: '各核心中心/部门平衡计分卡指标(BSC一卡)承接分解', order: 2, has_deliverable: true, deliverable_requirement: '交付《各中心/部门平衡计分卡指标量化分解承载底表》' },
+
+    { id: 'del_3_3', stage_id: 'stg_3', parent_id: null, name: '战略任务规划、控制塔建立与资源配置', order: 3 },
+    { id: 'del_3_3_sub1', stage_id: 'stg_3', parent_id: 'del_3_3', name: '核心变革任务专项行动方案编制与预算测算', order: 1 },
+    { id: 'del_3_3_sub2', stage_id: 'stg_3', parent_id: 'del_3_3', name: '战略控制塔(Control Tower)警报阈值与复盘机制建立', order: 2, has_deliverable: true, deliverable_requirement: '交付《集团中长期战略执行年度控制塔与关键行动指引方案》' },
+
+    // 阶段四 任务与子任务
+    { id: 'del_4_1', stage_id: 'stg_4', parent_id: null, name: '总部与分子公司战略/运营/财务管控模式界定', order: 1 },
+    { id: 'del_4_1_sub1', stage_id: 'stg_4', parent_id: 'del_4_1', name: '总部功能定位及分子公司授权审批底表设计', order: 1 },
+    { id: 'del_4_1_sub2', stage_id: 'stg_4', parent_id: 'del_4_1', name: '集团三大管控模式（财务、战略、运营型）适用性匹配论证报告', order: 2, has_deliverable: true, deliverable_requirement: '交付《集团总部与子公司管控定位边界重塑及管控大纲》' },
+
+    { id: 'del_4_2', stage_id: 'stg_4', parent_id: null, name: '集团组织架构设计与汇报线理顺', order: 2 },
+    { id: 'del_4_2_sub1', stage_id: 'stg_4', parent_id: 'del_4_2', name: '高层管理团队分工、决策机制与治理架构图绘制', order: 1 },
+    { id: 'del_4_2_sub2', stage_id: 'stg_4', parent_id: 'del_4_2', name: '新版部门组织框图、核心定位与人员定级方案', order: 2, has_deliverable: true, deliverable_requirement: '交付《高保真集团组织架构及汇报关系大图》' },
+
+    { id: 'del_4_3', stage_id: 'stg_4', parent_id: null, name: '跨部门职责界面及权责边界厘清', order: 3 },
+    { id: 'del_4_3_sub1', stage_id: 'stg_4', parent_id: 'del_4_3', name: '多部门协同难点流程（如跨区域采购、联合营销等）RACIS模型权责表编制', order: 1, has_deliverable: true, deliverable_requirement: '交付《集团各中心部门职责界限及多中心联合权责边界矩阵(RACIS)》' },
+
+    // 阶段五 任务与子任务
+    { id: 'del_5_1', stage_id: 'stg_5', parent_id: null, name: '岗位序列划分、职级发展通道及定员标准设计', order: 1 },
+    { id: 'del_5_1_sub1', stage_id: 'stg_5', parent_id: 'del_5_1', name: '管理、专业、销售、生产多序列职级阶梯与发展双通道设计', order: 1 },
+    { id: 'del_5_1_sub2', stage_id: 'stg_5', parent_id: 'del_5_1', name: '岗位价值评估(IPE模型)要素设计与权重确定', order: 2, has_deliverable: true, deliverable_requirement: '交付《岗位价值评估体系要素与职级序列大纲》' },
+
+    { id: 'del_5_2', stage_id: 'stg_5', parent_id: null, name: '各岗定岗定编测算与平滑套入', order: 2 },
+    { id: 'del_5_2_sub1', stage_id: 'stg_5', parent_id: 'del_5_2', name: '各部门工作饱和度、岗位工作量测算及对标测算', order: 1 },
+    { id: 'del_5_2_sub2', stage_id: 'stg_5', parent_id: 'del_5_2', name: '薪酬成本测算、年度招聘编制控制与预算分配模型', order: 2, has_deliverable: true, deliverable_requirement: '交付《全岗位名册、人员编制精细化测算套编表(Excel)》' },
+
+    { id: 'del_5_3', stage_id: 'stg_5', parent_id: null, name: '企业级标准岗位说明书(JD)数据库编制', order: 3 },
+    { id: 'del_5_3_sub1', stage_id: 'stg_5', parent_id: 'del_5_3', name: '全岗位工作职责、任职资格、关键绩效考核指标(KPI)提炼', order: 1 },
+    { id: 'del_5_3_sub2', stage_id: 'stg_5', parent_id: 'del_5_3', name: '各中心/部门骨干标准《岗位说明书 (JD)》归档', order: 2, has_deliverable: true, deliverable_requirement: '交付《全员各序列标准岗位说明书(JD)数据库手册》' },
   ];
 
   // 2. 初始演示项目
@@ -303,9 +334,9 @@ export function getInitialDatabase(): AppDatabase {
   return {
     nodes,
     tasks,
-    templates: [tpl1, tpl2],
-    templateStages: [...tplStages1, ...tplStages2],
-    templateDeliverables: [...tplDeliv1, ...tplDeliv2],
+    templates: [tplMaster],
+    templateStages: tplStages,
+    templateDeliverables: tplDeliverables,
     comments,
     activities: [],
   };

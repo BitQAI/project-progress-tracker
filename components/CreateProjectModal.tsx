@@ -275,14 +275,28 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                     <Layers className="h-3.5 w-3.5 text-zinc-500" />
                     <span>预置阶段及交付任务预览:</span>
                   </div>
+                  {currentTemplate.description && (
+                    <p className="text-[11px] text-zinc-500 leading-relaxed bg-zinc-150/40 p-2 rounded-lg italic">
+                      {currentTemplate.description}
+                    </p>
+                  )}
                   {currentTemplate.stages.map((stg) => (
                     <div key={stg.id} className="rounded-md border border-zinc-200/80 bg-white p-2 text-zinc-700">
                       <div className="font-medium text-zinc-900">{stg.name}</div>
                       <div className="mt-1 flex flex-wrap gap-1">
                         {stg.deliverables.map((d) => (
-                          <span key={d.id} className="inline-flex items-center gap-1 rounded bg-zinc-100 px-1.5 py-0.5 text-[11px] text-zinc-600">
-                            <Check className="h-2.5 w-2.5 text-emerald-600" />
-                            {d.name}
+                          <span
+                            key={d.id}
+                            title={d.deliverable_requirement || undefined}
+                            className="inline-flex items-center gap-1 rounded bg-zinc-100 px-1.5 py-0.5 text-[11px] text-zinc-600"
+                          >
+                            <Check className="h-2.5 w-2.5 text-emerald-600 shrink-0" />
+                            <span>{d.name}</span>
+                            {d.has_deliverable && (
+                              <span className="text-[9px] text-blue-600 font-semibold bg-blue-50 px-1 rounded shrink-0">
+                                需交付
+                              </span>
+                            )}
                           </span>
                         ))}
                       </div>
