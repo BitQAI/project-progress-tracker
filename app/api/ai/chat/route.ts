@@ -77,7 +77,7 @@ ${globalContextText}
 
     const finalMessages = [systemPrompt, ...messages.filter((m) => m.role !== 'system')];
 
-    // 3. 请求智谱 AI glm-4-flash 流式传输接口 (stream: true)
+    // 3. 请求智谱 AI glm-4.7-flash 流式传输接口 (stream: true)
     let zhipuResponse: Response;
     try {
       zhipuResponse = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
@@ -87,7 +87,7 @@ ${globalContextText}
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: 'glm-4-flash',
+          model: 'glm-4.7-flash',
           messages: finalMessages,
           temperature: 0.7,
           top_p: 0.9,

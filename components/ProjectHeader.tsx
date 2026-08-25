@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronDown,
   Edit2,
+  Bot,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -16,9 +17,15 @@ interface ProjectHeaderProps {
   tree: NodeTreeNode;
   onEditClick: () => void;
   onStatusChange: (status: ProjectStatus) => void;
+  onOpenAiParse?: (params: {
+    targetLevel: 'project_subnodes';
+    targetNodeId: string;
+    contextName: string;
+    defaultOwner: string;
+  }) => void;
 }
 
-export function ProjectHeader({ tree, onEditClick, onStatusChange }: ProjectHeaderProps) {
+export function ProjectHeader({ tree, onEditClick, onStatusChange, onOpenAiParse }: ProjectHeaderProps) {
   return (
     <div
       id="project-detail-compact-header"
@@ -84,8 +91,28 @@ export function ProjectHeader({ tree, onEditClick, onStatusChange }: ProjectHead
         )}
       </div>
 
-      {/* 右侧：编辑信息与状态切换 */}
+      {/* 右侧：AI智能拆解、编辑信息与状态切换 */}
       <div className="flex items-center justify-between sm:justify-end gap-1.5 shrink-0 pt-1 sm:pt-0 border-t border-zinc-100 sm:border-t-0">
+        {onOpenAiParse && (
+          <button
+            type="button"
+            id="header-ai-parse-btn"
+            onClick={() =>
+              onOpenAiParse({
+                targetLevel: 'project_subnodes',
+                targetNodeId: tree.id,
+                contextName: tree.name,
+                defaultOwner: tree.owner || '',
+              })
+            }
+            className="inline-flex items-center gap-1 rounded bg-blue-50 text-blue-700 border border-blue-200/80 px-2 py-0.5 text-[11px] sm:text-xs font-semibold hover:bg-blue-100 transition-colors shadow-3xs"
+            title="使用 AI 解析需求文本并自动拆解为分组与模块"
+          >
+            <Bot className="h-3.5 w-3.5 text-blue-600" />
+            <span>AI 智能拆解</span>
+          </button>
+        )}
+
         <button
           onClick={onEditClick}
           className="inline-flex items-center gap-0.5 sm:gap-1 rounded bg-zinc-50/60 border border-zinc-200 px-1.5 sm:px-2.5 py-0.5 text-[11px] sm:text-xs font-medium text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 transition-colors"

@@ -19,6 +19,7 @@ import {
   User,
   Clock,
   Calendar,
+  Bot,
 } from 'lucide-react';
 
 interface TreeNodeItemProps {
@@ -61,6 +62,13 @@ interface TreeNodeItemProps {
   onDeleteNode: (nodeId: string, name: string) => void;
   onOpenNodeComments: (node: NodeTreeNode) => void;
   onOpenTaskComments: (task: DbTask) => void;
+  onOpenAiParse?: (params: {
+    targetLevel: 'project_subnodes' | 'node_tasks' | 'task_subtasks';
+    targetNodeId?: string | null;
+    targetTaskId?: string | null;
+    contextName: string;
+    defaultOwner: string;
+  }) => void;
 }
 
 export function TreeNodeItem({
@@ -77,6 +85,7 @@ export function TreeNodeItem({
   onDeleteNode,
   onOpenNodeComments,
   onOpenTaskComments,
+  onOpenAiParse,
 }: TreeNodeItemProps) {
   // 默认展开逻辑：仅进度在 0% ~ 100% 之间（即进行中）的分组和任务才会默认展开
   const isBetween0And100 = node.progressPercent > 0 && node.progressPercent < 100;
@@ -210,7 +219,7 @@ export function TreeNodeItem({
         </div>
 
         {/* 右侧递归汇总进度与操作 */}
-        <div className="flex items-center justify-between sm:justify-end gap-2.5 sm:gap-3 shrink-0 pt-1.5 sm:pt-0 border-t border-zinc-100 sm:border-t-0">
+        <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-2.5 shrink-0 pt-1.5 sm:pt-0 border-t border-zinc-100 sm:border-t-0">
           <div className="flex items-center gap-2">
             <div className="flex flex-col items-start sm:items-end">
               <span className="text-xs font-bold text-zinc-900">{node.progressPercent}%</span>
@@ -233,6 +242,27 @@ export function TreeNodeItem({
           </div>
 
           <div className="flex items-center gap-1">
+            {/* AI 拆解/解析按钮 */}
+            {onOpenAiParse && (
+              <button
+                type="button"
+                onClick={() =>
+                  onOpenAiParse({
+                    targetLevel: depth === 0 ? 'project_subnodes' : 'node_tasks',
+                    targetNodeId: node.id,
+                    contextName: node.name,
+                    defaultOwner: node.owner || '',
+                  })
+                }
+                id={`btn-ai-parse-node-${node.id}`}
+                className="inline-flex items-center gap-1 rounded-md bg-blue-50 border border-blue-200/70 px-2 py-1 text-[11px] font-medium text-blue-700 hover:bg-blue-100 transition-colors shadow-3xs"
+                title={`使用 AI 为「${node.name}」解析需求并智能拆解`}
+              >
+                <Bot className="h-3.5 w-3.5 text-blue-600" />
+                <span className="hidden xs:inline">AI解析</span>
+              </button>
+            )}
+
             <button
               onClick={() => {
                 setShowAddTask(true);
@@ -278,7 +308,24 @@ export function TreeNodeItem({
                 <MoreVertical className="h-3.5 w-3.5" />
               </button>
               {showMenu && (
-                <div className="absolute right-0 top-6 z-20 w-28 rounded-lg border border-zinc-200 bg-white py-1 shadow-lg">
+                <div className="absolute right-0 top-6 z-20 w-32 rounded-lg border border-zinc-200 bg-white py-1 shadow-lg">
+                  {onOpenAiParse && (
+                    <button
+                      onClick={() => {
+                        onOpenAiParse({
+                          targetLevel: depth === 0 ? 'project_subnodes' : 'node_tasks',
+                          targetNodeId: node.id,
+                          contextName: node.name,
+                          defaultOwner: node.owner || '',
+                        });
+                        setShowMenu(false);
+                      }}
+                      className="flex w-full items-center gap-1.5 px-3 py-1.5 text-left text-xs text-blue-700 hover:bg-blue-50 font-medium"
+                    >
+                      <Bot className="h-3.5 w-3.5 text-blue-600" />
+                      AI 智能解析
+                    </button>
+                  )}
                   <button
                     onClick={() => {
                       setIsEditingNode(true);
@@ -384,6 +431,7 @@ export function TreeNodeItem({
                           onDeleteTask={onDeleteTask}
                           onOpenComments={onOpenTaskComments}
                           onAddTask={onAddTask}
+                          onOpenAiParse={onOpenAiParse}
                           hideCompleted={hideCompleted}
                         />
                       );
@@ -419,6 +467,7 @@ export function TreeNodeItem({
                   onDeleteNode={onDeleteNode}
                   onOpenNodeComments={onOpenNodeComments}
                   onOpenTaskComments={onOpenTaskComments}
+                  onOpenAiParse={onOpenAiParse}
                 />
               ))}
             </div>
@@ -434,4 +483,5 @@ export function TreeNodeItem({
     </div>
   );
 }
+
 

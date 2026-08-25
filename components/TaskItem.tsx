@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { DbTask, FileAttachment, AttachmentType, DeliverableItem } from '@/lib/types';
+import { DbTask, FileAttachment, DeliverableItem } from '@/lib/types';
 import { getTodayBeijingString } from '@/lib/date-utils';
 import { AttachmentPreviewModal } from './AttachmentPreviewModal';
 import { TaskEditForm } from './TaskEditForm';
 import { AddTaskForm } from './NodeActionForms';
+import { TaskDeliverablePreview, getAttachmentFormatIcon } from './TaskDeliverablePreview';
 import {
   CheckSquare,
   Square,
@@ -19,14 +20,10 @@ import {
   CheckCircle2,
   FileCheck,
   Clock,
-  FileCode,
-  FileText,
-  Image as ImageIcon,
-  Eye,
-  ExternalLink,
   Paperclip,
   Plus,
   CornerDownRight,
+  Bot,
 } from 'lucide-react';
 
 interface TaskItemProps {
@@ -48,6 +45,13 @@ interface TaskItemProps {
     deliverableItems?: DeliverableItem[],
     parentId?: string | null
   ) => void;
+  onOpenAiParse?: (params: {
+    targetLevel: 'task_subtasks';
+    targetNodeId: string;
+    targetTaskId: string;
+    contextName: string;
+    defaultOwner: string;
+  }) => void;
   hideCompleted?: boolean;
 }
 
@@ -60,6 +64,7 @@ export function TaskItem({
   onDeleteTask,
   onOpenComments,
   onAddTask,
+  onOpenAiParse,
   hideCompleted = false,
 }: TaskItemProps) {
   const [isEditing, setIsEditing] = useState(false);
@@ -69,19 +74,6 @@ export function TaskItem({
   const [showDeliverableDetail, setShowDeliverableDetail] = useState(false);
   const [previewAttachment, setPreviewAttachment] = useState<FileAttachment | null>(null);
   const [previewAttachmentList, setPreviewAttachmentList] = useState<FileAttachment[]>([]);
-
-  const getFormatIcon = (type: AttachmentType) => {
-    switch (type) {
-      case 'image':
-        return <ImageIcon className="h-3 w-3 text-sky-500" />;
-      case 'md':
-        return <FileCode className="h-3 w-3 text-emerald-500" />;
-      case 'pdf':
-        return <FileText className="h-3 w-3 text-rose-500" />;
-      default:
-        return <FileText className="h-3 w-3 text-zinc-500" />;
-    }
-  };
 
   const isOverdue = task.status === 'pending' && task.due_date && task.due_date < todayStr;
   const overdueDays = useMemo(() => {
@@ -241,7 +233,7 @@ export function TaskItem({
           )}
         </div>
 
-        <div className="flex items-center justify-between sm:justify-end gap-2.5 sm:gap-3 shrink-0 pt-1 sm:pt-0 border-t border-zinc-100/60 sm:border-t-0">
+        <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-2.5 shrink-0 pt-1 sm:pt-0 border-t border-zinc-100/60 sm:border-t-0">
           {/* 负责人 */}
           <span className="flex items-center gap-1 text-zinc-500">
             <User className="h-3 w-3 text-zinc-400" />
@@ -285,6 +277,26 @@ export function TaskItem({
             <MessageSquare className="h-3.5 w-3.5" />
           </button>
 
+          {/* AI 拆解子任务快捷入口 */}
+          {onOpenAiParse && (
+            <button
+              type="button"
+              onClick={() =>
+                onOpenAiParse({
+                  targetLevel: 'task_subtasks',
+                  targetNodeId: task.node_id,
+                  targetTaskId: task.id,
+                  contextName: task.name,
+                  defaultOwner: task.owner || '',
+                })
+              }
+              className="rounded p-1 text-zinc-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+              title="使用 AI 智能解析并拆解此任务的下级子任务"
+            >
+              <Bot className="h-3.5 w-3.5" />
+            </button>
+          )}
+
           {/* 新增子任务按钮 */}
           <button
             type="button"
@@ -306,7 +318,25 @@ export function TaskItem({
               <MoreHorizontal className="h-3.5 w-3.5" />
             </button>
             {showMenu && (
-              <div className="absolute right-0 top-6 z-20 w-24 rounded-lg border border-zinc-200 bg-white py-1 shadow-lg">
+              <div className="absolute right-0 top-6 z-20 w-32 rounded-lg border border-zinc-200 bg-white py-1 shadow-lg">
+                {onOpenAiParse && (
+                  <button
+                    onClick={() => {
+                      onOpenAiParse({
+                        targetLevel: 'task_subtasks',
+                        targetNodeId: task.node_id,
+                        targetTaskId: task.id,
+                        contextName: task.name,
+                        defaultOwner: task.owner || '',
+                      });
+                      setShowMenu(false);
+                    }}
+                    className="flex w-full items-center gap-1.5 px-2.5 py-1 text-left text-xs text-blue-700 hover:bg-blue-50 font-medium"
+                  >
+                    <Bot className="h-3.5 w-3.5 text-blue-600" />
+                    AI 拆解子任务
+                  </button>
+                )}
                 <button
                   onClick={() => {
                     setIsAddingSubtask(true);
@@ -343,80 +373,17 @@ export function TaskItem({
         </div>
       </div>
 
-      {/* 交付件展开详情（紧凑单/双行精简视图） */}
+      {/* 交付件展开详情 */}
       {showDeliverableDetail && task.has_deliverable && (
-        <div className="mt-1.5 pt-1.5 border-t border-zinc-150 text-xs bg-zinc-50/70 p-2.5 rounded-md space-y-1.5">
-          {task.deliverable_requirement && (
-            <div className="text-zinc-600 flex items-start gap-1 text-[11px]">
-              <span className="font-semibold text-zinc-700 shrink-0">交付规范:</span>
-              <span className="text-zinc-600 leading-tight">{task.deliverable_requirement}</span>
-            </div>
-          )}
-          {task.deliverable_submission || (task.deliverable_attachments && task.deliverable_attachments.length > 0) ? (
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-[11px] text-emerald-800 bg-emerald-50/90 px-2.5 py-1.5 rounded border border-emerald-200/80 w-full min-w-0 gap-2">
-                <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                  <span className="font-semibold shrink-0">已归档成果:</span>
-                  <span className="truncate break-all flex-1 min-w-0 font-medium" title={task.deliverable_submission || '交付件/附件已归档'}>
-                    {task.deliverable_submission || '已提交附件成果'}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  {completionInfo && (
-                    <span className="text-[10px] text-emerald-700 font-medium">
-                      {completionInfo.text}
-                    </span>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => onRequestSubmitDeliverable(task)}
-                    className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-emerald-700 hover:text-emerald-900 bg-white/80 hover:bg-white px-1.5 py-0.5 rounded border border-emerald-300 transition-colors shadow-3xs"
-                    title="回看或重新提交交付件/附件"
-                  >
-                    <ExternalLink className="h-2.5 w-2.5" />
-                    <span>回看/编辑交付物</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* 交付件附件预览列表 */}
-              {task.deliverable_attachments && task.deliverable_attachments.length > 0 && (
-                <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
-                  <span className="text-[10px] text-zinc-500 font-medium shrink-0">附件清单 ({task.deliverable_attachments.length}):</span>
-                  {task.deliverable_attachments.map((att) => (
-                    <button
-                      key={att.id || att.url}
-                      type="button"
-                      onClick={() => {
-                        setPreviewAttachment(att);
-                        setPreviewAttachmentList(task.deliverable_attachments || [att]);
-                      }}
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded border border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50 text-[11px] text-zinc-700 shadow-3xs transition-all group"
-                      title="点击在线预览"
-                    >
-                      <span className="shrink-0">{getFormatIcon(att.type)}</span>
-                      <span className="truncate max-w-[120px] font-medium group-hover:text-zinc-900">
-                        {att.name}
-                      </span>
-                      <Eye className="h-2.5 w-2.5 text-zinc-400 group-hover:text-emerald-600 ml-0.5" />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="text-amber-800 bg-amber-50/70 px-2 py-1 rounded border border-amber-200/60 flex items-center justify-between text-[11px]">
-              <span>暂未提交成果，勾选完成时需录入交付件</span>
-              <button
-                type="button"
-                onClick={() => onRequestSubmitDeliverable(task)}
-                className="font-medium underline hover:text-amber-950 ml-2 shrink-0"
-              >
-                立即提交成果
-              </button>
-            </div>
-          )}
-        </div>
+        <TaskDeliverablePreview
+          task={task}
+          completionInfo={completionInfo}
+          onRequestSubmitDeliverable={onRequestSubmitDeliverable}
+          onPreviewAttachment={(att) => {
+            setPreviewAttachment(att);
+            setPreviewAttachmentList(task.deliverable_attachments || [att]);
+          }}
+        />
       )}
 
       {/* 附件在线预览模态框 */}
@@ -442,7 +409,6 @@ export function TaskItem({
             isSubtask={true}
             onClose={() => setIsAddingSubtask(false)}
             onSubmit={(name, owner, dueDate, hasDeliverable, deliverableRequirement, estimatedDuration, deliverableItems) => {
-              // Convert undefined to string | undefined
               onAddTask(
                 task.node_id,
                 name,
@@ -481,6 +447,7 @@ export function TaskItem({
                   onDeleteTask={onDeleteTask}
                   onOpenComments={onOpenComments}
                   onAddTask={onAddTask}
+                  onOpenAiParse={onOpenAiParse}
                   hideCompleted={hideCompleted}
                 />
               ))}
