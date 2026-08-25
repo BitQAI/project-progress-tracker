@@ -24,6 +24,7 @@ import { NodeDetailDrawer } from './NodeDetailDrawer';
 import { buildFlowElements } from './flow-layout-utils';
 import { GraphFilterState, LayoutDirection } from './types';
 import { safeFetchJson } from '@/lib/fetch-utils';
+import { AiTextParseModal } from '@/components/ai-parse/AiTextParseModal';
 
 const nodeTypes = {
   rootNode: RootProgressNode,
@@ -68,6 +69,7 @@ function FlowInner({ initialData, onRefreshData, isLoading = false }: ProgressFl
     id: string;
     type: 'root' | 'project' | 'module' | 'task';
     data: any;
+    projectId?: string;
   } | null>(null);
 
   // 展开/收起单个节点
@@ -145,11 +147,82 @@ function FlowInner({ initialData, onRefreshData, isLoading = false }: ProgressFl
 
   // 节点选择
   const handleSelectNode = useCallback(
-    (id: string, type: 'root' | 'project' | 'module' | 'task', data?: any) => {
-      setSelectedNode({ id, type, data });
+    (id: string, type: 'root' | 'project' | 'module' | 'task', data?: any, projectId?: string) => {
+      setSelectedNode({ id, type, data, projectId });
     },
     []
   );
+
+  // WBS AI 拆解状态
+  const [aiParseContext, setAiParseContext] = useState<{
+    projectId: string;
+    type: 'project' | 'module' | 'task';
+    data: any;
+  } | null>(null);
+
+  // 监听子组件或抽屉触发的 AI 智能拆解事件
+  useEffect(() => {
+    const handleTriggerAiParse = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail) {
+        setAiParseContext(detail);
+      }
+    };
+    window.addEventListener('trigger-ai-parse', handleTriggerAiParse);
+    return () => {
+      window.removeEventListener('trigger-ai-parse', handleTriggerAiParse);
+    };
+  }, []);
+
+  // 当外部刷新 WBS 数据时，自动同步已选节点的详细状态，保持侧边栏信息最新
+  useEffect(() => {
+    if (!selectedNode) return;
+    const nodeId = selectedNode.id;
+    const nodeType = selectedNode.type;
+    const projectCtxId = selectedNode.projectId;
+
+    const findProjectAndNodes = () => {
+      if (nodeType === 'project') {
+        const found = initialData.projects.find((p) => p.id === nodeId);
+        if (found && found !== selectedNode.data) {
+          setSelectedNode({ id: nodeId, type: 'project', data: found, projectId: projectCtxId });
+        }
+      } else if (nodeType === 'module') {
+        let foundModule: any = null;
+        const searchTree = (node: any) => {
+          if (node.id === nodeId) {
+            foundModule = node;
+            return;
+          }
+          node.children?.forEach(searchTree);
+        };
+        initialData.projects.forEach((p) => {
+          searchTree(p);
+        });
+        if (foundModule && foundModule !== selectedNode.data) {
+          setSelectedNode({ id: nodeId, type: 'module', data: foundModule, projectId: projectCtxId });
+        }
+      } else if (nodeType === 'task') {
+        let foundTask: any = null;
+        const searchTree = (node: any) => {
+          const task = node.tasks?.find((t: any) => t.id === nodeId);
+          if (task) {
+            foundTask = task;
+            return;
+          }
+          node.children?.forEach(searchTree);
+        };
+        initialData.projects.forEach((p) => {
+          searchTree(p);
+        });
+        if (foundTask && foundTask !== selectedNode.data) {
+          setSelectedNode({ id: nodeId, type: 'task', data: foundTask, projectId: projectCtxId });
+        }
+      }
+    };
+
+    findProjectAndNodes();
+  }, [initialData, selectedNode]);
 
   // 构建拓扑元素
   const { nodes: layoutedNodes, edges: layoutedEdges } = useMemo(() => {
@@ -275,8 +348,41 @@ function FlowInner({ initialData, onRefreshData, isLoading = false }: ProgressFl
           selectedNode={selectedNode}
           onClose={() => setSelectedNode(null)}
           onToggleTask={handleToggleTask}
+          onRefreshData={onRefreshData}
         />
       </div>
+
+      {/* 智能 WBS 拆解弹窗 */}
+      {aiParseContext && (
+        <AiTextParseModal
+          isOpen={true}
+          projectId={aiParseContext.projectId}
+          targetLevel={
+            aiParseContext.type === 'project'
+              ? 'project_subnodes'
+              : aiParseContext.type === 'module'
+              ? 'node_tasks'
+              : 'task_subtasks'
+          }
+          targetNodeId={
+            aiParseContext.type === 'module'
+              ? aiParseContext.data.id
+              : aiParseContext.type === 'task'
+              ? aiParseContext.data.node_id
+              : null
+          }
+          targetTaskId={aiParseContext.type === 'task' ? aiParseContext.data.id : null}
+          contextName={aiParseContext.data.name}
+          defaultOwner={aiParseContext.data.owner || ''}
+          onClose={() => setAiParseContext(null)}
+          onSuccess={async () => {
+            if (onRefreshData) {
+              await onRefreshData();
+            }
+            setAiParseContext(null);
+          }}
+        />
+      )}
     </div>
   );
 }

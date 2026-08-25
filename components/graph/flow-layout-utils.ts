@@ -11,7 +11,7 @@ interface BuildGraphParams {
   onToggleExpand: (id: string) => void;
   onToggleAll: () => void;
   onToggleTask: (taskId: string, currentStatus: string) => void;
-  onSelectNode: (id: string, type: 'root' | 'project' | 'module' | 'task', rawData?: any) => void;
+  onSelectNode: (id: string, type: 'root' | 'project' | 'module' | 'task', rawData?: any, projectId?: string) => void;
   isAllExpanded: boolean;
 }
 
@@ -117,7 +117,7 @@ export function buildFlowElements(params: BuildGraphParams): { nodes: Node[]; ed
         projectId,
         isExpanded,
         onToggleExpand,
-        onSelectNode: (id: string, type: string, d: any) => onSelectNode(id, 'module', d),
+        onSelectNode: (id: string, type: string, d: any) => onSelectNode(id, 'module', d, projectId),
         direction,
       },
     };
@@ -163,7 +163,7 @@ export function buildFlowElements(params: BuildGraphParams): { nodes: Node[]; ed
             nodeId: item.id,
             isSubtask: false,
             onToggleTask,
-            onSelectNode: (tId: string, type: string, d: any) => onSelectNode(tId, 'task', d),
+            onSelectNode: (tId: string, type: string, d: any) => onSelectNode(tId, 'task', d, projectId),
             direction,
           },
         };
@@ -202,7 +202,7 @@ export function buildFlowElements(params: BuildGraphParams): { nodes: Node[]; ed
               nodeId: item.id,
               isSubtask: true,
               onToggleTask,
-              onSelectNode: (tId: string, type: string, d: any) => onSelectNode(tId, 'task', d),
+              onSelectNode: (tId: string, type: string, d: any) => onSelectNode(tId, 'task', d, projectId),
               direction,
             },
           };
@@ -288,7 +288,7 @@ export function buildFlowElements(params: BuildGraphParams): { nodes: Node[]; ed
         project: proj,
         isExpanded,
         onToggleExpand,
-        onSelectNode: (id: string, type: string, d: any) => onSelectNode(id, 'project', d),
+        onSelectNode: (id: string, type: string, d: any) => onSelectNode(id, 'project', d, proj.id),
         direction,
       },
     };
@@ -334,7 +334,7 @@ export function buildFlowElements(params: BuildGraphParams): { nodes: Node[]; ed
             nodeId: proj.id,
             isSubtask: false,
             onToggleTask,
-            onSelectNode: (tId: string, type: string, d: any) => onSelectNode(tId, 'task', d),
+            onSelectNode: (tId: string, type: string, d: any) => onSelectNode(tId, 'task', d, proj.id),
             direction,
           },
         };
@@ -372,7 +372,7 @@ export function buildFlowElements(params: BuildGraphParams): { nodes: Node[]; ed
               nodeId: proj.id,
               isSubtask: true,
               onToggleTask,
-              onSelectNode: (tId: string, type: string, d: any) => onSelectNode(tId, 'task', d),
+              onSelectNode: (tId: string, type: string, d: any) => onSelectNode(tId, 'task', d, proj.id),
               direction,
             },
           };
