@@ -34,11 +34,11 @@ export function EditProjectModal({
   onClose,
   onSave,
 }: EditProjectModalProps) {
-  const [name, setName] = useState(initialName);
-  const [owner, setOwner] = useState(initialOwner);
+  const [name, setName] = useState(initialName || '');
+  const [owner, setOwner] = useState(initialOwner || '');
   const [priority, setPriority] = useState<ProjectPriority>(initialPriority);
-  const [description, setDescription] = useState(initialDescription);
-  const [duration, setDuration] = useState(initialDuration);
+  const [description, setDescription] = useState(initialDescription || '');
+  const [duration, setDuration] = useState(initialDuration || '');
   const [dueDate, setDueDate] = useState(initialDueDate || '');
   const [changeReason, setChangeReason] = useState('');
   const [isSaving, setIsSaving] = useState(false);

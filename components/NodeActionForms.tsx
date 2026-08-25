@@ -284,10 +284,10 @@ export function EditSubNodeForm({
   onClose,
   onSubmit,
 }: EditSubNodeFormProps) {
-  const [subNodeName, setSubNodeName] = useState(initialName);
-  const [subNodeOwner, setSubNodeOwner] = useState(initialOwner);
-  const [subNodeDesc, setSubNodeDesc] = useState(initialDesc);
-  const [subNodeDuration, setSubNodeDuration] = useState(initialDuration);
+  const [subNodeName, setSubNodeName] = useState(initialName || '');
+  const [subNodeOwner, setSubNodeOwner] = useState(initialOwner || '');
+  const [subNodeDesc, setSubNodeDesc] = useState(initialDesc || '');
+  const [subNodeDuration, setSubNodeDuration] = useState(initialDuration || '');
   const [subNodeDueDate, setSubNodeDueDate] = useState(initialDueDate || '');
   const [changeReason, setChangeReason] = useState('');
 
