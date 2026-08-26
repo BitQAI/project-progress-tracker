@@ -16,6 +16,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [executiveActivities, setExecutiveActivities] = useState<ExecutiveActivityItem[]>([]);
+  const [allActivities, setAllActivities] = useState<ExecutiveActivityItem[]>([]);
   const [metrics, setMetrics] = useState<DashboardMetrics>({
     totalProjects: 0,
     averageProgress: 0,
@@ -47,6 +48,9 @@ export default function DashboardPage() {
           setMetrics(res.data.data.metrics);
           if (Array.isArray(res.data.data.executiveActivities)) {
             setExecutiveActivities(res.data.data.executiveActivities);
+          }
+          if (Array.isArray(res.data.data.allActivities)) {
+            setAllActivities(res.data.data.allActivities);
           }
         }
       } catch (err) {
@@ -115,7 +119,10 @@ export default function DashboardPage() {
 
       <main className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8 space-y-6">
         {/* 管理层最新 3 条关键进展速报（站在老板理解视角，不含 +/- 代码符号） */}
-        <ExecutiveRecentActivities activities={executiveActivities} />
+        <ExecutiveRecentActivities 
+          activities={executiveActivities} 
+          allActivities={allActivities.length > 0 ? allActivities : executiveActivities}
+        />
 
         {/* 顶部汇总指标 */}
         <DashboardSummary metrics={metrics} />

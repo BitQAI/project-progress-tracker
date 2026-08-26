@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { ExecutiveActivityItem, FileAttachment, AttachmentType } from '@/lib/types';
 import { AttachmentPreviewModal } from './AttachmentPreviewModal';
+import { AllProjectsActivitiesDrawer } from './AllProjectsActivitiesDrawer';
 import {
   Activity,
   FileCheck2,
@@ -20,12 +21,16 @@ import {
 
 interface ExecutiveRecentActivitiesProps {
   activities: ExecutiveActivityItem[];
+  allActivities?: ExecutiveActivityItem[];
 }
 
-export function ExecutiveRecentActivities({ activities }: ExecutiveRecentActivitiesProps) {
+export function ExecutiveRecentActivities({ activities, allActivities }: ExecutiveRecentActivitiesProps) {
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [previewAttachment, setPreviewAttachment] = useState<FileAttachment | null>(null);
   const [previewAttachmentList, setPreviewAttachmentList] = useState<FileAttachment[]>([]);
+  const [isAllDrawerOpen, setIsAllDrawerOpen] = useState(false);
+
+  const fullList = allActivities && allActivities.length > 0 ? allActivities : activities;
 
   if (!activities || activities.length === 0) {
     return null;
@@ -101,9 +106,24 @@ export function ExecutiveRecentActivities({ activities }: ExecutiveRecentActivit
           <span>最新动态</span>
         </div>
 
-        <div className="flex items-center gap-1 text-[11px] text-emerald-600 font-medium">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span>实时同步</span>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 text-[11px] text-emerald-600 font-medium">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span>实时同步</span>
+          </div>
+
+          <span className="text-zinc-200 text-xs select-none">|</span>
+
+          <button
+            type="button"
+            id="view-all-projects-activities-btn"
+            onClick={() => setIsAllDrawerOpen(true)}
+            className="inline-flex items-center gap-1 text-[11px] text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-colors px-1.5 py-0.5 rounded font-medium cursor-pointer"
+            title="查看全部项目的动态与进展"
+          >
+            <span>全部动态</span>
+            <ChevronRight className="h-3 w-3 text-zinc-400" />
+          </button>
         </div>
       </div>
 
@@ -332,6 +352,13 @@ export function ExecutiveRecentActivities({ activities }: ExecutiveRecentActivit
           );
         })}
       </div>
+
+      {/* 全部项目动态抽屉 */}
+      <AllProjectsActivitiesDrawer
+        isOpen={isAllDrawerOpen}
+        onClose={() => setIsAllDrawerOpen(false)}
+        initialActivities={fullList}
+      />
 
       {/* 附件在线预览模态框 */}
       {previewAttachment && (

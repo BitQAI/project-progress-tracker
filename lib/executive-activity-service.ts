@@ -22,7 +22,17 @@ function cleanExecutiveText(text?: string): string {
     .join('；');
 }
 
-export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivityItem[] {
+export interface PaginatedActivitiesResult {
+  items: ExecutiveActivityItem[];
+  total: number;
+  hasMore: boolean;
+  page: number;
+  limit: number;
+  totalPages: number;
+  availableProjects: { id: string; name: string }[];
+}
+
+export function getAllExecutiveActivitiesList(): ExecutiveActivityItem[] {
   const db: AppDatabase = getDb();
   const list: ExecutiveActivityItem[] = [];
   const seenIds = new Set<string>();
@@ -287,11 +297,86 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
   // 4. 按时间倒序排序
   list.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
 
-  // 5. 按项目去重：同一项目只保留最新进展的一条
+  return list;
+}
+
+export function getPaginatedExecutiveActivities(options?: {
+  page?: number;
+  limit?: number;
+  projectId?: string;
+  type?: string;
+  search?: string;
+}): PaginatedActivitiesResult {
+  const page = Math.max(1, options?.page || 1);
+  const limit = Math.max(1, Math.min(100, options?.limit || 10));
+  const projectId = options?.projectId?.trim();
+  const type = options?.type?.trim();
+  const search = options?.search?.trim().toLowerCase();
+
+  const allList = getAllExecutiveActivitiesList();
+
+  // 提取可用项目列表
+  const projectMap = new Map<string, { id: string; name: string }>();
+  allList.forEach((item) => {
+    const key = item.projectId || item.projectName;
+    if (!projectMap.has(key)) {
+      projectMap.set(key, { id: item.projectId || key, name: item.projectName });
+    }
+  });
+  const availableProjects = Array.from(projectMap.values());
+
+  // 过滤
+  const filtered = allList.filter((item) => {
+    if (projectId && projectId !== 'all') {
+      const pKey = item.projectId || item.projectName;
+      if (pKey !== projectId && item.projectName !== projectId) {
+        return false;
+      }
+    }
+    if (type && type !== 'all' && item.type !== type) {
+      return false;
+    }
+    if (search) {
+      const matchProject = item.projectName?.toLowerCase().includes(search);
+      const matchHeadline = item.headline?.toLowerCase().includes(search);
+      const matchSummary = item.summary?.toLowerCase().includes(search);
+      const matchOwner = item.owner?.toLowerCase().includes(search);
+      const matchModule = item.moduleName?.toLowerCase().includes(search);
+      if (!matchProject && !matchHeadline && !matchSummary && !matchOwner && !matchModule) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  const total = filtered.length;
+  const totalPages = Math.ceil(total / limit) || 1;
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const items = filtered.slice(startIndex, endIndex);
+  const hasMore = endIndex < total;
+
+  return {
+    items,
+    total,
+    hasMore,
+    page,
+    limit,
+    totalPages,
+    availableProjects,
+  };
+}
+
+export function getGlobalExecutiveActivities(limit: number = 10): ExecutiveActivityItem[] {
+  return getAllExecutiveActivitiesList().slice(0, limit);
+}
+
+export function getDeduplicatedExecutiveActivities(limit: number = 3): ExecutiveActivityItem[] {
+  const allList = getAllExecutiveActivitiesList();
   const projectDeduplicated: ExecutiveActivityItem[] = [];
   const seenProjectIds = new Set<string>();
 
-  for (const item of list) {
+  for (const item of allList) {
     const key = item.projectId || item.projectName;
     if (!seenProjectIds.has(key)) {
       seenProjectIds.add(key);
@@ -302,3 +387,4 @@ export function getGlobalExecutiveActivities(limit: number = 3): ExecutiveActivi
 
   return projectDeduplicated;
 }
+
