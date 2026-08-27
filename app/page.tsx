@@ -33,6 +33,7 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [activeFilter, setActiveFilter] = useState<string>('all');
 
   // 删除确认弹窗状态
   const [projectToDelete, setProjectToDelete] = useState<{ id: string; name: string } | null>(null);
@@ -125,15 +126,23 @@ export default function DashboardPage() {
         />
 
         {/* 顶部汇总指标 */}
-        <DashboardSummary metrics={metrics} />
+        <DashboardSummary
+          metrics={metrics}
+          activeFilter={activeFilter}
+          onSelectFilter={(f) => setActiveFilter(f)}
+        />
 
         {/* 项目表格 */}
-        <ProjectListTable
-          projects={projects}
-          onDeleteProject={handleDeleteClick}
-          onStatusChange={handleStatusChange}
-          isLoading={isLoading}
-        />
+        <div id="project-list-section">
+          <ProjectListTable
+            projects={projects}
+            activeFilter={activeFilter}
+            onFilterChange={(f) => setActiveFilter(f)}
+            onDeleteProject={handleDeleteClick}
+            onStatusChange={handleStatusChange}
+            isLoading={isLoading}
+          />
+        </div>
       </main>
 
       {/* 新建项目 Modal */}

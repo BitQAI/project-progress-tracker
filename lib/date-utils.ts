@@ -174,3 +174,83 @@ export function formatBeijingRelativeTime(ts: string): string {
     return ts;
   }
 }
+
+export interface DueDateRiskInfo {
+  isOverdue: boolean;
+  isDueSoon: boolean;
+  hasRisk: boolean;
+  diffDays: number;
+  label: string;
+}
+
+/**
+ * 计算截止日期相对于东八区今天的风险与过期状态
+ * diffDays < 0: 已过期/延期
+ * diffDays === 0: 今日到期 (1天内)
+ * diffDays === 1: 明日到期 (1天内)
+ * diffDays > 1: 正常进行中
+ */
+export function getDueDateRiskInfo(dueDateStr?: string | null): DueDateRiskInfo {
+  if (!dueDateStr || !dueDateStr.trim()) {
+    return {
+      isOverdue: false,
+      isDueSoon: false,
+      hasRisk: false,
+      diffDays: 999,
+      label: '未排期',
+    };
+  }
+
+  const cleanDueStr = dueDateStr.trim().slice(0, 10);
+  const todayStr = getTodayBeijingString();
+
+  const dDue = new Date(cleanDueStr + 'T00:00:00').getTime();
+  const dToday = new Date(todayStr + 'T00:00:00').getTime();
+
+  if (isNaN(dDue) || isNaN(dToday)) {
+    return {
+      isOverdue: false,
+      isDueSoon: false,
+      hasRisk: false,
+      diffDays: 999,
+      label: dueDateStr,
+    };
+  }
+
+  const diffDays = Math.round((dDue - dToday) / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) {
+    const overdueDays = Math.abs(diffDays);
+    return {
+      isOverdue: true,
+      isDueSoon: false,
+      hasRisk: true,
+      diffDays,
+      label: `延期 ${overdueDays} 天`,
+    };
+  } else if (diffDays === 0) {
+    return {
+      isOverdue: false,
+      isDueSoon: true,
+      hasRisk: true,
+      diffDays,
+      label: '今日到期',
+    };
+  } else if (diffDays === 1) {
+    return {
+      isOverdue: false,
+      isDueSoon: true,
+      hasRisk: true,
+      diffDays,
+      label: '明日到期 (1天内)',
+    };
+  } else {
+    return {
+      isOverdue: false,
+      isDueSoon: false,
+      hasRisk: false,
+      diffDays,
+      label: `剩余 ${diffDays} 天`,
+    };
+  }
+}

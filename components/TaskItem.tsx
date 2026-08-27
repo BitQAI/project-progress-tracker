@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { DbTask, FileAttachment, DeliverableItem } from '@/lib/types';
-import { getTodayBeijingString } from '@/lib/date-utils';
+import { getTodayBeijingString, getDueDateRiskInfo } from '@/lib/date-utils';
 import { AttachmentPreviewModal } from './AttachmentPreviewModal';
 import { TaskEditForm } from './TaskEditForm';
 import { AddTaskForm } from './NodeActionForms';
@@ -24,6 +24,7 @@ import {
   Plus,
   CornerDownRight,
   Bot,
+  ShieldAlert,
 } from 'lucide-react';
 
 interface TaskItemProps {
@@ -75,14 +76,17 @@ export function TaskItem({
   const [previewAttachment, setPreviewAttachment] = useState<FileAttachment | null>(null);
   const [previewAttachmentList, setPreviewAttachmentList] = useState<FileAttachment[]>([]);
 
-  const isOverdue = task.status === 'pending' && task.due_date && task.due_date < todayStr;
-  const overdueDays = useMemo(() => {
-    if (!isOverdue || !task.due_date) return 0;
-    const dDue = new Date(task.due_date.slice(0, 10) + 'T00:00:00').getTime();
-    const dToday = new Date(todayStr + 'T00:00:00').getTime();
-    return Math.max(1, Math.floor((dToday - dDue) / (1000 * 60 * 60 * 24)));
-  }, [isOverdue, task.due_date, todayStr]);
   const isDone = task.status === 'done';
+  const riskInfo = useMemo(() => {
+    if (isDone) {
+      return { isOverdue: false, isDueSoon: false, hasRisk: false, diffDays: 999, label: '' };
+    }
+    return getDueDateRiskInfo(task.due_date);
+  }, [task.due_date, isDone]);
+
+  const isOverdue = !isDone && riskInfo.isOverdue;
+  const isDueSoon = !isDone && riskInfo.isDueSoon;
+  const overdueDays = Math.abs(riskInfo.diffDays);
 
   // 计算已完成状态下的完工偏差展示徽章
   const getCompletionDiffBadge = () => {
@@ -152,6 +156,8 @@ export function TaskItem({
           ? 'border-emerald-150 bg-emerald-50/35 text-zinc-600'
           : isOverdue
           ? 'border-red-200 bg-red-50/50 text-zinc-800'
+          : isDueSoon
+          ? 'border-amber-300 bg-amber-50/40 text-zinc-800'
           : 'border-zinc-200 bg-white text-zinc-800 hover:border-zinc-300 hover:shadow-2xs'
       }`}
     >
@@ -231,6 +237,14 @@ export function TaskItem({
               延期 {overdueDays} 天
             </span>
           )}
+
+          {/* 1天内临期到期预警 */}
+          {isDueSoon && (
+            <span className="inline-flex items-center gap-1 rounded bg-amber-100 border border-amber-300 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800 shrink-0">
+              <ShieldAlert className="h-3 w-3 text-amber-600" />
+              {riskInfo.label || '1天内到期'}
+            </span>
+          )}
         </div>
 
         <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-2.5 shrink-0 pt-1 sm:pt-0 border-t border-zinc-100/60 sm:border-t-0">
@@ -259,10 +273,10 @@ export function TaskItem({
             ) : (
               <span
                 className={`flex items-center gap-1 ${
-                  isOverdue ? 'font-semibold text-red-600' : 'text-zinc-500'
+                  isOverdue ? 'font-semibold text-red-600' : isDueSoon ? 'font-semibold text-amber-700' : 'text-zinc-500'
                 }`}
               >
-                <Calendar className="h-3 w-3 text-zinc-400" />
+                <Calendar className={`h-3 w-3 ${isDueSoon ? 'text-amber-500' : 'text-zinc-400'}`} />
                 <span>{task.due_date ? `截止: ${task.due_date}` : '无截止日'}</span>
               </span>
             )}

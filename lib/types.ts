@@ -158,6 +158,7 @@ export interface NodeTreeNode extends DbNode {
   completedTasksCount: number;
   progressPercent: number;
   hasOverdueTasks: boolean;
+  hasDueSoonTasks?: boolean;
   maxOverdueDays?: number;
   latestDueDate: string | null;
   recentActivities?: ProjectActivityItem[];
@@ -182,7 +183,10 @@ export interface ProjectSummary {
   progress: number;
   latestDueDate: string | null;
   isOverdue: boolean;
+  isDueSoon?: boolean;
+  hasRisk?: boolean;
   overdueTasksCount: number;
+  dueSoonTasksCount?: number;
   maxOverdueDays: number;
   nodesCount: number;
   latestActivity?: string;
@@ -197,6 +201,9 @@ export interface DashboardMetrics {
   unstartedCount: number;
   suspendedCount: number;
   overdueProjectsCount: number;
+  dueSoonProjectsCount?: number;
+  riskProjectsCount?: number;
+  riskTasksCount?: number;
   totalTasksCount: number;
   completedTasksCount: number;
   totalEarlyDays: number;

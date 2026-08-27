@@ -7,7 +7,7 @@ import {
   DashboardMetrics,
   ProjectActivityItem,
 } from './types';
-import { getTodayBeijingString } from './date-utils';
+import { getTodayBeijingString, getDueDateRiskInfo } from './date-utils';
 
 function getTodayString(): string {
   return getTodayBeijingString();
@@ -224,6 +224,9 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
       unstartedCount: 0,
       suspendedCount: 0,
       overdueProjectsCount: 0,
+      dueSoonProjectsCount: 0,
+      riskProjectsCount: 0,
+      riskTasksCount: 0,
       totalTasksCount: 0,
       completedTasksCount: 0,
       totalEarlyDays: 0,
@@ -236,6 +239,9 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
   let unstartedCount = 0;
   let suspendedCount = 0;
   let overdueProjectsCount = 0;
+  let dueSoonProjectsCount = 0;
+  let riskProjectsCount = 0;
+  let riskTasksCount = 0;
   let totalTasksCount = 0;
   let completedTasksCount = 0;
   let totalEarlyDays = 0;
@@ -258,6 +264,10 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
     }
 
     if (p.isOverdue) overdueProjectsCount++;
+    if (p.isDueSoon) dueSoonProjectsCount++;
+    if (p.hasRisk) riskProjectsCount++;
+    
+    riskTasksCount += (p.overdueTasksCount || 0) + (p.dueSoonTasksCount || 0);
     totalTasksCount += p.totalTasks;
     completedTasksCount += p.completedTasks;
   }
@@ -275,6 +285,9 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
     unstartedCount,
     suspendedCount,
     overdueProjectsCount,
+    dueSoonProjectsCount,
+    riskProjectsCount,
+    riskTasksCount,
     totalTasksCount,
     completedTasksCount,
     totalEarlyDays,
@@ -358,13 +371,19 @@ export async function getProjectsSummaryList(): Promise<ProjectSummary[]> {
 
     let completedTasks = 0;
     let overdueTasksCount = 0;
+    let dueSoonTasksCount = 0;
     let latestDueDate: string | null = node.due_date || null;
 
     for (const t of tasks) {
       if (t.status === 'done') {
         completedTasks++;
-      } else if (t.due_date && t.due_date < todayStr) {
-        overdueTasksCount++;
+      } else if (t.due_date) {
+        const risk = getDueDateRiskInfo(t.due_date);
+        if (risk.isOverdue) {
+          overdueTasksCount++;
+        } else if (risk.isDueSoon) {
+          dueSoonTasksCount++;
+        }
       }
 
       if (!node.due_date && t.due_date) {
@@ -386,6 +405,14 @@ export async function getProjectsSummaryList(): Promise<ProjectSummary[]> {
     const spentInfo = calculateSpentDuration(tasks, node.due_date, node.status);
     const maxOverdueDays = calculateMaxOverdueDays(tasks, node.due_date, node.status, todayStr);
 
+    const projectRisk = getDueDateRiskInfo(node.due_date);
+    const isProjectNodeOverdue = node.status !== 'done' && projectRisk.isOverdue;
+    const isProjectNodeDueSoon = node.status !== 'done' && projectRisk.isDueSoon;
+
+    const isOverdue = maxOverdueDays > 0 || overdueTasksCount > 0 || isProjectNodeOverdue;
+    const isDueSoon = dueSoonTasksCount > 0 || isProjectNodeDueSoon;
+    const hasRisk = isOverdue || isDueSoon;
+
     summaries.push({
       id: node.id,
       name: node.name,
@@ -404,8 +431,11 @@ export async function getProjectsSummaryList(): Promise<ProjectSummary[]> {
       completedTasks,
       progress,
       latestDueDate,
-      isOverdue: maxOverdueDays > 0 || overdueTasksCount > 0,
+      isOverdue,
+      isDueSoon,
+      hasRisk,
       overdueTasksCount,
+      dueSoonTasksCount,
       maxOverdueDays,
       nodesCount: subtreeIds.size,
       latestActivity,
@@ -584,12 +614,19 @@ function buildNodeTreeRecursively(db: AppDatabase, node: DbNode, todayStr: strin
   let totalTasksCount = tasks.length;
   let completedTasksCount = tasks.filter((t) => t.status === 'done').length;
   let maxOverdueDays = 0;
+  let hasDueSoonTasks = false;
+
   for (const t of tasks) {
-    if (t.status === 'pending' && t.due_date && t.due_date < todayStr) {
-      const dDue = new Date(t.due_date.slice(0, 10) + 'T00:00:00').getTime();
-      const dToday = new Date(todayStr + 'T00:00:00').getTime();
-      const diff = Math.floor((dToday - dDue) / (1000 * 60 * 60 * 24));
-      if (diff > maxOverdueDays) maxOverdueDays = diff;
+    if (t.status === 'pending' && t.due_date) {
+      const risk = getDueDateRiskInfo(t.due_date);
+      if (risk.isOverdue) {
+        const dDue = new Date(t.due_date.slice(0, 10) + 'T00:00:00').getTime();
+        const dToday = new Date(todayStr + 'T00:00:00').getTime();
+        const diff = Math.floor((dToday - dDue) / (1000 * 60 * 60 * 24));
+        if (diff > maxOverdueDays) maxOverdueDays = diff;
+      } else if (risk.isDueSoon) {
+        hasDueSoonTasks = true;
+      }
     }
   }
 
@@ -610,6 +647,7 @@ function buildNodeTreeRecursively(db: AppDatabase, node: DbNode, todayStr: strin
     totalTasksCount += child.totalTasksCount;
     completedTasksCount += child.completedTasksCount;
     if (child.hasOverdueTasks) hasOverdueTasks = true;
+    if (child.hasDueSoonTasks) hasDueSoonTasks = true;
     if (child.maxOverdueDays && child.maxOverdueDays > maxOverdueDays) {
       maxOverdueDays = child.maxOverdueDays;
     }
@@ -635,6 +673,7 @@ function buildNodeTreeRecursively(db: AppDatabase, node: DbNode, todayStr: strin
     completedTasksCount,
     progressPercent,
     hasOverdueTasks,
+    hasDueSoonTasks,
     maxOverdueDays,
     latestDueDate,
   };
