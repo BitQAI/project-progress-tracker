@@ -8,6 +8,7 @@ import { ExecutiveRecentActivities } from '@/components/ExecutiveRecentActivitie
 import { ProjectListTable } from '@/components/ProjectListTable';
 import { CreateProjectModal } from '@/components/CreateProjectModal';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { RiskDrawer } from '@/components/RiskDrawer';
 import { useRouter } from 'next/navigation';
 import { safeFetchJson } from '@/lib/fetch-utils';
 import { RefreshCw, Plus } from 'lucide-react';
@@ -34,6 +35,7 @@ export default function DashboardPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeFilter, setActiveFilter] = useState<string>('all');
+  const [isRiskDrawerOpen, setIsRiskDrawerOpen] = useState(false);
 
   // 删除确认弹窗状态
   const [projectToDelete, setProjectToDelete] = useState<{ id: string; name: string } | null>(null);
@@ -130,6 +132,7 @@ export default function DashboardPage() {
           metrics={metrics}
           activeFilter={activeFilter}
           onSelectFilter={(f) => setActiveFilter(f)}
+          onOpenRiskDrawer={() => setIsRiskDrawerOpen(true)}
         />
 
         {/* 项目表格 */}
@@ -144,6 +147,13 @@ export default function DashboardPage() {
           />
         </div>
       </main>
+
+      {/* 风险与临期抽屉 */}
+      <RiskDrawer
+        isOpen={isRiskDrawerOpen}
+        onClose={() => setIsRiskDrawerOpen(false)}
+        riskItems={metrics.riskItems || []}
+      />
 
       {/* 新建项目 Modal */}
       <CreateProjectModal

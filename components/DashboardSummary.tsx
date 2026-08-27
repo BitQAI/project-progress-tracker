@@ -2,32 +2,30 @@
 
 import React from 'react';
 import { DashboardMetrics } from '@/lib/types';
-import { FolderGit2, CheckCircle2, Clock, AlertTriangle, CheckSquare, ArrowRight, ShieldAlert } from 'lucide-react';
+import { FolderGit2, CheckCircle2, Clock, AlertTriangle, CheckSquare, ArrowRight, ShieldAlert, ChevronRight } from 'lucide-react';
 
 interface DashboardSummaryProps {
   metrics: DashboardMetrics;
   activeFilter?: string;
   onSelectFilter?: (filter: string) => void;
+  onOpenRiskDrawer?: () => void;
 }
 
-export function DashboardSummary({ metrics, activeFilter, onSelectFilter }: DashboardSummaryProps) {
+export function DashboardSummary({
+  metrics,
+  activeFilter,
+  onSelectFilter,
+  onOpenRiskDrawer,
+}: DashboardSummaryProps) {
   const overdueCount = metrics.overdueProjectsCount || 0;
   const dueSoonCount = metrics.dueSoonProjectsCount || 0;
-  const totalRiskCount = metrics.riskProjectsCount ?? (overdueCount + dueSoonCount);
-  const hasRisk = overdueCount > 0 || dueSoonCount > 0;
+  const riskTasksCount = metrics.riskTasksCount || 0;
+  const riskItemsCount = metrics.riskItems?.length ?? (overdueCount + dueSoonCount);
+  const hasRisk = overdueCount > 0 || dueSoonCount > 0 || (metrics.riskItems && metrics.riskItems.length > 0);
 
   const handleRiskCardClick = () => {
-    if (onSelectFilter) {
-      if (hasRisk) {
-        onSelectFilter('risk');
-      } else {
-        onSelectFilter('in_progress');
-      }
-      // 平滑滚动到项目表格
-      const tableElem = document.getElementById('project-list-section') || document.getElementById('search-project-input');
-      if (tableElem) {
-        tableElem.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+    if (onOpenRiskDrawer) {
+      onOpenRiskDrawer();
     }
   };
 
@@ -83,7 +81,7 @@ export function DashboardSummary({ metrics, activeFilter, onSelectFilter }: Dash
         </div>
       </div>
 
-      {/* 进行中与风险预警 (超期 + 1天内到期) */}
+      {/* 进行中与风险预警 (超期 + 1天内到期) - 点击直达风险清单抽屉并可跳转任务/分组 */}
       <div
         id="metric-card-in-progress-and-overdue"
         onClick={handleRiskCardClick}
@@ -96,12 +94,10 @@ export function DashboardSummary({ metrics, activeFilter, onSelectFilter }: Dash
           }
         }}
         className={`group rounded-xl border p-3 shadow-xs transition-all cursor-pointer relative overflow-hidden focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
-          activeFilter === 'risk' || activeFilter === 'overdue'
-            ? 'ring-2 ring-red-500 border-red-300 bg-red-50/60 shadow-sm'
-            : overdueCount > 0
-            ? 'border-red-200 bg-red-50/40 hover:bg-red-50/70 hover:border-red-300 hover:shadow-sm'
+          overdueCount > 0
+            ? 'border-red-200 bg-red-50/40 hover:bg-red-50/75 hover:border-red-300 hover:shadow-sm'
             : dueSoonCount > 0
-            ? 'border-amber-200 bg-amber-50/40 hover:bg-amber-50/70 hover:border-amber-300 hover:shadow-sm'
+            ? 'border-amber-200 bg-amber-50/40 hover:bg-amber-50/75 hover:border-amber-300 hover:shadow-sm'
             : 'border-zinc-200 bg-white hover:border-zinc-300 hover:shadow-sm'
         }`}
       >
@@ -132,43 +128,45 @@ export function DashboardSummary({ metrics, activeFilter, onSelectFilter }: Dash
           </div>
         </div>
 
-        <div className="mt-2 flex items-baseline gap-2 flex-wrap">
-          <span className="text-xl font-bold tracking-tight text-zinc-900">{metrics.inProgressCount}</span>
-          <span className="text-xs text-zinc-500">进行中</span>
+        {/* 核心数值区：进行中总数清晰独立，不与预警混在一行 */}
+        <div className="mt-2 flex items-baseline justify-between gap-2">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-xl font-bold tracking-tight text-zinc-900">{metrics.inProgressCount}</span>
+            <span className="text-xs text-zinc-500">个进行中</span>
+          </div>
 
-          {/* 延期徽章 */}
-          {overdueCount > 0 && (
-            <span className="inline-flex items-center gap-0.5 rounded-full bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-700 shrink-0 border border-red-200">
-              <AlertTriangle className="h-2.5 w-2.5 shrink-0" />
-              <span>{overdueCount} 延期</span>
-            </span>
-          )}
-
-          {/* 1天内到期徽章 */}
-          {dueSoonCount > 0 && (
-            <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800 shrink-0 border border-amber-200">
-              <Clock className="h-2.5 w-2.5 shrink-0" />
-              <span>{dueSoonCount} 1天内到期</span>
-            </span>
+          {/* 预警汇总指示 */}
+          {hasRisk ? (
+            <div className="flex items-center gap-1.5 shrink-0">
+              {overdueCount > 0 && (
+                <span className="inline-flex items-center gap-1 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-700 border border-red-200/80">
+                  <AlertTriangle className="h-2.5 w-2.5 text-red-600 shrink-0" />
+                  <span>{overdueCount} 延期</span>
+                </span>
+              )}
+              {dueSoonCount > 0 && (
+                <span className="inline-flex items-center gap-1 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-800 border border-amber-200/80">
+                  <Clock className="h-2.5 w-2.5 text-amber-600 shrink-0" />
+                  <span>{dueSoonCount} 临期</span>
+                </span>
+              )}
+            </div>
+          ) : (
+            <span className="text-[11px] text-emerald-600 font-medium">无预警</span>
           )}
         </div>
 
-        <div className="mt-1.5 flex items-center justify-between text-[11px]">
-          {overdueCount > 0 && dueSoonCount > 0 ? (
-            <span className="font-medium text-red-600 truncate">
-              {overdueCount} 延期 · {dueSoonCount} 临期待排查
-            </span>
-          ) : overdueCount > 0 ? (
-            <span className="font-medium text-red-600 truncate">存在超期项目，需重点推进</span>
-          ) : dueSoonCount > 0 ? (
-            <span className="font-medium text-amber-700 truncate">有项目 1 天内即将到期</span>
-          ) : (
-            <span className="text-zinc-500">项目均按期正常运行中</span>
-          )}
+        {/* 底部引导区：点击直达任务/分组 */}
+        <div className="mt-2 pt-1.5 border-t border-zinc-100/80 flex items-center justify-between text-[11px]">
+          <span className="text-zinc-500 truncate">
+            {hasRisk
+              ? `共 ${riskItemsCount} 个风险项待推进`
+              : '项目均按期正常进行'}
+          </span>
 
-          <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-zinc-400 group-hover:text-blue-600 transition-colors shrink-0">
-            <span>筛选</span>
-            <ArrowRight className="h-2.5 w-2.5 transition-transform group-hover:translate-x-0.5" />
+          <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-blue-600 group-hover:text-blue-700 transition-colors shrink-0">
+            <span>查看并跳转</span>
+            <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
           </span>
         </div>
       </div>
@@ -198,3 +196,4 @@ export function DashboardSummary({ metrics, activeFilter, onSelectFilter }: Dash
     </section>
   );
 }
+

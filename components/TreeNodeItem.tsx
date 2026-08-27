@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NodeTreeNode, DbTask, DeliverableItem, ProjectPriority } from '@/lib/types';
 import { TaskItem } from './TaskItem';
 import { AddTaskForm, AddSubNodeForm, EditSubNodeForm } from './NodeActionForms';
+import { useSearchParams } from 'next/navigation';
 import {
   ChevronRight,
   ChevronDown,
@@ -87,11 +88,70 @@ export function TreeNodeItem({
   onOpenTaskComments,
   onOpenAiParse,
 }: TreeNodeItemProps) {
-  // 默认展开逻辑：仅进度在 0% ~ 100% 之间（即进行中）的分组和任务才会默认展开
+  const searchParams = useSearchParams();
+  const targetTask = searchParams?.get('targetTask');
+  const targetNode = searchParams?.get('targetNode');
+
+  // 递归检查当前节点是否包含目标任务或目标分组
+  const containsTarget = React.useMemo(() => {
+    if (!targetTask && !targetNode) return false;
+    if (targetNode && node.id === targetNode) return true;
+    if (targetTask && node.tasks?.some((t) => t.id === targetTask || node.tasks.some((sub) => sub.parent_id === t.id && sub.id === targetTask))) return true;
+    
+    // 检查递归子节点
+    const checkSub = (n: NodeTreeNode): boolean => {
+      if (targetNode && n.id === targetNode) return true;
+      if (targetTask && n.tasks?.some((t) => t.id === targetTask)) return true;
+      return !!n.children?.some(checkSub);
+    };
+    return !!node.children?.some(checkSub);
+  }, [node, targetTask, targetNode]);
+
+  // 默认展开逻辑：进行中或包含跳转目标
   const isBetween0And100 = node.progressPercent > 0 && node.progressPercent < 100;
-  const [isOpen, setIsOpen] = useState(isBetween0And100);
-  // 仅进度在 0% ~ 100% 之间的分组，其任务列表才会默认展开
-  const [showTasks, setShowTasks] = useState(isBetween0And100);
+  const [isOpen, setIsOpen] = useState(isBetween0And100 || containsTarget);
+  // 任务列表展开：进行中或当前分组即包含目标任务
+  const hasTargetTaskDirectly = targetTask ? node.tasks?.some((t) => t.id === targetTask) : false;
+  const [showTasks, setShowTasks] = useState(isBetween0And100 || !!hasTargetTaskDirectly);
+
+  // 监听 URL 参数变化自动展开与滚动
+  useEffect(() => {
+    if (containsTarget) {
+      setIsOpen(true);
+    }
+    if (hasTargetTaskDirectly) {
+      setShowTasks(true);
+    }
+  }, [containsTarget, hasTargetTaskDirectly]);
+
+  // 当为目标任务或分组时，平滑滚动进入视野
+  useEffect(() => {
+    if (targetTask && node.tasks?.some((t) => t.id === targetTask)) {
+      const timer = setTimeout(() => {
+        const el = document.getElementById(`task-item-${targetTask}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.classList.add('ring-2', 'ring-blue-500', 'bg-blue-50/50');
+          setTimeout(() => {
+            el.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50/50');
+          }, 3000);
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    } else if (targetNode && node.id === targetNode) {
+      const timer = setTimeout(() => {
+        const el = document.getElementById(`tree-node-${targetNode}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.classList.add('ring-2', 'ring-blue-500', 'bg-blue-50/50');
+          setTimeout(() => {
+            el.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50/50');
+          }, 3000);
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [targetTask, targetNode, node]);
   const [showAddSubNode, setShowAddSubNode] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
   const [isEditingNode, setIsEditingNode] = useState(false);

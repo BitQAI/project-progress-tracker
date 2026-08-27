@@ -192,6 +192,22 @@ export interface ProjectSummary {
   latestActivity?: string;
 }
 
+export interface DashboardRiskItem {
+  id: string;
+  kind: 'project' | 'node' | 'task';
+  riskType: 'overdue' | 'due_soon';
+  riskLabel: string;
+  projectId: string;
+  projectName: string;
+  nodeId?: string;
+  nodeName?: string;
+  taskId?: string;
+  taskName?: string;
+  owner: string;
+  dueDate: string;
+  diffDays: number;
+}
+
 export interface DashboardMetrics {
   totalProjects: number;
   averageProgress: number;
@@ -204,6 +220,7 @@ export interface DashboardMetrics {
   dueSoonProjectsCount?: number;
   riskProjectsCount?: number;
   riskTasksCount?: number;
+  riskItems?: DashboardRiskItem[];
   totalTasksCount: number;
   completedTasksCount: number;
   totalEarlyDays: number;

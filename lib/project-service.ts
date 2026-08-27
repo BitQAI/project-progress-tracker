@@ -5,6 +5,7 @@ import {
   NodeTreeNode,
   ProjectSummary,
   DashboardMetrics,
+  DashboardRiskItem,
   ProjectActivityItem,
 } from './types';
 import { getTodayBeijingString, getDueDateRiskInfo } from './date-utils';
@@ -276,6 +277,62 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
   const averageProgress =
     totalTasksCount > 0 ? Math.round((completedTasksCount / totalTasksCount) * 100) : 0;
 
+  const riskItems: DashboardRiskItem[] = [];
+  const db = getDb();
+  const rootNodes = db.nodes.filter((n) => n.parent_id === null);
+
+  for (const root of rootNodes) {
+    const subtreeIds = new Set(getSubtreeNodeIds(db, root.id));
+    const tasks = db.tasks.filter((t) => subtreeIds.has(t.node_id));
+    const nodeMap = new Map(db.nodes.filter((n) => subtreeIds.has(n.id)).map((n) => [n.id, n]));
+
+    // 检查根项目节点的截止日风险
+    if (root.status !== 'done' && root.due_date) {
+      const pRisk = getDueDateRiskInfo(root.due_date);
+      if (pRisk.isOverdue || pRisk.isDueSoon) {
+        riskItems.push({
+          id: `risk_proj_${root.id}`,
+          kind: 'project',
+          riskType: pRisk.isOverdue ? 'overdue' : 'due_soon',
+          riskLabel: pRisk.label,
+          projectId: root.id,
+          projectName: root.name,
+          owner: root.owner,
+          dueDate: root.due_date,
+          diffDays: pRisk.diffDays,
+        });
+      }
+    }
+
+    // 检查各任务的截止日风险
+    for (const t of tasks) {
+      if (t.status !== 'done' && t.due_date) {
+        const tRisk = getDueDateRiskInfo(t.due_date);
+        if (tRisk.isOverdue || tRisk.isDueSoon) {
+          const parentNode = nodeMap.get(t.node_id);
+          riskItems.push({
+            id: `risk_task_${t.id}`,
+            kind: 'task',
+            riskType: tRisk.isOverdue ? 'overdue' : 'due_soon',
+            riskLabel: tRisk.label,
+            projectId: root.id,
+            projectName: root.name,
+            nodeId: t.node_id,
+            nodeName: parentNode?.name || '模块分组',
+            taskId: t.id,
+            taskName: t.name,
+            owner: t.owner,
+            dueDate: t.due_date,
+            diffDays: tRisk.diffDays,
+          });
+        }
+      }
+    }
+  }
+
+  // 排序：延期优先（diffDays 负得多的在前），其次按臨期（diffDays 0 -> 1），最后按项目/任务名
+  riskItems.sort((a, b) => a.diffDays - b.diffDays || a.projectName.localeCompare(b.projectName));
+
   return {
     totalProjects: total,
     averageProgress,
@@ -288,6 +345,7 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
     dueSoonProjectsCount,
     riskProjectsCount,
     riskTasksCount,
+    riskItems,
     totalTasksCount,
     completedTasksCount,
     totalEarlyDays,
