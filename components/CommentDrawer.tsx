@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { CommentWithReplies, FileAttachment, AttachmentType } from '@/lib/types';
 import { formatBeijingDateTime } from '@/lib/date-utils';
 import { AttachmentPreviewModal } from './AttachmentPreviewModal';
+import { AttachmentBadgeList, getAttachmentFormatIcon } from './AttachmentBadgeList';
+import { MarkdownContent } from './MarkdownContent';
 import { safeFetchJson } from '@/lib/fetch-utils';
 import {
   X,
@@ -12,14 +14,8 @@ import {
   Send,
   User,
   Clock,
-  Image as ImageIcon,
   Loader2,
   Paperclip,
-  FileCode,
-  FileText,
-  Trash2,
-  Eye,
-  Plus,
 } from 'lucide-react';
 
 interface CommentDrawerProps {
@@ -154,26 +150,6 @@ export function CommentDrawer({
     setUploadedAttachments((prev) => prev.filter((a) => a.id !== id));
   };
 
-  const getFormatIcon = (type: AttachmentType) => {
-    switch (type) {
-      case 'image':
-        return <ImageIcon className="h-3.5 w-3.5 text-sky-500" />;
-      case 'md':
-        return <FileCode className="h-3.5 w-3.5 text-emerald-500" />;
-      case 'pdf':
-        return <FileText className="h-3.5 w-3.5 text-rose-500" />;
-      default:
-        return <FileText className="h-3.5 w-3.5 text-zinc-500" />;
-    }
-  };
-
-  const formatFileSize = (bytes?: number) => {
-    if (!bytes) return '';
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
-
   const openPreview = (att: FileAttachment, list?: FileAttachment[]) => {
     setPreviewAttachment(att);
     setPreviewAttachmentList(list || [att]);
@@ -281,9 +257,10 @@ export function CommentDrawer({
                         </div>
                       </div>
                       
-                      <p className="mt-2 text-xs leading-relaxed text-zinc-700 whitespace-pre-wrap">
-                        {cmt.content}
-                      </p>
+                      <MarkdownContent
+                        content={cmt.content}
+                        className="mt-2 text-xs leading-relaxed text-zinc-700"
+                      />
 
                       {/* 附件与图片凭据列表 */}
                       {allAttachments.length > 0 && (
@@ -291,27 +268,10 @@ export function CommentDrawer({
                           <div className="text-3xs font-semibold text-zinc-400 uppercase tracking-wider">
                             相关存证附件 ({allAttachments.length})
                           </div>
-                          <div className="flex flex-wrap gap-1.5">
-                            {allAttachments.map((att) => (
-                              <button
-                                key={att.id || att.url}
-                                type="button"
-                                onClick={() => openPreview(att, allAttachments)}
-                                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50 text-xs text-zinc-800 shadow-2xs group transition-all text-left"
-                              >
-                                <span className="shrink-0">{getFormatIcon(att.type)}</span>
-                                <span className="font-medium truncate max-w-[140px] group-hover:text-zinc-900">
-                                  {att.name}
-                                </span>
-                                {att.size && (
-                                  <span className="text-3xs text-zinc-400 shrink-0">
-                                    {formatFileSize(att.size)}
-                                  </span>
-                                )}
-                                <Eye className="h-3 w-3 text-zinc-400 group-hover:text-emerald-600 shrink-0 ml-0.5" />
-                              </button>
-                            ))}
-                          </div>
+                          <AttachmentBadgeList
+                            attachments={allAttachments}
+                            onPreview={openPreview}
+                          />
                         </div>
                       )}
 
@@ -340,7 +300,10 @@ export function CommentDrawer({
                                 {formatBeijingDateTime(reply.created_at)}
                               </span>
                             </div>
-                            <p className="mt-1.5 text-xs text-zinc-700 whitespace-pre-wrap">{reply.content}</p>
+                            <MarkdownContent
+                              content={reply.content}
+                              className="mt-1.5 text-xs text-zinc-700 leading-relaxed"
+                            />
                           </div>
                         ))}
                       </div>
@@ -412,33 +375,11 @@ export function CommentDrawer({
                     </span>
                   )}
                 </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {uploadedAttachments.map((att) => (
-                    <div
-                      key={att.id}
-                      className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white border border-zinc-200 text-xs shadow-2xs"
-                    >
-                      {getFormatIcon(att.type)}
-                      <span className="max-w-[110px] truncate font-medium text-zinc-700">{att.name}</span>
-                      <button
-                        type="button"
-                        onClick={() => openPreview(att, uploadedAttachments)}
-                        className="text-zinc-400 hover:text-emerald-600 ml-0.5"
-                        title="在线预览"
-                      >
-                        <Eye className="h-3 w-3" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveAttachment(att.id)}
-                        className="text-zinc-400 hover:text-rose-600"
-                        title="移除"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
+                <AttachmentBadgeList
+                  attachments={uploadedAttachments}
+                  onPreview={openPreview}
+                  onRemove={handleRemoveAttachment}
+                />
               </div>
             )}
 

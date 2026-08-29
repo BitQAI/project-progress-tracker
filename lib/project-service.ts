@@ -528,6 +528,8 @@ function getProjectRecentActivities(
 ): ProjectActivityItem[] {
   const activities: ProjectActivityItem[] = [];
   const seenIds = new Set<string>();
+  const seenEventKeys = new Set<string>();
+  const seenCommentKeys = new Set<string>();
 
   const isImage = (url?: string | null) => {
     if (!url) return false;
@@ -546,7 +548,16 @@ function getProjectRecentActivities(
 
       if (matchProject || matchNode || matchTask) {
         if (!seenIds.has(act.id)) {
+          const detailStr = (act.detail || '').trim();
+          const eventKey = `${act.type}_${act.author}_${detailStr.slice(0, 80)}_${act.timestamp.slice(0, 16)}`;
+          if (seenEventKeys.has(eventKey)) continue;
+
           seenIds.add(act.id);
+          seenEventKeys.add(eventKey);
+
+          if (act.type === 'comment_added' && detailStr) {
+            seenCommentKeys.add(`${act.author}_${detailStr}`);
+          }
 
           let actImageUrl: string | null = act.image_url || null;
           if (!actImageUrl && act.type === 'comment_added' && act.detail) {
@@ -569,6 +580,7 @@ function getProjectRecentActivities(
             author: act.author,
             timestamp: act.timestamp,
             image_url: actImageUrl,
+            attachments: act.attachments,
           });
         }
       }
@@ -591,6 +603,7 @@ function getProjectRecentActivities(
           author: t.owner,
           timestamp: t.deliverable_submitted_at || t.done_at || t.created_at,
           image_url: isImage(submissionUrl) ? submissionUrl : null,
+          attachments: t.deliverable_attachments,
         });
       } else {
         activities.push({
@@ -599,19 +612,30 @@ function getProjectRecentActivities(
           title: `${t.owner} 勾选完成了任务「${t.name}」`,
           author: t.owner,
           timestamp: t.done_at || t.created_at,
+          attachments: t.deliverable_attachments,
         });
       }
     }
   }
 
-  // 3. 兼容早期未在 activities 中记录的评论
+  // 3. 仅对历史未在 activities 中记录的评论做兜底补充
   const projectComments = db.comments.filter(
     (c) => (c.node_id && subtreeIds.has(c.node_id)) || (c.task_id && taskIds.has(c.task_id))
   );
   for (const c of projectComments) {
+    const rawContent = (c.content || '').trim();
+    if (!rawContent) continue;
+    if (rawContent.startsWith('【交付件归档】') || rawContent.startsWith('【排期调整归档】')) {
+      continue;
+    }
+
+    const commentKey = `${c.author}_${rawContent}`;
+    if (seenCommentKeys.has(commentKey)) continue;
+
     const actId = `act_cmt_${c.id}`;
     if (!seenIds.has(actId) && !activities.some((a) => a.detail === c.content)) {
       seenIds.add(actId);
+      seenCommentKeys.add(commentKey);
       let targetName = '相应项';
       let isTask = false;
       if (c.task_id) {

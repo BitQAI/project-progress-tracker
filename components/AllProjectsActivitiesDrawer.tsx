@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { ExecutiveActivityItem, FileAttachment, AttachmentType } from '@/lib/types';
 import { AttachmentPreviewModal } from './AttachmentPreviewModal';
+import { MarkdownContent } from './MarkdownContent';
 import {
   Activity,
   FileCheck2,
@@ -388,9 +389,10 @@ export function AllProjectsActivitiesDrawer({
                     {(item.summary || attachments.length > 0) && (
                       <div className="mt-2 bg-zinc-50/70 p-2.5 rounded-lg border border-zinc-150/70 text-xs space-y-2">
                         {item.summary && (
-                          <p className="text-[11px] text-zinc-600 leading-relaxed break-words">
-                            {item.summary}
-                          </p>
+                          <MarkdownContent
+                            content={item.summary}
+                            className="text-[11px] text-zinc-600 leading-relaxed"
+                          />
                         )}
 
                         {/* 证据链与附件展示 */}

@@ -1,30 +1,20 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { ProjectActivityItem, FileAttachment, AttachmentType } from '@/lib/types';
+import React, { useState } from 'react';
+import { ProjectActivityItem, FileAttachment } from '@/lib/types';
 import { GitDiffView } from './GitDiffView';
+import { MarkdownContent } from './MarkdownContent';
 import { formatBeijingShortDateTime } from '@/lib/date-utils';
 import { AttachmentPreviewModal } from './AttachmentPreviewModal';
+import { AttachmentBadgeList, getAttachmentFormatIcon } from './AttachmentBadgeList';
+import { getActivityConfig, getActivityItemAttachments } from '@/lib/activity-ui-helpers';
 import {
-  Activity,
-  FileCheck,
-  CheckCircle2,
-  MessageSquare,
-  FolderPlus,
-  FolderEdit,
-  PlusCircle,
-  Edit3,
-  Trash2,
-  Settings,
-  Layers,
   Clock,
   Send,
   ChevronDown,
   ChevronUp,
-  Image as ImageIcon,
-  FileCode,
-  FileText,
   X,
+  Activity,
 } from 'lucide-react';
 
 interface ProjectActivityFeedProps {
@@ -76,118 +66,6 @@ export function ProjectActivityFeed({
     }
   };
 
-  const getAttachments = (act: ProjectActivityItem) => {
-    const list: FileAttachment[] = [];
-    if (act.attachments && act.attachments.length > 0) {
-      return act.attachments;
-    }
-    if (act.image_url) {
-      list.push({
-        id: `fallback_${act.id}`,
-        name: '附图证据',
-        url: act.image_url,
-        type: 'image',
-      });
-    }
-    return list;
-  };
-
-  const getFormatIcon = (type: AttachmentType) => {
-    switch (type) {
-      case 'image':
-        return <ImageIcon className="h-3.5 w-3.5 text-blue-500" />;
-      case 'md':
-        return <FileCode className="h-3.5 w-3.5 text-emerald-500" />;
-      case 'pdf':
-        return <FileText className="h-3.5 w-3.5 text-rose-500" />;
-      default:
-        return <FileText className="h-3.5 w-3.5 text-zinc-500" />;
-    }
-  };
-
-  const getActivityConfig = (type: ProjectActivityItem['type']) => {
-    switch (type) {
-      case 'deliverable_submitted':
-        return {
-          icon: <FileCheck className="h-3.5 w-3.5 text-emerald-600" />,
-          badge: '交付成果',
-          badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-        };
-      case 'task_done':
-        return {
-          icon: <CheckCircle2 className="h-3.5 w-3.5 text-blue-600" />,
-          badge: '已完工',
-          badgeClass: 'bg-blue-50 text-blue-700 border-blue-200',
-        };
-      case 'task_created':
-        return {
-          icon: <PlusCircle className="h-3.5 w-3.5 text-indigo-600" />,
-          badge: '新增任务',
-          badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-        };
-      case 'task_updated':
-        return {
-          icon: <Edit3 className="h-3.5 w-3.5 text-amber-600" />,
-          badge: '编辑任务',
-          badgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
-        };
-      case 'task_deleted':
-        return {
-          icon: <Trash2 className="h-3.5 w-3.5 text-rose-600" />,
-          badge: '删除任务',
-          badgeClass: 'bg-rose-50 text-rose-700 border-rose-200',
-        };
-      case 'node_created':
-        return {
-          icon: <FolderPlus className="h-3.5 w-3.5 text-amber-600" />,
-          badge: '新建分组',
-          badgeClass: 'bg-amber-50 text-amber-700 border-amber-200',
-        };
-      case 'node_updated':
-        return {
-          icon: <FolderEdit className="h-3.5 w-3.5 text-sky-600" />,
-          badge: '编辑分组',
-          badgeClass: 'bg-sky-50 text-sky-700 border-sky-200',
-        };
-      case 'node_deleted':
-        return {
-          icon: <Trash2 className="h-3.5 w-3.5 text-rose-600" />,
-          badge: '删除分组',
-          badgeClass: 'bg-rose-50 text-rose-700 border-rose-200',
-        };
-      case 'project_created':
-        return {
-          icon: <Layers className="h-3.5 w-3.5 text-violet-600" />,
-          badge: '项目立项',
-          badgeClass: 'bg-violet-50 text-violet-700 border-violet-200',
-        };
-      case 'project_updated':
-        return {
-          icon: <Settings className="h-3.5 w-3.5 text-purple-600" />,
-          badge: '项目变更',
-          badgeClass: 'bg-purple-50 text-purple-700 border-purple-200',
-        };
-      case 'comment_added':
-        return {
-          icon: <MessageSquare className="h-3.5 w-3.5 text-purple-600" />,
-          badge: '备注留档',
-          badgeClass: 'bg-purple-50 text-purple-700 border-purple-200',
-        };
-      case 'briefing':
-        return {
-          icon: <Activity className="h-3.5 w-3.5 text-violet-600" />,
-          badge: '前情速报',
-          badgeClass: 'bg-violet-50 text-violet-700 border-violet-200',
-        };
-      default:
-        return {
-          icon: <Clock className="h-3.5 w-3.5 text-zinc-500" />,
-          badge: '动态',
-          badgeClass: 'bg-zinc-50 text-zinc-600 border-zinc-200',
-        };
-    }
-  };
-
   const formatTimestamp = (ts: string) => {
     return formatBeijingShortDateTime(ts);
   };
@@ -226,12 +104,12 @@ export function ProjectActivityFeed({
                     ? `最新：${latestAct.title}`
                     : projectDescription || '暂无更多前情背景'}
                 </span>
-                {latestAct && getAttachments(latestAct).length > 0 && (
+                {latestAct && getActivityItemAttachments(latestAct).length > 0 && (
                   <span
                     className="relative inline-flex items-center justify-center shrink-0 rounded bg-blue-50 border border-blue-200 p-0.5"
-                    title={`包含 ${getAttachments(latestAct).length} 个附件证据`}
+                    title={`包含 ${getActivityItemAttachments(latestAct).length} 个附件证据`}
                   >
-                    {getFormatIcon(getAttachments(latestAct)[0].type)}
+                    {getAttachmentFormatIcon(getActivityItemAttachments(latestAct)[0].type)}
                     <span className="absolute -top-0.5 -right-0.5 flex h-1.5 w-1.5 rounded-full bg-blue-500"></span>
                   </span>
                 )}
@@ -320,9 +198,9 @@ export function ProjectActivityFeed({
                         </div>
                         
                         {/* 移动端与PC风格一致的小缩略图 (若有) */}
-                        {getAttachments(act).length > 0 && (
+                        {getActivityItemAttachments(act).length > 0 && (
                           <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                            {getAttachments(act).map((att) => {
+                            {getActivityItemAttachments(act).map((att) => {
                               const isImg = att.type === 'image';
                               return (
                                 <button
@@ -330,7 +208,7 @@ export function ProjectActivityFeed({
                                   onClick={(e) => {
                                     e.preventDefault();
                                     setPreviewAttachment(att);
-                                    setPreviewAttachmentList(getAttachments(act));
+                                    setPreviewAttachmentList(getActivityItemAttachments(act));
                                   }}
                                   className="relative group/thumb inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm border border-zinc-200 bg-zinc-50/50 hover:border-blue-400 transition-all cursor-pointer shadow-3xs"
                                   title={`点击预览: ${att.name}`}
@@ -346,7 +224,7 @@ export function ProjectActivityFeed({
                                     </div>
                                   ) : (
                                     <div className="flex items-center justify-center h-full w-full bg-zinc-50 rounded-sm">
-                                      {getFormatIcon(att.type)}
+                                      {getAttachmentFormatIcon(att.type)}
                                     </div>
                                   )}
                                   <span className="absolute -top-0.5 -right-0.5 flex h-1.5 w-1.5 z-10">
@@ -375,9 +253,9 @@ export function ProjectActivityFeed({
                           <span className="font-medium text-zinc-900 break-words">{act.title}</span>
 
                           {/* 附图证据标识 */}
-                          {getAttachments(act).length > 0 && (
+                          {getActivityItemAttachments(act).length > 0 && (
                             <div className="flex items-center gap-1.5 overflow-visible">
-                              {getAttachments(act).map((att) => {
+                              {getActivityItemAttachments(act).map((att) => {
                                 const isImg = att.type === 'image';
                                 return (
                                   <button
@@ -385,7 +263,7 @@ export function ProjectActivityFeed({
                                     onClick={(e) => {
                                       e.preventDefault();
                                       setPreviewAttachment(att);
-                                      setPreviewAttachmentList(getAttachments(act));
+                                      setPreviewAttachmentList(getActivityItemAttachments(act));
                                     }}
                                     className="relative group/thumb inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm border border-zinc-200 bg-zinc-50/50 overflow-visible hover:scale-115 hover:border-blue-500 transition-all cursor-pointer shadow-3xs"
                                     title={`点击预览: ${att.name}`}
@@ -401,7 +279,7 @@ export function ProjectActivityFeed({
                                       </div>
                                     ) : (
                                       <div className="flex items-center justify-center h-full w-full bg-zinc-50 rounded-sm">
-                                        {getFormatIcon(att.type)}
+                                        {getAttachmentFormatIcon(att.type)}
                                       </div>
                                     )}
                                     <span className="absolute -top-0.5 -right-0.5 flex h-1.5 w-1.5">
@@ -421,11 +299,20 @@ export function ProjectActivityFeed({
                         </div>
                       </div>
                       {act.detail && (
-                        <GitDiffView
-                          rawText={act.detail}
-                          type={act.type}
-                          title={act.title}
-                        />
+                        act.type === 'comment_added' || act.type === 'briefing' ? (
+                          <div className="mt-1.5 rounded-lg border border-zinc-200/80 bg-zinc-50/70 p-2.5 shadow-2xs">
+                            <MarkdownContent
+                              content={act.detail}
+                              className="text-[11px] text-zinc-700 leading-relaxed"
+                            />
+                          </div>
+                        ) : (
+                          <GitDiffView
+                            rawText={act.detail}
+                            type={act.type}
+                            title={act.title}
+                          />
+                        )
                       )}
                     </div>
                   </div>

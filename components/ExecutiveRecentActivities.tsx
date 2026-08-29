@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ExecutiveActivityItem, FileAttachment, AttachmentType } from '@/lib/types';
 import { AttachmentPreviewModal } from './AttachmentPreviewModal';
 import { AllProjectsActivitiesDrawer } from './AllProjectsActivitiesDrawer';
+import { MarkdownContent } from './MarkdownContent';
 import {
   Activity,
   FileCheck2,
@@ -202,9 +203,10 @@ export function ExecutiveRecentActivities({ activities, allActivities }: Executi
                       </div>
                     )}
                     {item.summary && (
-                      <span className="text-[11px] text-zinc-500 leading-relaxed min-w-0 break-words flex-1">
-                        {item.summary}
-                      </span>
+                      <MarkdownContent
+                        content={item.summary}
+                        className="text-[11px] text-zinc-500 leading-relaxed min-w-0 break-words flex-1"
+                      />
                     )}
                   </div>
                 )}

@@ -7,21 +7,6 @@ function formatExecutiveTime(ts: string): string {
   return formatBeijingRelativeTime(ts);
 }
 
-function cleanExecutiveText(text?: string): string {
-  if (!text) return '';
-  return text
-    .split('\n')
-    .map((line) => {
-      let l = line.trim();
-      // 彻底清除 + 与 - 符号及列表符号
-      l = l.replace(/^[-+*•·]\s*/, '');
-      l = l.replace(/^\+\s*/, '').replace(/^-\s*/, '');
-      return l;
-    })
-    .filter((l) => l.length > 0 && !l.startsWith('@@') && !l.startsWith('【变更'))
-    .join('；');
-}
-
 export interface PaginatedActivitiesResult {
   items: ExecutiveActivityItem[];
   total: number;
@@ -36,6 +21,9 @@ export function getAllExecutiveActivitiesList(): ExecutiveActivityItem[] {
   const db: AppDatabase = getDb();
   const list: ExecutiveActivityItem[] = [];
   const seenIds = new Set<string>();
+  const seenEventKeys = new Set<string>();
+  const seenTaskDoneIds = new Set<string>();
+  const seenCommentKeys = new Set<string>();
 
   const isImage = (url?: string | null) => {
     if (!url) return false;
@@ -63,16 +51,30 @@ export function getAllExecutiveActivitiesList(): ExecutiveActivityItem[] {
     return node ? node.name : undefined;
   };
 
-  // 1. 解析专属活动记录表
+  // 1. 解析专属活动记录表（首要真实事件流）
   if (Array.isArray(db.activities)) {
     for (const act of db.activities) {
       if (seenIds.has(act.id)) continue;
-      seenIds.add(act.id);
 
       const pId = act.project_id || (act.node_id ? findRootProjectId(db, act.node_id) : '');
+      const rawDetail = act.detail?.trim() || '';
+      
+      // 事件级去重指纹：避免同时写入或重复触发导致的完全相同动态
+      const eventKey = `${pId}_${act.type}_${act.author}_${rawDetail.slice(0, 80)}_${act.timestamp.slice(0, 16)}`;
+      if (seenEventKeys.has(eventKey)) continue;
+      
+      seenIds.add(act.id);
+      seenEventKeys.add(eventKey);
+
+      if (act.task_id) {
+        seenTaskDoneIds.add(act.task_id);
+      }
+      if (act.type === 'comment_added' && rawDetail) {
+        seenCommentKeys.add(`${pId}_${act.author}_${rawDetail}`);
+      }
+
       const pName = getProjectName(pId);
       const moduleName = getParentModule(act.node_id);
-      const cleanSummary = cleanExecutiveText(act.detail);
 
       let actImageUrl: string | null = act.image_url || null;
       if (!actImageUrl && act.type === 'comment_added' && act.detail) {
@@ -99,7 +101,7 @@ export function getAllExecutiveActivitiesList(): ExecutiveActivityItem[] {
           categoryBadge: '成果交付归档',
           badgeVariant: 'emerald',
           headline: `${act.author} 完成成果交付与验收（${moduleName || pName}）`,
-          summary: cleanSummary || '关键产出物已通过阶段验收并完成数字化归档，为后续环节扫清技术与业务依赖。',
+          summary: rawDetail || '关键产出物已通过阶段验收并完成数字化归档，为后续环节扫清技术与业务依赖。',
           owner: act.author,
           timestamp: act.timestamp,
           formattedTime: formatExecutiveTime(act.timestamp),
@@ -118,7 +120,7 @@ export function getAllExecutiveActivitiesList(): ExecutiveActivityItem[] {
           categoryBadge: '节点完工',
           badgeVariant: 'blue',
           headline: `${act.author} 顺利推进完成 ${doneItemName}`,
-          summary: cleanSummary || '该执行任务已达成验收标准并按期闭环，项目整体进度正常受控。',
+          summary: rawDetail || '该执行任务已达成验收标准并按期闭环，项目整体进度正常受控。',
           owner: act.author,
           timestamp: act.timestamp,
           formattedTime: formatExecutiveTime(act.timestamp),
@@ -157,7 +159,7 @@ export function getAllExecutiveActivitiesList(): ExecutiveActivityItem[] {
           categoryBadge: '管理留档',
           badgeVariant: 'purple',
           headline,
-          summary: cleanSummary || act.title,
+          summary: rawDetail || act.title,
           owner: act.author,
           timestamp: act.timestamp,
           formattedTime: formatExecutiveTime(act.timestamp),
@@ -176,7 +178,7 @@ export function getAllExecutiveActivitiesList(): ExecutiveActivityItem[] {
           categoryBadge: '进度同步',
           badgeVariant: 'amber',
           headline: `${act.author} 更新了 ${updateItemName} 的执行细节`,
-          summary: cleanSummary || '已根据业务最新协同诉求完成排期调整与资源对齐。',
+          summary: rawDetail || '已根据业务最新协同诉求完成排期调整与资源对齐。',
           owner: act.author,
           timestamp: act.timestamp,
           formattedTime: formatExecutiveTime(act.timestamp),
@@ -192,7 +194,7 @@ export function getAllExecutiveActivitiesList(): ExecutiveActivityItem[] {
           categoryBadge: '攻坚计划',
           badgeVariant: 'blue',
           headline: `${act.author} 规划并启动了新的交付任务`,
-          summary: cleanSummary || act.title,
+          summary: rawDetail || act.title,
           owner: act.author,
           timestamp: act.timestamp,
           formattedTime: formatExecutiveTime(act.timestamp),
@@ -204,8 +206,8 @@ export function getAllExecutiveActivitiesList(): ExecutiveActivityItem[] {
     }
   }
 
-  // 2. 从已提交交付件和已完成的核心任务中提取管理层动态（补充兜底）
-  const completedTasks = db.tasks.filter((t) => t.status === 'done');
+  // 2. 仅对历史未录入 activities 表的完成任务做兜底补充
+  const completedTasks = db.tasks.filter((t) => t.status === 'done' && !seenTaskDoneIds.has(t.id));
   for (const t of completedTasks) {
     const actId = `exec_task_${t.id}`;
     if (seenIds.has(actId)) continue;
@@ -226,7 +228,7 @@ export function getAllExecutiveActivitiesList(): ExecutiveActivityItem[] {
         categoryBadge: '成果交付',
         badgeVariant: 'emerald',
         headline: `${t.owner} 交付并验收了「${t.name}」`,
-        summary: cleanExecutiveText(t.deliverable_submission),
+        summary: t.deliverable_submission.trim(),
         owner: t.owner,
         timestamp: timeStr,
         formattedTime: formatExecutiveTime(timeStr),
@@ -254,11 +256,19 @@ export function getAllExecutiveActivitiesList(): ExecutiveActivityItem[] {
     }
   }
 
-  // 3. 提取管理层留言与评论
+  // 3. 仅对历史未在 activities 表中记录的评论做兜底补充（过滤自动生成的归档评论）
   for (const c of db.comments) {
+    const rawContent = c.content?.trim() || '';
+    if (!rawContent) continue;
+    
+    // 忽略交付件或排期调整等已有主事件日志的自动归档评论
+    if (rawContent.startsWith('【交付件归档】') || rawContent.startsWith('【排期调整归档】')) {
+      continue;
+    }
+
     const actId = `exec_cmt_${c.id}`;
     if (seenIds.has(actId)) continue;
-    
+
     let pId = '';
     let moduleName = '';
     if (c.node_id) {
@@ -273,6 +283,10 @@ export function getAllExecutiveActivitiesList(): ExecutiveActivityItem[] {
         moduleName = n?.name || '';
       }
     }
+
+    const commentKey = `${pId}_${c.author}_${rawContent}`;
+    if (seenCommentKeys.has(commentKey)) continue;
+
     const pName = getProjectName(pId);
 
     list.push({
@@ -284,7 +298,7 @@ export function getAllExecutiveActivitiesList(): ExecutiveActivityItem[] {
       categoryBadge: '管理留档',
       badgeVariant: 'purple',
       headline: `${c.author} 发布了关键指示与进展复盘`,
-      summary: cleanExecutiveText(c.content),
+      summary: rawContent,
       owner: c.author,
       timestamp: c.created_at,
       formattedTime: formatExecutiveTime(c.created_at),
@@ -292,6 +306,7 @@ export function getAllExecutiveActivitiesList(): ExecutiveActivityItem[] {
       attachments: c.attachments || undefined,
     });
     seenIds.add(actId);
+    seenCommentKeys.add(commentKey);
   }
 
   // 4. 按时间倒序排序
