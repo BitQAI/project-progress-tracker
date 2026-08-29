@@ -34,6 +34,7 @@ export default function DashboardPage() {
     totalEarlyDays: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [isValidating, setIsValidating] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeFilter, setActiveFilter] = useState<string>('all');
@@ -66,6 +67,7 @@ export default function DashboardPage() {
   useEffect(() => {
     let ignore = false;
     async function loadData() {
+      setIsValidating(true);
       try {
         const res = await safeFetchJson('/api/projects');
         if (!ignore && res.ok && res.data?.ok && res.data?.data) {
@@ -90,6 +92,7 @@ export default function DashboardPage() {
       } finally {
         if (!ignore) {
           setIsLoading(false);
+          setIsValidating(false);
         }
       }
     }
@@ -143,10 +146,9 @@ export default function DashboardPage() {
       <Navbar 
         onOpenCreateModal={() => setIsCreateModalOpen(true)} 
         onRefresh={() => {
-          setIsLoading(true);
           setRefreshKey((k) => k + 1);
         }}
-        isLoading={isLoading}
+        isLoading={isLoading || isValidating}
       />
 
       <main className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8 space-y-6">
@@ -173,6 +175,7 @@ export default function DashboardPage() {
             onDeleteProject={handleDeleteClick}
             onStatusChange={handleStatusChange}
             isLoading={isLoading}
+            isValidating={isValidating}
           />
         </div>
       </main>

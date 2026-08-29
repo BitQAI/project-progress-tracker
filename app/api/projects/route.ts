@@ -5,11 +5,24 @@ import { ensureDbLoaded } from '@/lib/db';
 
 export async function GET() {
   try {
+    const t0 = performance.now();
     await ensureDbLoaded();
+    const t1 = performance.now();
     const data = await getDashboardData();
+    const t2 = performance.now();
+    
     return NextResponse.json({
       ok: true,
       data,
+      _perf: {
+        dbMs: Math.round(t1 - t0),
+        calcMs: Math.round(t2 - t1),
+        totalMs: Math.round(t2 - t0),
+      }
+    }, {
+      headers: {
+        'Server-Timing': `db;dur=${(t1 - t0).toFixed(1)}, calc;dur=${(t2 - t1).toFixed(1)}, total;dur=${(t2 - t0).toFixed(1)}`
+      }
     });
   } catch (error: any) {
     console.error('API projects error:', error);

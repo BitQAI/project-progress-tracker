@@ -20,6 +20,20 @@ const DATA_DIR = path.join(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'projects.json');
 
 let inMemoryDb: AppDatabase | null = null;
+try {
+  if (fs.existsSync(DB_FILE)) {
+    const content = fs.readFileSync(DB_FILE, 'utf-8');
+    const parsed = JSON.parse(content);
+    if (parsed && Array.isArray(parsed.nodes)) {
+      inMemoryDb = parsed;
+      if (!Array.isArray(inMemoryDb?.activities)) {
+        if (inMemoryDb) inMemoryDb.activities = [];
+      }
+    }
+  }
+} catch {
+  inMemoryDb = null;
+}
 
 export function getDb(): AppDatabase {
   if (inMemoryDb) {
@@ -312,15 +326,46 @@ export async function syncLocalStateToSupabase(sourceDb: AppDatabase): Promise<{
   }
 }
 
+let isBackgroundSyncing = false;
+let lastSupabaseSync = 0;
+
 /**
  * 异步从 Supabase 关系表中加载或自动平铺迁移
  */
 export async function ensureDbLoaded(forceReload = false): Promise<AppDatabase> {
-  // 在 Vercel 环境下，为了保证不同 Serverless 容器和请求之间的数据 100% 实时同步，我们绕过 inMemoryDb 缓存，每次都从 Supabase 重新加载最新数据
-  if (inMemoryDb && !forceReload && !process.env.VERCEL) {
-    if (!inMemoryDb.activities) inMemoryDb.activities = [];
-    return inMemoryDb;
+  const currentDb = inMemoryDb || getDb();
+
+  // 1. 如果已有本地内存数据且非强制重载，直接毫秒级返回
+  if (currentDb && !forceReload && !process.env.VERCEL) {
+    if (!currentDb.activities) currentDb.activities = [];
+    
+    // 如果配置了 Supabase 且距离上次同步超过 120 秒，在后台静默发起异步同步，绝不阻塞当前响应
+    const now = Date.now();
+    if (supabase && !isBackgroundSyncing && (now - lastSupabaseSync > 120000)) {
+      isBackgroundSyncing = true;
+      (async () => {
+        try {
+          // 最多给后台 3 秒超时限制
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Supabase background sync timeout')), 3000)
+          );
+          await Promise.race([loadDataFromSupabase(), timeoutPromise]);
+          lastSupabaseSync = Date.now();
+        } catch {
+          // 忽略后台同步超时
+        } finally {
+          isBackgroundSyncing = false;
+        }
+      })();
+    }
+    
+    return currentDb;
   }
+
+  return await loadDataFromSupabase();
+}
+
+async function loadDataFromSupabase(): Promise<AppDatabase> {
 
   if (supabase) {
     try {

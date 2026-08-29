@@ -103,8 +103,8 @@ export function Navbar({ onOpenCreateModal, onRefresh, isLoading = false }: Navb
               className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white p-2 text-xs font-medium text-zinc-700 shadow-2xs hover:bg-zinc-50 disabled:opacity-50 sm:px-3 transition-all"
               title="刷新最新数据"
             >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline">刷新</span>
+              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin text-zinc-900' : ''}`} />
+              <span className="hidden sm:inline">{isLoading ? '同步中...' : '刷新'}</span>
             </button>
           )}
 

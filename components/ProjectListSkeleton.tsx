@@ -1,10 +1,17 @@
 'use client';
 
 import React from 'react';
+import { Loader2 } from 'lucide-react';
 
 export function ProjectListSkeleton() {
   return (
-    <div>
+    <div className="space-y-4">
+      {/* 顶部清晰的转圈加载反馈 */}
+      <div className="flex items-center justify-center gap-2.5 py-4 px-4 rounded-lg bg-zinc-50 border border-zinc-200/80 text-zinc-700">
+        <Loader2 className="h-5 w-5 animate-spin text-zinc-800" />
+        <span className="text-xs sm:text-sm font-medium">正在极速加载项目列表与进度汇总...</span>
+      </div>
+
       {/* 移动端骨架屏 */}
       <div className="block md:hidden divide-y divide-zinc-100">
         {[1, 2, 3].map((i) => (

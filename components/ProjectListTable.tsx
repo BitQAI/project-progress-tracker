@@ -16,6 +16,7 @@ import {
   ChevronDown,
   Clock,
   ShieldAlert,
+  Loader2,
 } from 'lucide-react';
 
 interface ProjectListTableProps {
@@ -25,6 +26,7 @@ interface ProjectListTableProps {
   onDeleteProject: (id: string, name: string) => void;
   onStatusChange: (id: string, newStatus: ProjectStatus) => void;
   isLoading?: boolean;
+  isValidating?: boolean;
 }
 
 function ProjectRiskBadge({ project }: { project: ProjectSummary }) {
@@ -64,6 +66,7 @@ export function ProjectListTable({
   onDeleteProject,
   onStatusChange,
   isLoading = false,
+  isValidating = false,
 }: ProjectListTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [internalFilter, setInternalFilter] = useState<string>('all');
@@ -107,16 +110,25 @@ export function ProjectListTable({
     <div className="rounded-xl border border-zinc-200 bg-white shadow-xs">
       {/* 搜索与过滤工具条 */}
       <div className="flex flex-col gap-3 border-b border-zinc-150 p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative flex-1 max-w-md">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-          <input
-            id="search-project-input"
-            type="text"
-            placeholder="搜索项目名称、负责人..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="h-9 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 pl-9 pr-3 text-sm text-zinc-900 placeholder-zinc-400 transition-colors focus:border-zinc-900 focus:bg-white focus:outline-none"
-          />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 flex-1 max-w-lg">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+            <input
+              id="search-project-input"
+              type="text"
+              placeholder="搜索项目名称、负责人..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="h-9 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 pl-9 pr-3 text-sm text-zinc-900 placeholder-zinc-400 transition-colors focus:border-zinc-900 focus:bg-white focus:outline-none"
+            />
+          </div>
+
+          {isValidating && (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-100 border border-zinc-200/80 text-[11px] font-medium text-zinc-700 shrink-0 self-start sm:self-center">
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-zinc-900" />
+              <span>数据同步中...</span>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto pb-1 sm:pb-0">
@@ -399,7 +411,15 @@ export function ProjectListTable({
           <tbody className="divide-y divide-zinc-150">
             {isLoading && projects.length === 0 ? (
               <>
-                {[1, 2, 3, 4, 5].map((i) => (
+                <tr>
+                  <td colSpan={7} className="py-6 text-center bg-zinc-50/50">
+                    <div className="flex items-center justify-center gap-2.5 text-zinc-700">
+                      <Loader2 className="h-5 w-5 animate-spin text-zinc-900" />
+                      <span className="text-xs sm:text-sm font-medium">正在加载项目数据与进度汇总...</span>
+                    </div>
+                  </td>
+                </tr>
+                {[1, 2, 3, 4].map((i) => (
                   <tr key={i} className="animate-pulse">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
