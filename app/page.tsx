@@ -13,6 +13,8 @@ import { useRouter } from 'next/navigation';
 import { safeFetchJson } from '@/lib/fetch-utils';
 import { RefreshCw, Plus } from 'lucide-react';
 
+const DASHBOARD_CACHE_KEY = 'protrack_dashboard_cache_v2';
+
 export default function DashboardPage() {
   const router = useRouter();
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
@@ -41,19 +43,46 @@ export default function DashboardPage() {
   const [projectToDelete, setProjectToDelete] = useState<{ id: string; name: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // 1. 客户端毫秒级瞬时恢复缓存（SWR 模式）
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem(DASHBOARD_CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && parsed.summaries && parsed.summaries.length > 0) {
+          setProjects(parsed.summaries);
+          if (parsed.metrics) setMetrics(parsed.metrics);
+          if (Array.isArray(parsed.executiveActivities)) setExecutiveActivities(parsed.executiveActivities);
+          if (Array.isArray(parsed.allActivities)) setAllActivities(parsed.allActivities);
+          setIsLoading(false);
+        }
+      }
+    } catch {
+      // 忽略本地缓存读取异常
+    }
+  }, []);
+
+  // 2. 后台异步并行拉取最新数据并无感刷新
   useEffect(() => {
     let ignore = false;
     async function loadData() {
       try {
         const res = await safeFetchJson('/api/projects');
         if (!ignore && res.ok && res.data?.ok && res.data?.data) {
-          setProjects(res.data.data.summaries);
-          setMetrics(res.data.data.metrics);
-          if (Array.isArray(res.data.data.executiveActivities)) {
-            setExecutiveActivities(res.data.data.executiveActivities);
+          const { summaries, metrics: latestMetrics, executiveActivities: latestExec, allActivities: latestAll } = res.data.data;
+          setProjects(summaries);
+          setMetrics(latestMetrics);
+          if (Array.isArray(latestExec)) {
+            setExecutiveActivities(latestExec);
           }
-          if (Array.isArray(res.data.data.allActivities)) {
-            setAllActivities(res.data.data.allActivities);
+          if (Array.isArray(latestAll)) {
+            setAllActivities(latestAll);
+          }
+          // 写入本地加速缓存
+          try {
+            localStorage.setItem(DASHBOARD_CACHE_KEY, JSON.stringify(res.data.data));
+          } catch {
+            // 忽略存储超限异常
           }
         }
       } catch (err) {

@@ -1,21 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getProjectsSummaryList, getDashboardMetrics } from '@/lib/project-service';
-import { getGlobalExecutiveActivities, getDeduplicatedExecutiveActivities } from '@/lib/executive-activity-service';
+import { getDashboardData } from '@/lib/dashboard-service';
 import { createProjectFromScratch, createProjectFromTemplate } from '@/lib/mutations';
 import { ensureDbLoaded } from '@/lib/db';
 
 export async function GET() {
   try {
     await ensureDbLoaded();
-    const [summaries, metrics, executiveActivities, initialActivities] = await Promise.all([
-      getProjectsSummaryList(),
-      getDashboardMetrics(),
-      getDeduplicatedExecutiveActivities(3),
-      getGlobalExecutiveActivities(10),
-    ]);
+    const data = await getDashboardData();
     return NextResponse.json({
       ok: true,
-      data: { summaries, metrics, executiveActivities, allActivities: initialActivities },
+      data,
     });
   } catch (error: any) {
     console.error('API projects error:', error);

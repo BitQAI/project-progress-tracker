@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { ProjectSummary, ProjectStatus } from '@/lib/types';
+import { ProjectListSkeleton } from '@/components/ProjectListSkeleton';
 import {
   Search,
   ArrowUpRight,
@@ -200,16 +201,9 @@ export function ProjectListTable({
 
       {/* 移动端卡片视图 */}
       <div className="block md:hidden divide-y divide-zinc-150">
-        {isLoading ? (
-          <div className="py-12 text-center text-zinc-400">
-            <div className="flex flex-col items-center justify-center gap-3">
-              <div className="flex items-center gap-1.5">
-                <div className="h-2.5 w-2.5 rounded-full bg-blue-600 animate-bounce [animation-delay:-0.3s]"></div>
-                <div className="h-2.5 w-2.5 rounded-full bg-blue-600 animate-bounce [animation-delay:-0.15s]"></div>
-                <div className="h-2.5 w-2.5 rounded-full bg-blue-600 animate-bounce"></div>
-              </div>
-              <p className="text-xs font-semibold text-zinc-500 tracking-wide">正在为您加速加载项目列表...</p>
-            </div>
+        {isLoading && projects.length === 0 ? (
+          <div className="p-2">
+            <ProjectListSkeleton />
           </div>
         ) : filteredProjects.length === 0 ? (
           <div className="py-12 text-center text-zinc-400">
@@ -403,19 +397,48 @@ export function ProjectListTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-150">
-            {isLoading ? (
-              <tr>
-                <td colSpan={7} className="py-12 text-center text-zinc-400">
-                  <div className="flex flex-col items-center justify-center gap-3">
-                    <div className="flex items-center gap-1.5">
-                      <div className="h-2.5 w-2.5 rounded-full bg-blue-600 animate-bounce [animation-delay:-0.3s]"></div>
-                      <div className="h-2.5 w-2.5 rounded-full bg-blue-600 animate-bounce [animation-delay:-0.15s]"></div>
-                      <div className="h-2.5 w-2.5 rounded-full bg-blue-600 animate-bounce"></div>
-                    </div>
-                    <p className="text-xs font-semibold text-zinc-500 tracking-wide">正在为您加速加载项目列表...</p>
-                  </div>
-                </td>
-              </tr>
+            {isLoading && projects.length === 0 ? (
+              <>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="h-4 w-40 bg-zinc-200 rounded"></div>
+                        <div className="h-4 w-12 bg-zinc-100 rounded"></div>
+                      </div>
+                    </td>
+                    <td className="px-3 py-3">
+                      <div className="h-4 w-8 bg-zinc-200 rounded"></div>
+                    </td>
+                    <td className="px-3 py-3">
+                      <div className="h-4 w-12 bg-zinc-200 rounded"></div>
+                    </td>
+                    <td className="px-3 py-3">
+                      <div className="space-y-1.5 w-36">
+                        <div className="flex justify-between">
+                          <div className="h-3 w-6 bg-zinc-200 rounded"></div>
+                          <div className="h-3 w-8 bg-zinc-200 rounded"></div>
+                        </div>
+                        <div className="h-1.5 w-full bg-zinc-100 rounded-full">
+                          <div className="h-full bg-zinc-200 rounded-full w-1/2"></div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-3 py-3">
+                      <div className="h-5 w-16 bg-zinc-200 rounded-full"></div>
+                    </td>
+                    <td className="px-3 py-3">
+                      <div className="h-4 w-20 bg-zinc-200 rounded"></div>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="inline-flex gap-1.5 justify-end">
+                        <div className="h-6 w-10 bg-zinc-200 rounded"></div>
+                        <div className="h-6 w-6 bg-zinc-200 rounded"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </>
             ) : filteredProjects.length === 0 ? (
               <tr>
                 <td colSpan={7} className="py-12 text-center text-zinc-400">
