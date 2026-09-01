@@ -5,6 +5,7 @@ import { DbTask, FileAttachment, AttachmentType } from '@/lib/types';
 import {
   FileCode,
   FileText,
+  Globe,
   Image as ImageIcon,
   Eye,
   ExternalLink,
@@ -25,6 +26,8 @@ export function getAttachmentFormatIcon(type: AttachmentType) {
       return <FileCode className="h-3 w-3 text-emerald-500" />;
     case 'pdf':
       return <FileText className="h-3 w-3 text-rose-500" />;
+    case 'html':
+      return <Globe className="h-3 w-3 text-orange-500" />;
     default:
       return <FileText className="h-3 w-3 text-zinc-500" />;
   }

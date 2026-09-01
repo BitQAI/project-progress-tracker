@@ -206,7 +206,7 @@ export function ProjectCommentForm({
           className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-zinc-700 bg-zinc-100 hover:bg-zinc-200 transition-colors text-xs font-semibold cursor-pointer"
         >
           <Paperclip className="h-3.5 w-3.5 text-zinc-500" />
-          <span>追加存证附件 (支持图片/MD/PDF拖拽)</span>
+          <span>追加存证附件 (支持图片/MD/PDF/HTML拖拽)</span>
         </button>
         <span className="text-[10px] text-zinc-400 font-medium hidden xs:inline">支持拖拽多文件秒传</span>
       </div>

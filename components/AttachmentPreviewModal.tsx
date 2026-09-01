@@ -8,6 +8,7 @@ import {
   FileText,
   Image as ImageIcon,
   FileCode,
+  Globe,
   Copy,
   Check,
   Eye,
@@ -63,19 +64,22 @@ function AttachmentPreviewModalContent({
   onSelectAttachment?: (att: FileAttachment) => void;
 }) {
   const isMd = attachment.type === 'md';
-  const [mdContent, setMdContent] = useState<string>('');
-  const [isLoadingMd, setIsLoadingMd] = useState<boolean>(isMd);
-  const [mdLoadError, setMdLoadError] = useState<string | null>(null);
+  const isHtml = attachment.type === 'html';
+  const isTextBased = isMd || isHtml;
+
+  const [textContent, setTextContent] = useState<string>('');
+  const [isLoadingText, setIsLoadingText] = useState<boolean>(isTextBased);
+  const [textLoadError, setTextLoadError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'rendered' | 'raw'>('rendered');
   const [copied, setCopied] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // 当附件为 Markdown 时，拉取文本内容
+  // 当附件为 Markdown 或 HTML 时，拉取文本源码
   useEffect(() => {
     let ignore = false;
-    if (!isMd) return;
+    if (!isTextBased) return;
 
-    async function loadMarkdown() {
+    async function loadTextContent() {
       // 使用服务端代理以规避浏览器 CORS 跨域限制及沙箱网络隔离问题
       const fetchUrl = attachment.url.startsWith('data:')
         ? attachment.url
@@ -84,31 +88,31 @@ function AttachmentPreviewModalContent({
       const res = await safeFetchText(fetchUrl);
       if (!ignore) {
         if (res.ok && res.data !== undefined) {
-          setMdContent(res.data);
-          setIsLoadingMd(false);
+          setTextContent(res.data);
+          setIsLoadingText(false);
         } else {
-          console.error('Fetch markdown error:', res.error);
-          setMdLoadError(res.error || '获取 Markdown 文件内容失败');
-          setIsLoadingMd(false);
+          console.error('Fetch attachment text error:', res.error);
+          setTextLoadError(res.error || `获取 ${isHtml ? 'HTML' : 'Markdown'} 文件内容失败`);
+          setIsLoadingText(false);
         }
       }
     }
 
-    loadMarkdown();
+    loadTextContent();
 
     return () => {
       ignore = true;
     };
-  }, [attachment.url, isMd]);
+  }, [attachment.url, isTextBased, isHtml]);
 
-  const handleCopyMarkdown = async () => {
-    if (!mdContent) return;
+  const handleCopyContent = async () => {
+    if (!textContent) return;
     try {
-      await navigator.clipboard.writeText(mdContent);
+      await navigator.clipboard.writeText(textContent);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Copy markdown error:', err);
+      console.error('Copy content error:', err);
     }
   };
 
@@ -120,6 +124,8 @@ function AttachmentPreviewModalContent({
         return <FileCode className="h-4 w-4 text-emerald-500" />;
       case 'pdf':
         return <FileText className="h-4 w-4 text-rose-500" />;
+      case 'html':
+        return <Globe className="h-4 w-4 text-orange-500" />;
       default:
         return <FileText className="h-4 w-4 text-zinc-500" />;
     }
@@ -170,7 +176,7 @@ function AttachmentPreviewModalContent({
 
           {/* 右侧工具操作组 */}
           <div className="flex items-center gap-1.5 shrink-0">
-            {attachment.type === 'md' && (
+            {isTextBased && (
               <div className="flex items-center bg-zinc-200/80 p-0.5 rounded-lg mr-1 text-xs">
                 <button
                   type="button"
@@ -182,7 +188,7 @@ function AttachmentPreviewModalContent({
                   }`}
                 >
                   <Eye className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">渲染排版</span>
+                  <span className="hidden sm:inline">{isHtml ? '页面效果' : '渲染排版'}</span>
                 </button>
                 <button
                   type="button"
@@ -194,20 +200,20 @@ function AttachmentPreviewModalContent({
                   }`}
                 >
                   <Code2 className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">原文源码</span>
+                  <span className="hidden sm:inline">源码查看</span>
                 </button>
               </div>
             )}
 
-            {attachment.type === 'md' && (
+            {isTextBased && (
               <button
                 type="button"
-                onClick={handleCopyMarkdown}
-                title="复制 Markdown 源码"
-                className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-zinc-700 bg-white hover:bg-zinc-100 border border-zinc-200 rounded-lg transition-colors shadow-2xs"
+                onClick={handleCopyContent}
+                title={isHtml ? '复制 HTML 源码' : '复制 Markdown 源码'}
+                className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-zinc-700 bg-white hover:bg-zinc-100 border border-zinc-200 rounded-lg transition-colors shadow-2xs cursor-pointer"
               >
                 {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
-                <span className="hidden sm:inline">{copied ? '已复制' : '复制内容'}</span>
+                <span className="hidden sm:inline">{copied ? '已复制' : '复制源码'}</span>
               </button>
             )}
 
@@ -234,7 +240,7 @@ function AttachmentPreviewModalContent({
               type="button"
               onClick={() => setIsFullscreen(!isFullscreen)}
               title={isFullscreen ? '退出全屏' : '全屏预览'}
-              className="p-1.5 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/60 rounded-lg transition-colors hidden sm:block"
+              className="p-1.5 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/60 rounded-lg transition-colors hidden sm:block cursor-pointer"
             >
               {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
             </button>
@@ -242,7 +248,7 @@ function AttachmentPreviewModalContent({
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-200/60 rounded-lg transition-colors ml-1"
+              className="p-1.5 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-200/60 rounded-lg transition-colors ml-1 cursor-pointer"
             >
               <X className="h-5 w-5" />
             </button>
@@ -266,15 +272,15 @@ function AttachmentPreviewModalContent({
           {/* 2. Markdown 渲染与源码查看 */}
           {attachment.type === 'md' && (
             <div className="w-full h-full bg-white overflow-auto p-4 sm:p-8">
-              {isLoadingMd ? (
+              {isLoadingText ? (
                 <div className="flex flex-col items-center justify-center h-64 gap-2 text-zinc-500">
                   <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
                   <span className="text-sm">正在加载 Markdown 文档...</span>
                 </div>
-              ) : mdLoadError ? (
+              ) : textLoadError ? (
                 <div className="p-6 text-center text-rose-600 bg-rose-50 rounded-xl border border-rose-200 m-4">
                   <p className="font-semibold text-sm">加载文档失败</p>
-                  <p className="text-xs mt-1 text-rose-500">{mdLoadError}</p>
+                  <p className="text-xs mt-1 text-rose-500">{textLoadError}</p>
                   <a
                     href={attachment.url}
                     target="_blank"
@@ -286,17 +292,51 @@ function AttachmentPreviewModalContent({
                 </div>
               ) : viewMode === 'raw' ? (
                 <pre className="text-xs sm:text-sm font-mono text-zinc-800 bg-zinc-50 p-4 rounded-xl border border-zinc-200 overflow-x-auto whitespace-pre-wrap leading-relaxed">
-                  {mdContent || '（空文档）'}
+                  {textContent || '（空文档）'}
                 </pre>
               ) : (
                 <div className="markdown-body prose max-w-none">
-                  <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>{mdContent || '（空文档）'}</ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>{textContent || '（空文档）'}</ReactMarkdown>
                 </div>
               )}
             </div>
           )}
 
-          {/* 3. PDF 内嵌查看 */}
+          {/* 3. HTML 网页交互渲染与源码查看 */}
+          {attachment.type === 'html' && (
+            <div className="w-full h-full flex flex-col bg-white">
+              {viewMode === 'raw' ? (
+                <div className="w-full h-full overflow-auto p-4 sm:p-6 bg-zinc-900 text-zinc-100">
+                  {isLoadingText ? (
+                    <div className="flex flex-col items-center justify-center h-64 gap-2 text-zinc-400">
+                      <Loader2 className="h-6 w-6 animate-spin text-orange-500" />
+                      <span className="text-sm">正在读取 HTML 源码...</span>
+                    </div>
+                  ) : textLoadError ? (
+                    <div className="p-4 text-center text-rose-300 bg-rose-950/50 rounded-lg border border-rose-800">
+                      <p className="text-sm font-medium">读取源码失败: {textLoadError}</p>
+                    </div>
+                  ) : (
+                    <pre className="text-xs font-mono whitespace-pre-wrap leading-relaxed select-text">
+                      {textContent || '<!-- 空 HTML 文档 -->'}
+                    </pre>
+                  )}
+                </div>
+              ) : (
+                <div className="w-full h-full flex flex-col relative bg-white">
+                  <iframe
+                    src={attachment.url}
+                    srcDoc={attachment.url.startsWith('http') && !attachment.url.includes(window?.location?.host || '') ? undefined : (textContent || undefined)}
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                    title={attachment.name}
+                    className="w-full flex-1 border-0 bg-white"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 4. PDF 内嵌查看 */}
           {attachment.type === 'pdf' && (
             <div className="w-full h-full flex flex-col bg-zinc-800">
               <iframe
@@ -322,7 +362,7 @@ function AttachmentPreviewModalContent({
                     key={att.id || att.url || idx}
                     type="button"
                     onClick={() => onSelectAttachment(att)}
-                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium border shrink-0 transition-all ${
+                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium border shrink-0 transition-all cursor-pointer ${
                       isActive
                         ? 'bg-zinc-900 text-white border-zinc-900 shadow-2xs'
                         : 'bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-100'

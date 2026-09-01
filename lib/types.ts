@@ -2,7 +2,7 @@ export type ProjectStatus = 'unstarted' | 'in_progress' | 'suspended' | 'done';
 export type TaskStatus = 'pending' | 'done';
 export type ProjectPriority = 'P0' | 'P1' | 'P2' | 'P3';
 
-export type AttachmentType = 'image' | 'md' | 'pdf' | 'other';
+export type AttachmentType = 'image' | 'md' | 'pdf' | 'html' | 'other';
 
 export interface FileAttachment {
   id: string;

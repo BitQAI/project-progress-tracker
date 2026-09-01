@@ -348,7 +348,7 @@ export function CommentDrawer({
                 onChange={(e) => setAuthor(e.target.value)}
                 className="h-8 w-1/3 rounded-lg border border-zinc-200 px-2.5 text-xs text-zinc-800 focus:border-zinc-900 focus:outline-none"
               />
-              <span className="text-[10px] text-zinc-400 flex-1 text-right">支持拖拽图片/MD/PDF上传</span>
+              <span className="text-[10px] text-zinc-400 flex-1 text-right">支持拖拽图片/MD/PDF/HTML上传</span>
             </div>
 
             {/* 隐藏的通用文件上传 input */}
@@ -356,7 +356,7 @@ export function CommentDrawer({
               ref={fileInputRef}
               type="file"
               multiple
-              accept="image/*,.md,.markdown,text/markdown,.pdf,application/pdf"
+              accept="image/*,.md,.markdown,text/markdown,.pdf,application/pdf,.html,.htm,text/html"
               onChange={(e) => {
                 if (e.target.files) uploadFiles(e.target.files);
               }}
@@ -418,7 +418,7 @@ export function CommentDrawer({
                   className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-zinc-700 bg-zinc-100 hover:bg-zinc-200 transition-colors text-xs font-medium"
                 >
                   <Paperclip className="h-3.5 w-3.5 text-zinc-500" />
-                  <span>添加附件 (图片/MD/PDF)</span>
+                  <span>添加附件 (图片/MD/PDF/HTML)</span>
                 </button>
               </div>
               <span className="text-[10px] text-zinc-400">支持多文件与拖拽</span>

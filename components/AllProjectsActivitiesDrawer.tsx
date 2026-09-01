@@ -16,6 +16,7 @@ import {
   Image as ImageIcon,
   FileCode,
   FileText,
+  Globe,
   X,
   Search,
   Layers,
@@ -201,6 +202,8 @@ export function AllProjectsActivitiesDrawer({
         return <FileCode className="h-3.5 w-3.5 text-emerald-500" />;
       case 'pdf':
         return <FileText className="h-3.5 w-3.5 text-rose-500" />;
+      case 'html':
+        return <Globe className="h-3.5 w-3.5 text-orange-500" />;
       default:
         return <FileText className="h-3.5 w-3.5 text-zinc-500" />;
     }

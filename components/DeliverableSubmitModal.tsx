@@ -16,6 +16,7 @@ import {
   UploadCloud,
   FileCode,
   FileText,
+  Globe,
   Image as ImageIcon,
   Trash2,
   Eye,
@@ -163,6 +164,8 @@ function DeliverableSubmitModalContent({
         return <FileCode className="h-4 w-4 text-emerald-500" />;
       case 'pdf':
         return <FileText className="h-4 w-4 text-rose-500" />;
+      case 'html':
+        return <Globe className="h-4 w-4 text-orange-500" />;
       default:
         return <FileText className="h-4 w-4 text-zinc-500" />;
     }
@@ -178,7 +181,7 @@ function DeliverableSubmitModalContent({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (task.has_deliverable && !submission.trim() && attachments.length === 0) {
-      setErrorMsg('该任务设置了交付件要求，请填写交付成果内容或上传附件（图片/MD/PDF）');
+      setErrorMsg('该任务设置了交付件要求，请填写交付成果内容或上传附件（图片/MD/PDF/HTML）');
       return;
     }
     if (!doneDate) {
@@ -358,12 +361,12 @@ function DeliverableSubmitModalContent({
               />
             </div>
 
-            {/* 交付件附件上传区 (图片 / MD / PDF) */}
+            {/* 交付件附件上传区 (图片 / MD / PDF / HTML) */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5">
                   <Paperclip className="h-3.5 w-3.5 text-zinc-500" />
-                  交付成果附件归档 (支持 图片 / Markdown / PDF)
+                  交付成果附件归档 (支持 图片 / Markdown / PDF / HTML)
                 </label>
                 <span className="text-3xs text-zinc-500">已添加 {attachments.length} 个文件</span>
               </div>
@@ -384,7 +387,7 @@ function DeliverableSubmitModalContent({
                   ref={fileInputRef}
                   type="file"
                   multiple
-                  accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml,.md,.markdown,text/markdown,text/plain,.pdf,application/pdf"
+                  accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml,.md,.markdown,text/markdown,text/plain,.pdf,application/pdf,.html,.htm,text/html"
                   className="hidden"
                   onChange={(e) => handleFileUpload(e.target.files)}
                 />
@@ -399,7 +402,7 @@ function DeliverableSubmitModalContent({
                   </span>
                 </div>
                 <p className="text-3xs text-zinc-400 mt-1">
-                  支持 JPG/PNG 图片、Markdown (.md)、PDF 文档 (单文件最大 30MB)
+                  支持 JPG/PNG 图片、Markdown (.md)、PDF 文档、HTML 页面 (单文件最大 30MB)
                 </p>
               </div>
 

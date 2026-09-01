@@ -18,16 +18,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: '请选择要上传的文件' }, { status: 400 });
     }
 
-    // 1. 识别文件格式与归类 (图片 / Markdown / PDF)
+    // 1. 识别文件格式与归类 (图片 / Markdown / PDF / HTML)
     const originalName = file.name || 'attachment';
     const fileExt = (originalName.split('.').pop() || '').toLowerCase();
     const mimeType = (file.type || '').toLowerCase();
 
-    let detectedType: 'image' | 'md' | 'pdf' = 'image';
+    let detectedType: 'image' | 'md' | 'pdf' | 'html' = 'image';
 
     const imageExts = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'];
     const mdExts = ['md', 'markdown', 'txt'];
     const pdfExts = ['pdf'];
+    const htmlExts = ['html', 'htm'];
 
     if (
       mimeType.startsWith('image/') ||
@@ -46,18 +47,24 @@ export async function POST(req: NextRequest) {
       pdfExts.includes(fileExt)
     ) {
       detectedType = 'pdf';
+    } else if (
+      mimeType === 'text/html' ||
+      mimeType === 'application/xhtml+xml' ||
+      htmlExts.includes(fileExt)
+    ) {
+      detectedType = 'html';
     } else {
       return NextResponse.json(
         {
           ok: false,
-          error: `不支持的文件格式 (${fileExt || mimeType})，支持格式：图片 (PNG/JPG/WEBP/GIF/SVG)、Markdown (.md)、PDF (.pdf)`,
+          error: `不支持的文件格式 (${fileExt || mimeType})，支持格式：图片 (PNG/JPG/WEBP/GIF/SVG)、Markdown (.md)、PDF (.pdf)、HTML (.html/.htm)`,
         },
         { status: 400 }
       );
     }
 
-    // 2. 大小检查：图片/MD 最大 10MB，PDF 最大 30MB
-    const maxSizeBytes = detectedType === 'pdf' ? 30 * 1024 * 1024 : 10 * 1024 * 1024;
+    // 2. 大小检查：图片/MD/HTML 最大 15MB，PDF 最大 30MB
+    const maxSizeBytes = detectedType === 'pdf' ? 30 * 1024 * 1024 : 15 * 1024 * 1024;
     if (file.size > maxSizeBytes) {
       const maxMb = maxSizeBytes / (1024 * 1024);
       return NextResponse.json(
@@ -67,7 +74,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. 构造唯一的七牛 Key (文件名) - 放在 protrack/ 文件夹下面
-    const finalExt = fileExt || (detectedType === 'image' ? 'jpg' : detectedType === 'md' ? 'md' : 'pdf');
+    const finalExt = fileExt || (detectedType === 'image' ? 'jpg' : detectedType === 'md' ? 'md' : detectedType === 'html' ? 'html' : 'pdf');
     const randId = Math.random().toString(36).substring(2, 7);
     const key = `protrack/att_${detectedType}_${Date.now()}_${randId}.${finalExt}`;
 
@@ -120,7 +127,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (isFallback || !fileUrl) {
-      const actualMime = mimeType || (detectedType === 'image' ? 'image/png' : detectedType === 'md' ? 'text/markdown' : 'application/pdf');
+      const actualMime = mimeType || (detectedType === 'image' ? 'image/png' : detectedType === 'md' ? 'text/markdown' : detectedType === 'html' ? 'text/html' : 'application/pdf');
       const base64Str = buffer.toString('base64');
       fileUrl = `data:${actualMime};base64,${base64Str}`;
       console.log(`[Qiniu SDK] 已通过 DataURL 存储并支持即时在线预览 (${detectedType}, ${file.size} 字节)`);
