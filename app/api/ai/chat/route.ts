@@ -16,7 +16,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const apiKey = process.env.ZHIPU_API_KEY;
+    const DEFAULT_ZHIPU_KEY = '86ddb734dcf141e0acddfd790835ab1e.w24CRgqQbd6g9GPt';
+    const apiKey = process.env.ZHIPU_API_KEY || DEFAULT_ZHIPU_KEY;
     if (!apiKey) {
       return NextResponse.json(
         { ok: false, error: '服务器未配置 ZHIPU_API_KEY 环境变量，请检查配置文件。' },
@@ -77,43 +78,53 @@ ${globalContextText}
 
     const finalMessages = [systemPrompt, ...messages.filter((m) => m.role !== 'system')];
 
-    // 3. 请求智谱 AI glm-4.7-flash 流式传输接口 (stream: true)
-    let zhipuResponse: Response;
-    try {
-      zhipuResponse = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: 'glm-4.7-flash',
-          messages: finalMessages,
-          temperature: 0.7,
-          top_p: 0.9,
-          max_tokens: 2000,
-          stream: true,
-        }),
-      });
-    } catch (err: any) {
-      console.error('Zhipu AI Fetch Connection Error:', err);
+    // 3. 请求智谱 AI 流式传输接口 (支持 glm-4.7-flash -> glm-4-flash 故障/限流自动回退)
+    const candidateModels = ['glm-4.7-flash', 'glm-4-flash'];
+    let zhipuResponse: Response | null = null;
+    const errorsList: string[] = [];
+
+    for (const model of candidateModels) {
+      try {
+        const resp = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model,
+            messages: finalMessages,
+            temperature: 0.7,
+            top_p: 0.9,
+            max_tokens: 2000,
+            stream: true,
+          }),
+        });
+
+        if (resp.ok && resp.body) {
+          zhipuResponse = resp;
+          break;
+        } else {
+          const errText = await resp.text();
+          console.warn(`Zhipu AI [${model}] stream request failed (${resp.status}):`, errText);
+          errorsList.push(`[${model}] 状态码 ${resp.status}: ${errText}`);
+        }
+      } catch (err: any) {
+        console.warn(`Zhipu AI [${model}] fetch connection error:`, err.message);
+        errorsList.push(`[${model}] 连接失败: ${err.message}`);
+      }
+    }
+
+    if (!zhipuResponse || !zhipuResponse.body) {
+      console.error('All Zhipu AI candidate models failed:', errorsList);
       return NextResponse.json(
-        { ok: false, error: '无法连接至 AI 服务，请稍后重试' },
+        {
+          ok: false,
+          error: '智谱 AI 对话服务暂时不可用（已尝试备用基座模型），请稍后再试。',
+          details: errorsList.join('\n'),
+        },
         { status: 503 }
       );
-    }
-
-    if (!zhipuResponse.ok) {
-      const errText = await zhipuResponse.text();
-      console.error('Zhipu AI Response Error:', zhipuResponse.status, errText);
-      return NextResponse.json(
-        { ok: false, error: `智谱 AI 请求失败，状态码: ${zhipuResponse.status}`, details: errText },
-        { status: zhipuResponse.status }
-      );
-    }
-
-    if (!zhipuResponse.body) {
-      return NextResponse.json({ ok: false, error: '智谱 AI 响应流为空' }, { status: 500 });
     }
 
     const encoder = new TextEncoder();

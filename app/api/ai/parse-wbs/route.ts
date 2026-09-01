@@ -307,30 +307,23 @@ export async function POST(req: NextRequest) {
     const userPrompt = `用户输入的待解析内容如下：\n"""\n${text.trim()}\n"""\n\n请严格按照要求解析为结构化 JSON 数据。`;
 
     let rawText = '';
-    const DEFAULT_ZHIPU_KEY = '4f9c32afead84dee800abd7e517ad492.QySLiv9Y0RB6SFCo';
+    const DEFAULT_ZHIPU_KEY = '86ddb734dcf141e0acddfd790835ab1e.w24CRgqQbd6g9GPt';
     const zhipuApiKey = process.env.ZHIPU_API_KEY || DEFAULT_ZHIPU_KEY;
     const errorsList: string[] = [];
 
-    // 优先使用智谱 AI glm-4.6v-flash 免费高效多模态基座模型，若失败依次向下级联回退
+    // 优先使用智谱 AI glm-4.7-flash，若遭遇限流 (429/1305) 自动无缝降级回退至极速稳定的 glm-4-flash
     if (zhipuApiKey) {
       try {
-        rawText = await callZhipu('glm-4.6v-flash', zhipuApiKey, systemInstruction, userPrompt);
+        rawText = await callZhipu('glm-4.7-flash', zhipuApiKey, systemInstruction, userPrompt);
       } catch (zhipuErr: any) {
-        console.warn('Zhipu AI glm-4.6v-flash call failed, trying glm-4.7-flash:', zhipuErr.message);
-        errorsList.push(`glm-4.6v-flash: ${zhipuErr.message}`);
+        console.warn('Zhipu AI glm-4.7-flash call failed, trying stable glm-4-flash fallback:', zhipuErr.message);
+        errorsList.push(`glm-4.7-flash: ${zhipuErr.message}`);
 
         try {
-          rawText = await callZhipu('glm-4.7-flash', zhipuApiKey, systemInstruction, userPrompt);
-        } catch (zhipuErr47: any) {
-          console.warn('Zhipu AI glm-4.7-flash call failed, trying stable glm-4-flash fallback:', zhipuErr47.message);
-          errorsList.push(`glm-4.7-flash: ${zhipuErr47.message}`);
-          
-          try {
-            rawText = await callZhipu('glm-4-flash', zhipuApiKey, systemInstruction, userPrompt);
-          } catch (zhipuFallbackErr: any) {
-            console.error('Zhipu AI glm-4-flash fallback also failed:', zhipuFallbackErr.message);
-            errorsList.push(`glm-4-flash: ${zhipuFallbackErr.message}`);
-          }
+          rawText = await callZhipu('glm-4-flash', zhipuApiKey, systemInstruction, userPrompt);
+        } catch (zhipuFallbackErr: any) {
+          console.error('Zhipu AI glm-4-flash fallback also failed:', zhipuFallbackErr.message);
+          errorsList.push(`glm-4-flash: ${zhipuFallbackErr.message}`);
         }
       }
     }
