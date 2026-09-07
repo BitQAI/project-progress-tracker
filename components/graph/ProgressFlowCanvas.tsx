@@ -26,6 +26,8 @@ import { GraphFilterState, LayoutDirection } from './types';
 import { safeFetchJson } from '@/lib/fetch-utils';
 import { AiTextParseModal } from '@/components/ai-parse/AiTextParseModal';
 import { CommentDrawer } from '@/components/CommentDrawer';
+import { DbTask } from '@/lib/types';
+import { UncheckTaskModal } from '@/components/UncheckTaskModal';
 
 const nodeTypes = {
   rootNode: RootProgressNode,
@@ -133,14 +135,54 @@ function FlowInner({ initialData, onRefreshData, isLoading = false }: ProgressFl
   }, [isAllExpanded, initialData]);
 
   // 快速勾选/取消任务状态
+  const [uncheckingTask, setUncheckingTask] = useState<DbTask | null>(null);
+
   const handleToggleTask = useCallback(
     async (taskId: string, currentStatus: string) => {
-      const newStatus = currentStatus === 'done' ? 'pending' : 'done';
+      if (currentStatus === 'done') {
+        // 取消勾选必须弹窗提交原因
+        let targetTask: DbTask | null = null;
+        for (const proj of initialData.projects) {
+          const queue = [proj];
+          while (queue.length > 0) {
+            const curr = queue.shift()!;
+            if (curr.tasks) {
+              const found = curr.tasks.find((t: any) => t.id === taskId);
+              if (found) {
+                targetTask = found;
+                break;
+              }
+            }
+            if (curr.children) {
+              queue.push(...curr.children);
+            }
+          }
+          if (targetTask) break;
+        }
+
+        if (!targetTask) {
+          if (selectedNode && selectedNode.type === 'task' && (selectedNode.data as any)?.id === taskId) {
+            targetTask = selectedNode.data as DbTask;
+          } else {
+            targetTask = {
+              id: taskId,
+              name: '未命名任务',
+              owner: '',
+              status: 'done',
+              node_id: '',
+              created_at: '',
+            } as DbTask;
+          }
+        }
+        setUncheckingTask(targetTask);
+        return;
+      }
+
       try {
         const res = await safeFetchJson('/api/tasks', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: taskId, status: newStatus }),
+          body: JSON.stringify({ id: taskId, status: 'done' }),
         });
         if (res.ok && res.data?.ok) {
           onRefreshData?.();
@@ -148,12 +190,43 @@ function FlowInner({ initialData, onRefreshData, isLoading = false }: ProgressFl
           if (selectedNode && selectedNode.type === 'task' && (selectedNode.data as any)?.id === taskId) {
             setSelectedNode((prev: any) => ({
               ...prev,
-              data: { ...prev.data, status: newStatus },
+              data: { ...prev.data, status: 'done' },
             }));
           }
         }
       } catch (err) {
         console.error('Toggle task status error:', err);
+      }
+    },
+    [initialData, onRefreshData, selectedNode]
+  );
+
+  const handleUncheckTaskSuccess = useCallback(
+    async (taskId: string, reason: string) => {
+      try {
+        const res = await safeFetchJson('/api/tasks', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: taskId,
+            status: 'pending',
+            uncheckReason: reason,
+          }),
+        });
+        if (!res.ok) {
+          throw new Error(res.error || '取消任务完成状态失败');
+        }
+        onRefreshData?.();
+        if (selectedNode && selectedNode.type === 'task' && (selectedNode.data as any)?.id === taskId) {
+          setSelectedNode((prev: any) => ({
+            ...prev,
+            data: { ...prev.data, status: 'pending' },
+          }));
+        }
+        setUncheckingTask(null);
+      } catch (err) {
+        console.error('Uncheck task error:', err);
+        throw err;
       }
     },
     [onRefreshData, selectedNode]
@@ -383,6 +456,14 @@ function FlowInner({ initialData, onRefreshData, isLoading = false }: ProgressFl
         subtitle={commentTarget.subtitle}
         nodeId={commentTarget.nodeId}
         taskId={commentTarget.taskId}
+      />
+
+      {/* 取消已完成任务确认与原因提交弹窗 */}
+      <UncheckTaskModal
+        isOpen={!!uncheckingTask}
+        task={uncheckingTask}
+        onClose={() => setUncheckingTask(null)}
+        onSubmitSuccess={handleUncheckTaskSuccess}
       />
 
       {/* 智能 WBS 拆解弹窗 */}

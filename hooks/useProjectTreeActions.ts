@@ -8,6 +8,7 @@ export function useProjectTreeActions(initialTree: NodeTreeNode, onRefresh?: () 
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditingProject, setIsEditingProject] = useState(false);
   const [deliverableTask, setDeliverableTask] = useState<DbTask | null>(null);
+  const [uncheckingTask, setUncheckingTask] = useState<DbTask | null>(null);
 
   const [commentTarget, setCommentTarget] = useState<{
     isOpen: boolean;
@@ -71,16 +72,38 @@ export function useProjectTreeActions(initialTree: NodeTreeNode, onRefresh?: () 
     });
   };
 
-  const handleToggleTaskStatus = async (task: DbTask, newStatus: TaskStatus, customDoneAt?: string) => {
+  const handleToggleTaskStatus = async (task: DbTask, newStatus: TaskStatus, customDoneAt?: string, uncheckReason?: string) => {
     try {
       await safeFetchJson('/api/tasks', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: task.id, status: newStatus, doneAt: customDoneAt }),
+        body: JSON.stringify({ id: task.id, status: newStatus, doneAt: customDoneAt, uncheckReason }),
       });
       reloadTree();
     } catch (err) {
       console.error('Toggle task error:', err);
+    }
+  };
+
+  const handleUncheckTaskSuccess = async (taskId: string, reason: string) => {
+    try {
+      const res = await safeFetchJson('/api/tasks', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: taskId,
+          status: 'pending',
+          uncheckReason: reason,
+        }),
+      });
+      if (!res.ok) {
+        throw new Error(res.error || '取消任务完成状态失败');
+      }
+      setUncheckingTask(null);
+      reloadTree();
+    } catch (err) {
+      console.error('Uncheck task error:', err);
+      throw err;
     }
   };
 
@@ -314,6 +337,8 @@ export function useProjectTreeActions(initialTree: NodeTreeNode, onRefresh?: () 
     setIsEditingProject,
     deliverableTask,
     setDeliverableTask,
+    uncheckingTask,
+    setUncheckingTask,
     commentTarget,
     setCommentTarget,
     confirmDialog,
@@ -322,6 +347,7 @@ export function useProjectTreeActions(initialTree: NodeTreeNode, onRefresh?: () 
     setAiParseModal,
     handleOpenAiParse,
     handleToggleTaskStatus,
+    handleUncheckTaskSuccess,
     handleSubmitDeliverableSuccess,
     handleUpdateTask,
     handleDeleteTask,

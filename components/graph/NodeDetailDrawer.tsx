@@ -259,13 +259,14 @@ export function NodeDetailDrawer({
                           <button
                             type="button"
                             onClick={() => onToggleTask(t.id, t.status)}
+                            title={t.status === 'done' ? '点击取消完成（需提交原因说明）' : '点击勾选完成'}
                             className={`text-[11px] font-medium px-1.5 py-0.5 rounded transition-colors ${
                               t.status === 'done'
-                                ? 'bg-emerald-50 text-emerald-700'
+                                ? 'bg-emerald-50 text-emerald-700 hover:bg-amber-50 hover:text-amber-800'
                                 : 'bg-zinc-200 text-zinc-700 hover:bg-zinc-300'
                             }`}
                           >
-                            {t.status === 'done' ? '已完成' : '勾选完成'}
+                            {t.status === 'done' ? '已完成 (可取消)' : '勾选完成'}
                           </button>
                         </div>
                       ))}
@@ -350,7 +351,7 @@ export function NodeDetailDrawer({
                   }`}
                 >
                   <CheckCircle2 className="h-3.5 w-3.5" />
-                  <span>{(data as DbTask).status === 'done' ? '标记为待办' : '极简勾选完成'}</span>
+                  <span>{(data as DbTask).status === 'done' ? '取消完成（需提交原因）' : '极简勾选完成'}</span>
                 </button>
               </div>
             )}

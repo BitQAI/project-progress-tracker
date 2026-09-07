@@ -193,11 +193,13 @@ export async function toggleTaskStatus(
   status: TaskStatus,
   deliverableSubmission?: string,
   customDoneAt?: string,
-  deliverableAttachments?: FileAttachment[]
+  deliverableAttachments?: FileAttachment[],
+  uncheckReason?: string
 ): Promise<void> {
   const db = getDb();
   const task = db.tasks.find((t) => t.id === taskId);
   if (task) {
+    const wasDone = task.status === 'done';
     task.status = status;
     const now = normalizeDoneAtTimestamp(customDoneAt);
     const { projectId } = findRootProjectIdByTask(db, taskId);
@@ -303,15 +305,32 @@ export async function toggleTaskStatus(
         `+ 任务状态: pending (重置为未完成)`,
         `- 实际完成日: 清除`,
       ];
+      if (uncheckReason && uncheckReason.trim()) {
+        diffLines.push(`+ 取消完成原因说明: ${uncheckReason.trim()}`);
+      }
+
       recordActivity(db, {
         project_id: rootId,
         node_id: task.node_id,
         task_id: task.id,
         type: 'task_updated',
-        title: `${task.owner} 重新将任务「${task.name}」标记为未完成`,
+        title: `${task.owner} 取消了任务「${task.name}」的完成状态并重置为待办`,
         detail: diffLines.join('\n'),
         author: task.owner,
       });
+
+      // 如果此前为已完成状态，自动写入一条证据链评论进行留档备查
+      if (wasDone && uncheckReason && uncheckReason.trim()) {
+        db.comments.push({
+          id: generateId('cmt'),
+          node_id: null,
+          task_id: task.id,
+          parent_id: null,
+          author: task.owner || '负责人',
+          content: `【取消完成归档】\n取消原因说明：${uncheckReason.trim()}\n- 原完成时间已清除，任务状态重置为待办`,
+          created_at: new Date().toISOString(),
+        });
+      }
     }
     await persistDb();
   }

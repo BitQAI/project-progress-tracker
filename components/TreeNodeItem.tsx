@@ -29,6 +29,7 @@ interface TreeNodeItemProps {
   hideCompleted?: boolean;
   onToggleTaskStatus: (task: DbTask, newStatus: 'pending' | 'done', customDoneAt?: string) => void;
   onRequestSubmitDeliverable: (task: DbTask) => void;
+  onRequestUncheckTask?: (task: DbTask) => void;
   onUpdateTask: (task: DbTask, changeReason?: string) => void;
   onDeleteTask: (taskId: string, taskName?: string) => void;
   onAddSubNode: (
@@ -78,6 +79,7 @@ export function TreeNodeItem({
   hideCompleted = false,
   onToggleTaskStatus,
   onRequestSubmitDeliverable,
+  onRequestUncheckTask,
   onUpdateTask,
   onDeleteTask,
   onAddSubNode,
@@ -487,6 +489,7 @@ export function TreeNodeItem({
                           subtasks={subtasks}
                           onToggleStatus={onToggleTaskStatus}
                           onRequestSubmitDeliverable={onRequestSubmitDeliverable}
+                          onRequestUncheckTask={onRequestUncheckTask}
                           onUpdateTask={onUpdateTask}
                           onDeleteTask={onDeleteTask}
                           onOpenComments={onOpenTaskComments}
@@ -519,6 +522,7 @@ export function TreeNodeItem({
                   hideCompleted={hideCompleted}
                   onToggleTaskStatus={onToggleTaskStatus}
                   onRequestSubmitDeliverable={onRequestSubmitDeliverable}
+                  onRequestUncheckTask={onRequestUncheckTask}
                   onUpdateTask={onUpdateTask}
                   onDeleteTask={onDeleteTask}
                   onAddSubNode={onAddSubNode}

@@ -96,7 +96,7 @@ export async function getProjectTree(projectId: string): Promise<NodeTreeNode | 
   const taskIds = new Set(tasks.map((t) => t.id));
 
   const tree = buildNodeTreeRecursively(db, rootNode, todayStr);
-  tree.recentActivities = getProjectRecentActivities(db, projectId, subtreeIds, taskIds, 1000);
+  tree.recentActivities = getProjectRecentActivities(db, projectId, subtreeIds, taskIds, 50);
   return tree;
 }
 
@@ -115,8 +115,8 @@ function getProjectRecentActivities(
   const isImage = (url?: string | null) => {
     if (!url) return false;
     return (
-      url.startsWith('http') &&
-      (!!url.match(/\.(jpeg|jpg|gif|png|webp)($|\?)/i) || url.includes('files.bitqai.com/protrack/'))
+      (url.startsWith('http') || url.startsWith('/uploads/') || url.startsWith('data:image/')) &&
+      (!!url.match(/\.(jpeg|jpg|gif|png|webp|svg)($|\?)/i) || url.includes('files.bitqai.com/protrack/') || url.startsWith('data:image/'))
     );
   };
 

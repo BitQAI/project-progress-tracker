@@ -32,6 +32,7 @@ interface TaskItemProps {
   subtasks?: DbTask[];
   onToggleStatus: (task: DbTask, newStatus: 'pending' | 'done', customDoneAt?: string) => void;
   onRequestSubmitDeliverable: (task: DbTask) => void;
+  onRequestUncheckTask?: (task: DbTask) => void;
   onUpdateTask: (task: DbTask, changeReason?: string) => void;
   onDeleteTask: (taskId: string, taskName?: string) => void;
   onOpenComments: (task: DbTask) => void;
@@ -61,6 +62,7 @@ export function TaskItem({
   subtasks = [],
   onToggleStatus,
   onRequestSubmitDeliverable,
+  onRequestUncheckTask,
   onUpdateTask,
   onDeleteTask,
   onOpenComments,
@@ -125,7 +127,11 @@ export function TaskItem({
 
   const handleCheckboxClick = () => {
     if (isDone) {
-      onToggleStatus(task, 'pending');
+      if (onRequestUncheckTask) {
+        onRequestUncheckTask(task);
+      } else {
+        onToggleStatus(task, 'pending');
+      }
     } else {
       onRequestSubmitDeliverable(task);
     }
@@ -173,7 +179,7 @@ export function TaskItem({
             }`}
             title={
               isDone
-                ? '已完成 (点击重置为未完成)'
+                ? '已完成 (点击弹窗提交原因说明以取消完成)'
                 : task.has_deliverable
                 ? '点击提交交付件并完成任务'
                 : '点击勾选完成'
@@ -457,6 +463,7 @@ export function TaskItem({
                   subtasks={[]}
                   onToggleStatus={onToggleStatus}
                   onRequestSubmitDeliverable={onRequestSubmitDeliverable}
+                  onRequestUncheckTask={onRequestUncheckTask}
                   onUpdateTask={onUpdateTask}
                   onDeleteTask={onDeleteTask}
                   onOpenComments={onOpenComments}

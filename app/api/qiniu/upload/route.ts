@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import qiniu from 'qiniu';
+import fs from 'fs';
+import path from 'path';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -73,7 +75,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3. 构造唯一的七牛 Key (文件名) - 放在 protrack/ 文件夹下面
+    // 3. 构造唯一的 Key (文件名)
     const finalExt = fileExt || (detectedType === 'image' ? 'jpg' : detectedType === 'md' ? 'md' : detectedType === 'html' ? 'html' : 'pdf');
     const randId = Math.random().toString(36).substring(2, 7);
     const key = `protrack/att_${detectedType}_${Date.now()}_${randId}.${finalExt}`;
@@ -82,7 +84,7 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // 5. 尝试上传到七牛云 (若未配置或云端网络不可达，自动启用内联数据容灾，保证预览与存储正常)
+    // 5. 尝试上传到七牛云 (若未配置或云端网络不可达，自动保存到本地 /public/uploads/ 目录，保证秒级返回与即时预览)
     let fileUrl = '';
     let isFallback = false;
 
@@ -100,7 +102,7 @@ export async function POST(req: NextRequest) {
         const formUploader = new qiniu.form_up.FormUploader(config);
         const putExtra = new qiniu.form_up.PutExtra();
 
-        // 6秒超时保护
+        // 3秒超时保护
         await Promise.race([
           new Promise<{ key: string; hash: string }>((resolve, reject) => {
             formUploader.put(uploadToken, key, buffer, putExtra, (respErr, respBody, respInfo) => {
@@ -113,13 +115,13 @@ export async function POST(req: NextRequest) {
               }
             });
           }),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('七牛上传网络响应超时')), 6000)),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('七牛上传网络响应超时')), 3000)),
         ]);
 
         fileUrl = `https://${domain}/${key}`;
         console.log(`[Qiniu SDK] 附件成功上传至七牛云: ${fileUrl}`);
       } catch (uploadErr) {
-        console.warn('[Qiniu SDK] 七牛云上传遇到异常或网络超时，启用本地数据容灾支持:', uploadErr);
+        console.warn('[Qiniu SDK] 七牛云上传超时或异常，启用本地文件系统持久化存储:', uploadErr);
         isFallback = true;
       }
     } else {
@@ -127,10 +129,22 @@ export async function POST(req: NextRequest) {
     }
 
     if (isFallback || !fileUrl) {
-      const actualMime = mimeType || (detectedType === 'image' ? 'image/png' : detectedType === 'md' ? 'text/markdown' : detectedType === 'html' ? 'text/html' : 'application/pdf');
-      const base64Str = buffer.toString('base64');
-      fileUrl = `data:${actualMime};base64,${base64Str}`;
-      console.log(`[Qiniu SDK] 已通过 DataURL 存储并支持即时在线预览 (${detectedType}, ${file.size} 字节)`);
+      try {
+        const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+        if (!fs.existsSync(uploadsDir)) {
+          fs.mkdirSync(uploadsDir, { recursive: true });
+        }
+        const localFilename = `att_${detectedType}_${Date.now()}_${randId}.${finalExt}`;
+        const localFilePath = path.join(uploadsDir, localFilename);
+        fs.writeFileSync(localFilePath, buffer);
+        fileUrl = `/uploads/${localFilename}`;
+        console.log(`[Upload] 已保存在本地持久化存储: ${fileUrl} (${file.size} 字节)`);
+      } catch (localSaveErr) {
+        console.warn('[Upload] 本地保存失败，使用轻量 DataURL 兜底:', localSaveErr);
+        const actualMime = mimeType || (detectedType === 'image' ? 'image/png' : detectedType === 'md' ? 'text/markdown' : detectedType === 'html' ? 'text/html' : 'application/pdf');
+        const base64Str = buffer.toString('base64');
+        fileUrl = `data:${actualMime};base64,${base64Str}`;
+      }
     }
 
     return NextResponse.json({
@@ -143,7 +157,7 @@ export async function POST(req: NextRequest) {
       isFallback,
     });
   } catch (error: any) {
-    console.error('[Qiniu SDK] 上传接口出现异常:', error);
+    console.error('[Upload] 上传接口出现异常:', error);
     return NextResponse.json({ ok: false, error: error.message || '服务端异常' }, { status: 500 });
   }
 }

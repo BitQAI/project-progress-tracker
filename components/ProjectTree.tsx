@@ -12,6 +12,7 @@ import { ProjectHeader } from './ProjectHeader';
 import { EditProjectModal } from './EditProjectModal';
 import { GanttChart } from './gantt/GanttChart';
 import { AiTextParseModal } from './ai-parse/AiTextParseModal';
+import { UncheckTaskModal } from './UncheckTaskModal';
 import { useProjectTreeActions } from '@/hooks/useProjectTreeActions';
 import { ListTree, CalendarRange } from 'lucide-react';
 
@@ -33,6 +34,8 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
     setIsEditingProject,
     deliverableTask,
     setDeliverableTask,
+    uncheckingTask,
+    setUncheckingTask,
     commentTarget,
     setCommentTarget,
     confirmDialog,
@@ -41,6 +44,7 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
     setAiParseModal,
     handleOpenAiParse,
     handleToggleTaskStatus,
+    handleUncheckTaskSuccess,
     handleSubmitDeliverableSuccess,
     handleUpdateTask,
     handleDeleteTask,
@@ -136,6 +140,7 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
             hideCompleted={hideCompleted}
             onToggleTaskStatus={handleToggleTaskStatus}
             onRequestSubmitDeliverable={(t) => setDeliverableTask(t)}
+            onRequestUncheckTask={(t) => setUncheckingTask(t)}
             onUpdateTask={handleUpdateTask}
             onDeleteTask={handleDeleteTask}
             onAddSubNode={handleAddSubNode}
@@ -207,6 +212,14 @@ export function ProjectTree({ initialTree, onRefresh }: ProjectTreeProps) {
         task={deliverableTask}
         onClose={() => setDeliverableTask(null)}
         onSubmitSuccess={handleSubmitDeliverableSuccess}
+      />
+
+      {/* 取消已完成任务确认与原因提交弹窗 */}
+      <UncheckTaskModal
+        isOpen={!!uncheckingTask}
+        task={uncheckingTask}
+        onClose={() => setUncheckingTask(null)}
+        onSubmitSuccess={handleUncheckTaskSuccess}
       />
 
       {/* 评论抽屉 */}

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { addTask, updateTask, toggleTaskStatus, deleteTask } from '@/lib/mutations';
 import { TaskStatus } from '@/lib/types';
-import { ensureDbLoaded } from '@/lib/db';
+import { ensureDbLoaded, getDb } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
   try {
@@ -89,11 +89,27 @@ export async function PATCH(req: NextRequest) {
   try {
     await ensureDbLoaded();
     const body = await req.json();
-    const { id, status, deliverableSubmission, doneAt, deliverableAttachments } = body;
+    const { id, status, deliverableSubmission, doneAt, deliverableAttachments, uncheckReason } = body;
     if (!id || !status || !['pending', 'done'].includes(status)) {
       return NextResponse.json({ ok: false, error: '任务ID与状态参数无效' }, { status: 400 });
     }
-    await toggleTaskStatus(id, status as TaskStatus, deliverableSubmission, doneAt, deliverableAttachments);
+
+    const db = getDb();
+    const existingTask = db.tasks.find((t) => t.id === id);
+    if (existingTask && existingTask.status === 'done' && status === 'pending') {
+      if (!uncheckReason || !uncheckReason.trim()) {
+        return NextResponse.json({ ok: false, error: '取消已完成任务必须提交原因说明' }, { status: 400 });
+      }
+    }
+
+    await toggleTaskStatus(
+      id,
+      status as TaskStatus,
+      deliverableSubmission,
+      doneAt,
+      deliverableAttachments,
+      uncheckReason?.trim()
+    );
     return NextResponse.json({ ok: true });
   } catch (error: any) {
     console.error('Toggle task status error:', error);

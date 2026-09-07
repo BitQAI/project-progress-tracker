@@ -18,7 +18,7 @@ export async function safeFetchJson<T = any>(
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20000); // 20秒超时保护
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30秒超时保护
 
     try {
       const res = await fetch(input, {
@@ -115,7 +115,7 @@ export async function safeFetchText(
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20000);
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30秒超时保护
 
     try {
       const res = await fetch(input, {
