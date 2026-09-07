@@ -102,8 +102,9 @@ export function TaskEditForm({ task, onSave, onCancel }: TaskEditFormProps) {
           placeholder="任务名称"
         />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-        <div>
+      {/* 负责人、截止日期、预估周期 放一行 */}
+      <div className="flex flex-wrap items-end gap-2.5">
+        <div className="w-28 sm:w-32 shrink-0">
           <label className="block text-[11px] font-semibold text-zinc-500 mb-1">
             负责人 <span className="text-red-500">*</span>
           </label>
@@ -112,10 +113,10 @@ export function TaskEditForm({ task, onSave, onCancel }: TaskEditFormProps) {
             required
             value={owner}
             onChange={(e) => setOwner(e.target.value)}
-            className="w-full rounded-md border border-zinc-300 bg-white px-2.5 py-1 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full h-8 rounded-md border border-zinc-300 bg-white px-2.5 py-1 text-xs text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
-        <div>
+        <div className="w-36 sm:w-38 shrink-0">
           <label className="block text-[11px] font-semibold text-zinc-500 mb-1">
             计划截止日
           </label>
@@ -123,20 +124,19 @@ export function TaskEditForm({ task, onSave, onCancel }: TaskEditFormProps) {
             type="date"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
-            className="w-full rounded-md border border-zinc-300 bg-white px-2.5 py-1 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full h-8 rounded-md border border-zinc-300 bg-white px-2 py-1 text-xs text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
-      </div>
-
-      <div>
-        <label className="block text-[11px] font-semibold text-zinc-500 mb-1">
-          预估周期（选时间，支持半数如2.5天）
-        </label>
-        <DurationPicker
-          value={estimatedDuration}
-          onChange={setEstimatedDuration}
-          idPrefix={`task-edit-${task.id}`}
-        />
+        <div className="flex-1 min-w-[270px]">
+          <label className="block text-[11px] font-semibold text-zinc-500 mb-1">
+            预估周期
+          </label>
+          <DurationPicker
+            value={estimatedDuration}
+            onChange={setEstimatedDuration}
+            idPrefix={`task-edit-${task.id}`}
+          />
+        </div>
       </div>
 
       {/* 状态与实际完成时间设置 */}

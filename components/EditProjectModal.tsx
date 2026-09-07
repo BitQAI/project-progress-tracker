@@ -88,25 +88,15 @@ export function EditProjectModal({
           </button>
         </div>
         <div className="space-y-3">
-          <div>
-            <label className="block font-semibold text-zinc-700 mb-1">项目名称 *</label>
-            <input
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-lg border border-zinc-300 p-2 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900"
-            />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block font-semibold text-zinc-700 mb-1">项目负责人 *</label>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="sm:col-span-2">
+              <label className="block font-semibold text-zinc-700 mb-1">项目名称 *</label>
               <input
                 type="text"
                 required
-                value={owner}
-                onChange={(e) => setOwner(e.target.value)}
-                className="w-full rounded-lg border border-zinc-300 p-2 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full rounded-lg border border-zinc-300 p-2 text-xs text-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900"
               />
             </div>
             <div>
@@ -114,7 +104,7 @@ export function EditProjectModal({
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as ProjectPriority)}
-                className="w-full rounded-lg border border-zinc-300 p-2 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900 bg-white"
+                className="w-full rounded-lg border border-zinc-300 p-2 text-xs text-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900 bg-white"
               >
                 <option value="P0">P0 - 紧急且核心</option>
                 <option value="P1">P1 - 高优先级</option>
@@ -122,23 +112,37 @@ export function EditProjectModal({
                 <option value="P3">P3 - 低优先级</option>
               </select>
             </div>
-            <div>
+          </div>
+
+          {/* 负责人、截止日期、预估周期 放一行 */}
+          <div className="flex flex-wrap items-end gap-2.5">
+            <div className="w-28 sm:w-32 shrink-0">
+              <label className="block font-semibold text-zinc-700 mb-1">项目负责人 *</label>
+              <input
+                type="text"
+                required
+                value={owner}
+                onChange={(e) => setOwner(e.target.value)}
+                className="w-full h-8 rounded-md border border-zinc-300 bg-white px-2.5 py-1 text-xs text-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900"
+              />
+            </div>
+            <div className="w-36 sm:w-38 shrink-0">
               <label className="block font-semibold text-zinc-700 mb-1">计划截止日</label>
               <input
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className="w-full rounded-lg border border-zinc-300 p-2 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900 bg-white"
+                className="w-full h-8 rounded-md border border-zinc-300 bg-white px-2 py-1 text-xs text-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900"
               />
             </div>
-          </div>
-          <div>
-            <label className="block font-semibold text-zinc-700 mb-1">预估交付周期（选时间，支持半数如2.5天）</label>
-            <DurationPicker
-              value={duration}
-              onChange={setDuration}
-              idPrefix="edit-project-duration"
-            />
+            <div className="flex-1 min-w-[270px]">
+              <label className="block font-semibold text-zinc-700 mb-1">预估交付周期</label>
+              <DurationPicker
+                value={duration}
+                onChange={setDuration}
+                idPrefix="edit-project-duration"
+              />
+            </div>
           </div>
           <div>
             <label className="block font-semibold text-zinc-700 mb-1">项目描述与背景前情</label>

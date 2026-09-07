@@ -184,7 +184,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
 
           <div>
             <label className="block text-xs font-medium uppercase tracking-wider text-zinc-700 mb-1">
-              预估周期（选时间，支持半数如2.5天）
+              预估周期
             </label>
             <DurationPicker
               value={estimatedDuration}

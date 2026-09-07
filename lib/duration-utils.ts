@@ -6,7 +6,7 @@
 export type DurationUnit = '天' | '周' | '个月';
 
 export const DURATION_UNITS: { label: string; value: DurationUnit }[] = [
-  { label: '天 (日)', value: '天' },
+  { label: '天', value: '天' },
   { label: '周', value: '周' },
   { label: '个月', value: '个月' },
 ];
@@ -14,12 +14,8 @@ export const DURATION_UNITS: { label: string; value: DurationUnit }[] = [
 export const DURATION_PRESETS = [
   '0.5天',
   '1天',
-  '2天',
-  '2.5天',
-  '3天',
   '1周',
   '1.5周',
-  '2周',
   '1个月',
 ];
 

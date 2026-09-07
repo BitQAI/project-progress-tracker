@@ -73,8 +73,9 @@ export function AddTaskForm({
         onChange={(e) => setTaskName(e.target.value)}
         className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium"
       />
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-        <div>
+      {/* 负责人、截止日期、预估周期 放一行 */}
+      <div className="flex flex-wrap items-end gap-2.5">
+        <div className="w-28 sm:w-32 shrink-0">
           <label className="block text-[11px] font-semibold text-zinc-500 mb-1">
             负责人 <span className="text-red-500">*</span>
           </label>
@@ -83,10 +84,10 @@ export function AddTaskForm({
             required
             value={taskOwner}
             onChange={(e) => setTaskOwner(e.target.value)}
-            className="w-full rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full h-8 rounded-md border border-zinc-200 bg-white px-2.5 py-1 text-xs text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
-        <div>
+        <div className="w-36 sm:w-38 shrink-0">
           <label className="block text-[11px] font-semibold text-zinc-500 mb-1">
             截止日期
           </label>
@@ -94,19 +95,19 @@ export function AddTaskForm({
             type="date"
             value={taskDueDate}
             onChange={(e) => setTaskDueDate(e.target.value)}
-            className="w-full rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full h-8 rounded-md border border-zinc-200 bg-white px-2 py-1 text-xs text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
-      </div>
-      <div>
-        <label className="block text-[11px] font-semibold text-zinc-500 mb-1">
-          预估周期（选时间，支持半数如2.5天）
-        </label>
-        <DurationPicker
-          value={taskEstimatedDuration}
-          onChange={setTaskEstimatedDuration}
-          idPrefix={`add-task-${nodeName}`}
-        />
+        <div className="flex-1 min-w-[270px]">
+          <label className="block text-[11px] font-semibold text-zinc-500 mb-1">
+            预估周期
+          </label>
+          <DurationPicker
+            value={taskEstimatedDuration}
+            onChange={setTaskEstimatedDuration}
+            idPrefix={`add-task-${nodeName}`}
+          />
+        </div>
       </div>
 
       {/* 交付件选项与有序表格编辑器 */}
@@ -187,19 +188,21 @@ export function AddSubNodeForm({
         <span className="text-[11px] text-emerald-700 font-normal">多字段清晰平铺展开</span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-        <div className="sm:col-span-2">
-          <label className="block text-[11px] font-medium text-zinc-600 mb-1">分组/模块名称 <span className="text-red-500">*</span></label>
-          <input
-            type="text"
-            required
-            placeholder="如：智能 RAG 向量知识库 / 核心业务 API"
-            value={subNodeName}
-            onChange={(e) => setSubNodeName(e.target.value)}
-            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500"
-          />
-        </div>
-        <div>
+      <div>
+        <label className="block text-[11px] font-medium text-zinc-600 mb-1">分组/模块名称 <span className="text-red-500">*</span></label>
+        <input
+          type="text"
+          required
+          placeholder="如：智能 RAG 向量知识库 / 核心业务 API"
+          value={subNodeName}
+          onChange={(e) => setSubNodeName(e.target.value)}
+          className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500"
+        />
+      </div>
+
+      {/* 负责人、截止日期、预估周期 放一行 */}
+      <div className="flex flex-wrap items-end gap-2.5">
+        <div className="w-28 sm:w-32 shrink-0">
           <label className="block text-[11px] font-medium text-zinc-600 mb-1">负责人 <span className="text-red-500">*</span></label>
           <input
             type="text"
@@ -207,28 +210,26 @@ export function AddSubNodeForm({
             placeholder="负责人姓名"
             value={subNodeOwner}
             onChange={(e) => setSubNodeOwner(e.target.value)}
-            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            className="w-full h-8 rounded-md border border-zinc-200 bg-white px-2.5 py-1 text-xs text-zinc-900 focus:outline-none focus:ring-1 focus:ring-emerald-500"
           />
         </div>
-      </div>
-
-      <div>
-        <label className="block text-[11px] font-medium text-zinc-600 mb-1">预估完成时间 (计划截止日)</label>
-        <input
-          type="date"
-          value={subNodeDueDate}
-          onChange={(e) => setSubNodeDueDate(e.target.value)}
-          className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-        />
-      </div>
-
-      <div>
-        <label className="block text-[11px] font-medium text-zinc-600 mb-1">预估周期（选时间，支持半数如2.5天）</label>
-        <DurationPicker
-          value={subNodeDuration}
-          onChange={setSubNodeDuration}
-          idPrefix="add-subnode"
-        />
+        <div className="w-36 sm:w-38 shrink-0">
+          <label className="block text-[11px] font-medium text-zinc-600 mb-1">计划截止日</label>
+          <input
+            type="date"
+            value={subNodeDueDate}
+            onChange={(e) => setSubNodeDueDate(e.target.value)}
+            className="w-full h-8 rounded-md border border-zinc-200 bg-white px-2 py-1 text-xs text-zinc-900 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          />
+        </div>
+        <div className="flex-1 min-w-[270px]">
+          <label className="block text-[11px] font-medium text-zinc-600 mb-1">预估周期</label>
+          <DurationPicker
+            value={subNodeDuration}
+            onChange={setSubNodeDuration}
+            idPrefix="add-subnode"
+          />
+        </div>
       </div>
 
       <div>
@@ -315,19 +316,21 @@ export function EditSubNodeForm({
         <span className="text-[11px] text-blue-700 font-normal">多字段清晰平铺展开</span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-        <div className="sm:col-span-2">
-          <label className="block text-[11px] font-medium text-zinc-600 mb-1">分组/模块名称 <span className="text-red-500">*</span></label>
-          <input
-            type="text"
-            required
-            placeholder="分组/模块名称"
-            value={subNodeName}
-            onChange={(e) => setSubNodeName(e.target.value)}
-            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 font-medium focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-        </div>
-        <div>
+      <div>
+        <label className="block text-[11px] font-medium text-zinc-600 mb-1">分组/模块名称 <span className="text-red-500">*</span></label>
+        <input
+          type="text"
+          required
+          placeholder="分组/模块名称"
+          value={subNodeName}
+          onChange={(e) => setSubNodeName(e.target.value)}
+          className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 font-medium focus:outline-none focus:ring-1 focus:ring-blue-500"
+        />
+      </div>
+
+      {/* 负责人、截止日期、预估周期 放一行 */}
+      <div className="flex flex-wrap items-end gap-2.5">
+        <div className="w-28 sm:w-32 shrink-0">
           <label className="block text-[11px] font-medium text-zinc-600 mb-1">负责人 <span className="text-red-500">*</span></label>
           <input
             type="text"
@@ -335,28 +338,26 @@ export function EditSubNodeForm({
             placeholder="负责人姓名"
             value={subNodeOwner}
             onChange={(e) => setSubNodeOwner(e.target.value)}
-            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full h-8 rounded-md border border-zinc-200 bg-white px-2.5 py-1 text-xs text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
-      </div>
-
-      <div>
-        <label className="block text-[11px] font-medium text-zinc-600 mb-1">预估完成时间 (计划截止日)</label>
-        <input
-          type="date"
-          value={subNodeDueDate}
-          onChange={(e) => setSubNodeDueDate(e.target.value)}
-          className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
-        />
-      </div>
-
-      <div>
-        <label className="block text-[11px] font-medium text-zinc-600 mb-1">预估周期（选时间，支持半数如2.5天）</label>
-        <DurationPicker
-          value={subNodeDuration}
-          onChange={setSubNodeDuration}
-          idPrefix="edit-subnode"
-        />
+        <div className="w-36 sm:w-38 shrink-0">
+          <label className="block text-[11px] font-medium text-zinc-600 mb-1">计划截止日</label>
+          <input
+            type="date"
+            value={subNodeDueDate}
+            onChange={(e) => setSubNodeDueDate(e.target.value)}
+            className="w-full h-8 rounded-md border border-zinc-200 bg-white px-2 py-1 text-xs text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
+        </div>
+        <div className="flex-1 min-w-[270px]">
+          <label className="block text-[11px] font-medium text-zinc-600 mb-1">预估周期</label>
+          <DurationPicker
+            value={subNodeDuration}
+            onChange={setSubNodeDuration}
+            idPrefix="edit-subnode"
+          />
+        </div>
       </div>
 
       <div>

@@ -100,29 +100,31 @@ function QuickScheduleForm({ task, onClose, onSave }: ScheduleFormProps) {
         </div>
       </div>
 
-      {/* 自定义截止日期与周期 */}
-      <div>
-        <label className="block text-xs font-semibold text-zinc-700 mb-1">
-          计划截止日期 <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="date"
-          required
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-          className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900 shadow-2xs focus:border-blue-500 focus:outline-hidden"
-        />
-      </div>
+      {/* 自定义截止日期与周期 放一行 */}
+      <div className="flex flex-wrap items-end gap-2.5">
+        <div className="w-36 sm:w-40 shrink-0">
+          <label className="block text-xs font-semibold text-zinc-700 mb-1">
+            计划截止日期 <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="date"
+            required
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            className="w-full h-8 rounded-md border border-zinc-300 bg-white px-2 py-1 text-xs text-zinc-900 shadow-2xs focus:border-blue-500 focus:outline-hidden"
+          />
+        </div>
 
-      <div>
-        <label className="block text-xs font-semibold text-zinc-700 mb-1">
-          预估工期（选时间，支持半数如2.5天）
-        </label>
-        <DurationPicker
-          value={duration}
-          onChange={setDuration}
-          idPrefix={`quick-schedule-${task.id}`}
-        />
+        <div className="flex-1 min-w-[270px]">
+          <label className="block text-xs font-semibold text-zinc-700 mb-1">
+            预估工期
+          </label>
+          <DurationPicker
+            value={duration}
+            onChange={setDuration}
+            idPrefix={`quick-schedule-${task.id}`}
+          />
+        </div>
       </div>
 
       <div className="flex items-center justify-end gap-2 border-t border-zinc-150 pt-3">
