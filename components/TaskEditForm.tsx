@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { DbTask, DeliverableItem } from '@/lib/types';
 import { DeliverableTableEditor, parseDeliverablesFromInput, formatDeliverablesToText } from './DeliverableTableEditor';
 import { getTodayBeijingString } from '@/lib/date-utils';
+import { DurationPicker } from '@/components/common/DurationPicker';
 import { Clock } from 'lucide-react';
 
 interface TaskEditFormProps {
@@ -101,7 +102,7 @@ export function TaskEditForm({ task, onSave, onCancel }: TaskEditFormProps) {
           placeholder="任务名称"
         />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         <div>
           <label className="block text-[11px] font-semibold text-zinc-500 mb-1">
             负责人 <span className="text-red-500">*</span>
@@ -125,18 +126,17 @@ export function TaskEditForm({ task, onSave, onCancel }: TaskEditFormProps) {
             className="w-full rounded-md border border-zinc-300 bg-white px-2.5 py-1 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
-        <div>
-          <label className="block text-[11px] font-semibold text-zinc-500 mb-1">
-            预估周期
-          </label>
-          <input
-            type="text"
-            value={estimatedDuration}
-            onChange={(e) => setEstimatedDuration(e.target.value)}
-            placeholder="如: 3天 / 1周"
-            className="w-full rounded-md border border-zinc-300 bg-white px-2.5 py-1 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-        </div>
+      </div>
+
+      <div>
+        <label className="block text-[11px] font-semibold text-zinc-500 mb-1">
+          预估周期（选时间，支持半数如2.5天）
+        </label>
+        <DurationPicker
+          value={estimatedDuration}
+          onChange={setEstimatedDuration}
+          idPrefix={`task-edit-${task.id}`}
+        />
       </div>
 
       {/* 状态与实际完成时间设置 */}

@@ -12,6 +12,7 @@ import {
   AppDatabase,
 } from './types';
 import { getInitialDatabase } from './db-seed';
+import { inferAndNormalizeDuration } from './duration-utils';
 
 export { getInitialDatabase };
 export type { AppDatabase };
@@ -98,6 +99,30 @@ export function getDb(): AppDatabase {
             task.parent_id = match[1];
             hasRepaired = true;
           }
+        }
+      }
+    }
+  }
+
+  // 自动化存量周期规范化机制：将 "1", "3-4天", "36人天" 等推断并转换为标准格式
+  if (inMemoryDb.tasks && inMemoryDb.tasks.length > 0) {
+    for (const task of inMemoryDb.tasks) {
+      if (task.estimated_duration) {
+        const norm = inferAndNormalizeDuration(task.estimated_duration);
+        if (norm && norm !== task.estimated_duration) {
+          task.estimated_duration = norm;
+          hasRepaired = true;
+        }
+      }
+    }
+  }
+  if (inMemoryDb.nodes && inMemoryDb.nodes.length > 0) {
+    for (const node of inMemoryDb.nodes) {
+      if (node.estimated_duration) {
+        const norm = inferAndNormalizeDuration(node.estimated_duration);
+        if (norm && norm !== node.estimated_duration) {
+          node.estimated_duration = norm;
+          hasRepaired = true;
         }
       }
     }
@@ -599,6 +624,30 @@ async function loadDataFromSupabase(): Promise<AppDatabase> {
                   if (match && match[1]) {
                     task.parent_id = match[1];
                   }
+                }
+              }
+            });
+          }
+
+          // 存量周期数据推断与规范化转换 (例如 "1" -> "1天", "3-4天" -> "3.5天", "36人天" -> "36天")
+          if (inMemoryDb.tasks && inMemoryDb.tasks.length > 0) {
+            inMemoryDb.tasks.forEach((task) => {
+              if (task.estimated_duration) {
+                const norm = inferAndNormalizeDuration(task.estimated_duration);
+                if (norm && norm !== task.estimated_duration) {
+                  task.estimated_duration = norm;
+                  hasAutoReconciled = true;
+                }
+              }
+            });
+          }
+          if (inMemoryDb.nodes && inMemoryDb.nodes.length > 0) {
+            inMemoryDb.nodes.forEach((node) => {
+              if (node.estimated_duration) {
+                const norm = inferAndNormalizeDuration(node.estimated_duration);
+                if (norm && norm !== node.estimated_duration) {
+                  node.estimated_duration = norm;
+                  hasAutoReconciled = true;
                 }
               }
             });

@@ -253,14 +253,17 @@ export function NodeDetailDrawer({
                           key={t.id}
                           className="flex items-center justify-between gap-2 rounded border border-zinc-100 bg-zinc-50/50 p-2 text-xs"
                         >
-                          <span className={`truncate ${t.status === 'done' ? 'text-zinc-400 line-through' : 'text-zinc-800'}`}>
+                          <span
+                            title={t.name}
+                            className={`break-words flex-1 min-w-0 ${t.status === 'done' ? 'text-zinc-400 line-through' : 'text-zinc-800'}`}
+                          >
                             {t.name}
                           </span>
                           <button
                             type="button"
                             onClick={() => onToggleTask(t.id, t.status)}
                             title={t.status === 'done' ? '点击取消完成（需提交原因说明）' : '点击勾选完成'}
-                            className={`text-[11px] font-medium px-1.5 py-0.5 rounded transition-colors ${
+                            className={`shrink-0 text-[11px] font-medium px-1.5 py-0.5 rounded transition-colors ${
                               t.status === 'done'
                                 ? 'bg-emerald-50 text-emerald-700 hover:bg-amber-50 hover:text-amber-800'
                                 : 'bg-zinc-200 text-zinc-700 hover:bg-zinc-300'

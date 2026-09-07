@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { ProjectPriority } from '@/lib/types';
+import { DurationPicker } from './common/DurationPicker';
 
 interface EditProjectModalProps {
   isOpen: boolean;
@@ -122,16 +123,6 @@ export function EditProjectModal({
               </select>
             </div>
             <div>
-              <label className="block font-semibold text-zinc-700 mb-1">预估交付周期</label>
-              <input
-                type="text"
-                placeholder="如: 8周 / 2026Q4"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-                className="w-full rounded-lg border border-zinc-300 p-2 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900"
-              />
-            </div>
-            <div>
               <label className="block font-semibold text-zinc-700 mb-1">计划截止日</label>
               <input
                 type="date"
@@ -140,6 +131,14 @@ export function EditProjectModal({
                 className="w-full rounded-lg border border-zinc-300 p-2 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900 bg-white"
               />
             </div>
+          </div>
+          <div>
+            <label className="block font-semibold text-zinc-700 mb-1">预估交付周期（选时间，支持半数如2.5天）</label>
+            <DurationPicker
+              value={duration}
+              onChange={setDuration}
+              idPrefix="edit-project-duration"
+            />
           </div>
           <div>
             <label className="block font-semibold text-zinc-700 mb-1">项目描述与背景前情</label>

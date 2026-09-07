@@ -7,6 +7,7 @@ import {
 } from './activity-logger';
 import { TaskStatus, DeliverableItem, FileAttachment } from './types';
 import { normalizeDoneAtTimestamp } from './date-utils';
+import { inferAndNormalizeDuration } from './duration-utils';
 
 function generateId(prefix: string): string {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
@@ -27,6 +28,7 @@ export async function addTask(
   const db = getDb();
   const id = generateId('task');
   const now = new Date().toISOString();
+  const normalizedDuration = inferAndNormalizeDuration(estimatedDuration) || undefined;
   db.tasks.push({
     id,
     node_id: nodeId,
@@ -34,7 +36,7 @@ export async function addTask(
     name,
     owner,
     due_date: dueDate || null,
-    estimated_duration: estimatedDuration?.trim() || undefined,
+    estimated_duration: normalizedDuration,
     status: 'pending',
     has_deliverable: !!hasDeliverable,
     deliverable_requirement: hasDeliverable ? deliverableRequirement?.trim() || '需提供交付物验收说明' : undefined,
@@ -114,7 +116,8 @@ export async function updateTask(
     if (dueDate !== undefined && (task.due_date || null) !== (dueDate || null)) {
       isScheduleChanged = true;
     }
-    if (estimatedDuration !== undefined && (task.estimated_duration || '') !== (estimatedDuration?.trim() || '')) {
+    const normalizedDuration = estimatedDuration !== undefined ? (inferAndNormalizeDuration(estimatedDuration) || undefined) : undefined;
+    if (estimatedDuration !== undefined && (task.estimated_duration || '') !== (normalizedDuration || '')) {
       isScheduleChanged = true;
     }
 
@@ -126,7 +129,7 @@ export async function updateTask(
     task.owner = owner;
     task.due_date = dueDate || null;
     if (estimatedDuration !== undefined) {
-      task.estimated_duration = estimatedDuration?.trim() || undefined;
+      task.estimated_duration = normalizedDuration;
     }
     if (hasDeliverable !== undefined) {
       task.has_deliverable = hasDeliverable;

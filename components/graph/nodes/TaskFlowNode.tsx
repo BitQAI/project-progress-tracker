@@ -27,7 +27,7 @@ export function TaskFlowNode({ data }: NodeProps & { data: TaskNodeData }) {
   return (
     <div
       onClick={() => onSelectNode(task.id, 'task', task)}
-      className={`group relative ${isSubtask ? 'w-[220px]' : 'w-[235px]'} cursor-pointer rounded-lg border bg-white p-2.5 shadow-2xs transition-all hover:shadow-sm ${
+      className={`group relative ${isSubtask ? 'w-[240px]' : 'w-[260px]'} cursor-pointer rounded-lg border bg-white p-2.5 shadow-2xs transition-all hover:shadow-sm ${
         isDone
           ? 'border-emerald-200 bg-emerald-50/30'
           : isOverdue
@@ -72,7 +72,7 @@ export function TaskFlowNode({ data }: NodeProps & { data: TaskNodeData }) {
         {/* 任务主体信息 */}
         <div className="min-w-0 flex-1">
           <p
-            className={`text-xs font-medium leading-snug line-clamp-2 ${
+            className={`text-xs font-medium leading-snug line-clamp-4 break-words ${
               isDone ? 'text-zinc-400 line-through' : 'text-zinc-900'
             }`}
             title={task.name}

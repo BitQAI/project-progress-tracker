@@ -9,6 +9,7 @@ import {
   ProjectStatus,
   ProjectPriority,
 } from './types';
+import { inferAndNormalizeDuration } from './duration-utils';
 
 function generateId(prefix: string): string {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
@@ -24,13 +25,14 @@ export async function createProjectFromScratch(
   const db = getDb();
   const id = generateId('proj');
   const now = new Date().toISOString();
+  const normDuration = inferAndNormalizeDuration(estimatedDuration) || undefined;
   db.nodes.push({
     id,
     parent_id: null,
     name,
     owner,
     description: description?.trim() || undefined,
-    estimated_duration: estimatedDuration?.trim() || undefined,
+    estimated_duration: normDuration,
     order: db.nodes.filter((n) => n.parent_id === null).length + 1,
     status: 'in_progress',
     priority: priority || 'P1',
@@ -41,7 +43,7 @@ export async function createProjectFromScratch(
   detailParts.push(`+ 项目名称: ${name}`);
   detailParts.push(`+ 项目负责人: ${owner}`);
   detailParts.push(`+ 优先级: ${priority || 'P1'}`);
-  if (estimatedDuration?.trim()) detailParts.push(`+ 预估周期: ${estimatedDuration.trim()}`);
+  if (normDuration) detailParts.push(`+ 预估周期: ${normDuration}`);
   if (description?.trim()) detailParts.push(`+ 项目背景: ${description.trim()}`);
 
   recordActivity(db, {
@@ -70,13 +72,14 @@ export async function createProjectFromTemplate(
   const now = new Date().toISOString();
   const defaultDueDate = new Date(Date.now() + 14 * 24 * 3600 * 1000).toISOString().split('T')[0];
 
+  const normDuration = inferAndNormalizeDuration(estimatedDuration) || undefined;
   db.nodes.push({
     id: rootId,
     parent_id: null,
     name,
     owner,
     description: description?.trim() || undefined,
-    estimated_duration: estimatedDuration?.trim() || undefined,
+    estimated_duration: normDuration,
     order: db.nodes.filter((n) => n.parent_id === null).length + 1,
     status: 'in_progress',
     priority: priority || 'P1',
@@ -224,13 +227,14 @@ export async function addNode(
   const now = new Date().toISOString();
   const siblingCount = db.nodes.filter((n) => n.parent_id === parentId).length;
 
+  const normDuration = inferAndNormalizeDuration(estimatedDuration) || undefined;
   db.nodes.push({
     id,
     parent_id: parentId,
     name,
     owner,
     description: description?.trim() || undefined,
-    estimated_duration: estimatedDuration?.trim() || undefined,
+    estimated_duration: normDuration,
     due_date: dueDate?.trim() || undefined,
     order: siblingCount + 1,
     status: 'in_progress',
@@ -243,7 +247,7 @@ export async function addNode(
     `+ 模块分组: ${name}`,
     `+ 负责人: ${owner}`,
   ];
-  if (estimatedDuration?.trim()) detailParts.push(`+ 预估周期: ${estimatedDuration.trim()}`);
+  if (normDuration) detailParts.push(`+ 预估周期: ${normDuration}`);
   if (dueDate?.trim()) detailParts.push(`+ 预估完成时间: ${dueDate.trim()}`);
   if (description?.trim()) detailParts.push(`+ 模块说明: ${description.trim()}`);
   if (parentNode) detailParts.push(`+ 所属父级: ${parentNode.name}`);
@@ -290,7 +294,8 @@ export async function updateNode(
     }
 
     let isScheduleChanged = false;
-    if (estimatedDuration !== undefined && (node.estimated_duration || '') !== (estimatedDuration?.trim() || '')) {
+    const normDuration = estimatedDuration !== undefined ? (inferAndNormalizeDuration(estimatedDuration) || undefined) : undefined;
+    if (estimatedDuration !== undefined && (node.estimated_duration || '') !== (normDuration || '')) {
       isScheduleChanged = true;
     }
     if (dueDate !== undefined && (node.due_date || '') !== (dueDate?.trim() || '')) {
@@ -304,7 +309,7 @@ export async function updateNode(
     node.name = name;
     node.owner = owner;
     if (description !== undefined) node.description = description?.trim() || undefined;
-    if (estimatedDuration !== undefined) node.estimated_duration = estimatedDuration?.trim() || undefined;
+    if (estimatedDuration !== undefined) node.estimated_duration = normDuration;
 
     if (changes.length > 0) {
       const isRoot = node.parent_id === null;

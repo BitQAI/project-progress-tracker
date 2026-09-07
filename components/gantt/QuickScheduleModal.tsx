@@ -5,6 +5,7 @@ import { DbTask } from '@/lib/types';
 import { Calendar, Clock, X, Check, Sparkles } from 'lucide-react';
 import { getTodayBeijingString } from '@/lib/date-utils';
 import { addDays } from './gantt-utils';
+import { DurationPicker } from '@/components/common/DurationPicker';
 
 interface QuickScheduleModalProps {
   task: DbTask | null;
@@ -99,36 +100,29 @@ function QuickScheduleForm({ task, onClose, onSave }: ScheduleFormProps) {
         </div>
       </div>
 
-      {/* 自定义截止日期 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs font-semibold text-zinc-700 mb-1">
-            计划截止日期 <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="date"
-            required
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-            className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900 shadow-2xs focus:border-blue-500 focus:outline-hidden"
-          />
-        </div>
+      {/* 自定义截止日期与周期 */}
+      <div>
+        <label className="block text-xs font-semibold text-zinc-700 mb-1">
+          计划截止日期 <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="date"
+          required
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+          className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900 shadow-2xs focus:border-blue-500 focus:outline-hidden"
+        />
+      </div>
 
-        <div>
-          <label className="block text-xs font-semibold text-zinc-700 mb-1">
-            预估工期 (文本)
-          </label>
-          <div className="relative">
-            <input
-              type="text"
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              placeholder="如: 3天 / 1周"
-              className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900 shadow-2xs focus:border-blue-500 focus:outline-hidden"
-            />
-            <Clock className="absolute right-2.5 top-2.5 h-3.5 w-3.5 text-zinc-400 pointer-events-none" />
-          </div>
-        </div>
+      <div>
+        <label className="block text-xs font-semibold text-zinc-700 mb-1">
+          预估工期（选时间，支持半数如2.5天）
+        </label>
+        <DurationPicker
+          value={duration}
+          onChange={setDuration}
+          idPrefix={`quick-schedule-${task.id}`}
+        />
       </div>
 
       <div className="flex items-center justify-end gap-2 border-t border-zinc-150 pt-3">

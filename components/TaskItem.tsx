@@ -188,9 +188,10 @@ export function TaskItem({
             {isDone ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
           </button>
 
-          {/* 任务名称 */}
+          {/* 任务名称：尽可能完整全部显示，自适应折行 */}
           <span
-            className={`font-medium truncate max-w-[120px] xs:max-w-[180px] sm:max-w-xs ${
+            title={task.name}
+            className={`font-medium break-words leading-snug ${
               isDone ? 'line-through text-zinc-400' : 'text-zinc-800'
             }`}
           >

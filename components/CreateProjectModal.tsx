@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { TemplateWithStages, ProjectPriority } from '@/lib/types';
 import { safeFetchJson } from '@/lib/fetch-utils';
+import { DurationPicker } from './common/DurationPicker';
 import { X, Sparkles, FolderPlus, Layers, Check } from 'lucide-react';
 
 interface CreateProjectModalProps {
@@ -179,19 +180,17 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                 <option value="P3">P3 - 低优先级</option>
               </select>
             </div>
-            <div>
-              <label className="block text-xs font-medium uppercase tracking-wider text-zinc-700">
-                预估周期 (非强约束)
-              </label>
-              <input
-                id="new-project-duration"
-                type="text"
-                placeholder="例如：6周 / 2026Q3"
-                value={estimatedDuration}
-                onChange={(e) => setEstimatedDuration(e.target.value)}
-                className="mt-1.5 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-900 focus:outline-none"
-              />
-            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium uppercase tracking-wider text-zinc-700 mb-1">
+              预估周期（选时间，支持半数如2.5天）
+            </label>
+            <DurationPicker
+              value={estimatedDuration}
+              onChange={setEstimatedDuration}
+              idPrefix="new-project-duration"
+            />
           </div>
 
           <div>

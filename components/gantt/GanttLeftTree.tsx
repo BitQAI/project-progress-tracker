@@ -40,7 +40,7 @@ export function GanttLeftTree({
   onQuickScheduleTask,
 }: GanttLeftTreeProps) {
   return (
-    <div className="w-[340px] sm:w-[380px] shrink-0 border-r border-zinc-200 bg-white select-none">
+    <div className="w-[380px] sm:w-[440px] lg:w-[480px] shrink-0 border-r border-zinc-200 bg-white select-none">
       {/* 列表头部 */}
       <div className="flex h-14 items-center border-b border-zinc-200 bg-zinc-50/90 px-3 text-xs font-bold text-zinc-700">
         <div className="flex-1 truncate pl-2">WBS 结构 / 任务项</div>
@@ -120,7 +120,7 @@ export function GanttLeftTree({
                 )}
 
                 {/* 名称与标签 */}
-                <div className="flex items-center gap-1.5 min-w-0 truncate">
+                <div className="flex items-center gap-1.5 min-w-0 flex-1">
                   <span
                     className={`truncate text-xs ${
                       isProject
