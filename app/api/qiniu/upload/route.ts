@@ -20,17 +20,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: '请选择要上传的文件' }, { status: 400 });
     }
 
-    // 1. 识别文件格式与归类 (图片 / Markdown / PDF / HTML)
+    // 1. 识别文件格式与归类 (图片 / Markdown / PDF / HTML / Word / PPT)
     const originalName = file.name || 'attachment';
     const fileExt = (originalName.split('.').pop() || '').toLowerCase();
     const mimeType = (file.type || '').toLowerCase();
 
-    let detectedType: 'image' | 'md' | 'pdf' | 'html' = 'image';
+    let detectedType: 'image' | 'md' | 'pdf' | 'html' | 'word' | 'ppt' = 'image';
 
     const imageExts = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'];
     const mdExts = ['md', 'markdown', 'txt'];
     const pdfExts = ['pdf'];
     const htmlExts = ['html', 'htm'];
+    const wordExts = ['doc', 'docx'];
+    const pptExts = ['ppt', 'pptx'];
 
     if (
       mimeType.startsWith('image/') ||
@@ -55,18 +57,35 @@ export async function POST(req: NextRequest) {
       htmlExts.includes(fileExt)
     ) {
       detectedType = 'html';
+    } else if (
+      wordExts.includes(fileExt) ||
+      mimeType.includes('word') ||
+      mimeType === 'application/msword' ||
+      mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ) {
+      detectedType = 'word';
+    } else if (
+      pptExts.includes(fileExt) ||
+      mimeType.includes('powerpoint') ||
+      mimeType.includes('presentation') ||
+      mimeType === 'application/vnd.ms-powerpoint' ||
+      mimeType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+    ) {
+      detectedType = 'ppt';
     } else {
       return NextResponse.json(
         {
           ok: false,
-          error: `不支持的文件格式 (${fileExt || mimeType})，支持格式：图片 (PNG/JPG/WEBP/GIF/SVG)、Markdown (.md)、PDF (.pdf)、HTML (.html/.htm)`,
+          error: `不支持的文件格式 (${fileExt || mimeType})，支持格式：图片 (PNG/JPG/WEBP/GIF/SVG)、Markdown (.md)、PDF (.pdf)、HTML (.html/.htm)、Word (.docx/.doc)、PPT (.pptx/.ppt)`,
         },
         { status: 400 }
       );
     }
 
-    // 2. 大小检查：图片/MD/HTML 最大 15MB，PDF 最大 30MB
-    const maxSizeBytes = detectedType === 'pdf' ? 30 * 1024 * 1024 : 15 * 1024 * 1024;
+    // 2. 大小检查：图片/MD/HTML 最大 15MB，PDF/Word/PPT 最大 30MB
+    const maxSizeBytes = ['pdf', 'word', 'ppt'].includes(detectedType)
+      ? 30 * 1024 * 1024
+      : 15 * 1024 * 1024;
     if (file.size > maxSizeBytes) {
       const maxMb = maxSizeBytes / (1024 * 1024);
       return NextResponse.json(
@@ -76,7 +95,14 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. 构造唯一的 Key (文件名)
-    const finalExt = fileExt || (detectedType === 'image' ? 'jpg' : detectedType === 'md' ? 'md' : detectedType === 'html' ? 'html' : 'pdf');
+    const finalExt = fileExt || (
+      detectedType === 'image' ? 'jpg' :
+      detectedType === 'md' ? 'md' :
+      detectedType === 'html' ? 'html' :
+      detectedType === 'word' ? 'docx' :
+      detectedType === 'ppt' ? 'pptx' :
+      'pdf'
+    );
     const randId = Math.random().toString(36).substring(2, 7);
     const key = `protrack/att_${detectedType}_${Date.now()}_${randId}.${finalExt}`;
 
@@ -141,7 +167,14 @@ export async function POST(req: NextRequest) {
         console.log(`[Upload] 已保存在本地持久化存储: ${fileUrl} (${file.size} 字节)`);
       } catch (localSaveErr) {
         console.warn('[Upload] 本地保存失败，使用轻量 DataURL 兜底:', localSaveErr);
-        const actualMime = mimeType || (detectedType === 'image' ? 'image/png' : detectedType === 'md' ? 'text/markdown' : detectedType === 'html' ? 'text/html' : 'application/pdf');
+        const actualMime = mimeType || (
+          detectedType === 'image' ? 'image/png' :
+          detectedType === 'md' ? 'text/markdown' :
+          detectedType === 'html' ? 'text/html' :
+          detectedType === 'word' ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' :
+          detectedType === 'ppt' ? 'application/vnd.openxmlformats-officedocument.presentationml.presentation' :
+          'application/pdf'
+        );
         const base64Str = buffer.toString('base64');
         fileUrl = `data:${actualMime};base64,${base64Str}`;
       }

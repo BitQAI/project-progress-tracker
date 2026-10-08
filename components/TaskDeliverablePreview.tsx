@@ -9,6 +9,7 @@ import {
   Image as ImageIcon,
   Eye,
   ExternalLink,
+  Presentation,
 } from 'lucide-react';
 
 interface TaskDeliverablePreviewProps {
@@ -28,6 +29,10 @@ export function getAttachmentFormatIcon(type: AttachmentType) {
       return <FileText className="h-3 w-3 text-rose-500" />;
     case 'html':
       return <Globe className="h-3 w-3 text-orange-500" />;
+    case 'word':
+      return <FileText className="h-3 w-3 text-blue-600" />;
+    case 'ppt':
+      return <Presentation className="h-3 w-3 text-orange-600" />;
     default:
       return <FileText className="h-3 w-3 text-zinc-500" />;
   }

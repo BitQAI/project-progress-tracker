@@ -11,8 +11,8 @@ interface ProjectCommentFilterBarProps {
   onFilterNodeIdChange: (val: string) => void;
   allNodes: { id: string; name: string }[];
   onlyHasAttachments: boolean;
-  filterAttachmentType: 'all' | 'image' | 'pdf' | 'md' | 'html' | 'other';
-  onFilterTypeChange: (hasAtt: boolean, type: 'all' | 'image' | 'pdf' | 'md' | 'html' | 'other') => void;
+  filterAttachmentType: 'all' | 'image' | 'pdf' | 'word' | 'ppt' | 'md' | 'html' | 'other';
+  onFilterTypeChange: (hasAtt: boolean, type: 'all' | 'image' | 'pdf' | 'word' | 'ppt' | 'md' | 'html' | 'other') => void;
   matchCount: number;
 }
 
@@ -96,8 +96,19 @@ export function ProjectCommentFilterBar({
           <div className="h-4 w-px bg-zinc-250 mx-1 hidden sm:block" />
 
           {/* 格式标签过滤 */}
-          {(['image', 'pdf', 'md', 'html'] as const).map((type) => {
-            const label = type === 'image' ? '图片' : type === 'pdf' ? 'PDF' : type === 'md' ? 'Markdown' : 'HTML';
+          {(['image', 'pdf', 'word', 'ppt', 'md', 'html'] as const).map((type) => {
+            const label =
+              type === 'image'
+                ? '图片'
+                : type === 'pdf'
+                ? 'PDF'
+                : type === 'word'
+                ? 'Word'
+                : type === 'ppt'
+                ? 'PPT'
+                : type === 'md'
+                ? 'Markdown'
+                : 'HTML';
             const active = onlyHasAttachments && filterAttachmentType === type;
             return (
               <button

@@ -16,12 +16,14 @@ import {
   Maximize2,
   Minimize2,
   Loader2,
+  Presentation,
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import { safeFetchText } from '@/lib/fetch-utils';
 import { FileAttachment, AttachmentType } from '@/lib/types';
+import { OfficeDocumentPreview } from './OfficeDocumentPreview';
 
 interface AttachmentPreviewModalProps {
   isOpen: boolean;
@@ -126,6 +128,10 @@ function AttachmentPreviewModalContent({
         return <FileText className="h-4 w-4 text-rose-500" />;
       case 'html':
         return <Globe className="h-4 w-4 text-orange-500" />;
+      case 'word':
+        return <FileText className="h-4 w-4 text-blue-600" />;
+      case 'ppt':
+        return <Presentation className="h-4 w-4 text-orange-600" />;
       default:
         return <FileText className="h-4 w-4 text-zinc-500" />;
     }
@@ -345,6 +351,14 @@ function AttachmentPreviewModalContent({
                 className="w-full flex-1 border-0"
               />
             </div>
+          )}
+
+          {/* 5. Word / PPT Office 办公文档成果预览 */}
+          {(attachment.type === 'word' || attachment.type === 'ppt') && (
+            <OfficeDocumentPreview
+              attachment={attachment}
+              formatFileSize={formatFileSize}
+            />
           )}
         </div>
 

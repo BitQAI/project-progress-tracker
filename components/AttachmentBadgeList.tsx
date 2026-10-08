@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { FileAttachment, AttachmentType } from '@/lib/types';
-import { Image as ImageIcon, FileCode, FileText, Globe, Eye, Trash2 } from 'lucide-react';
+import { Image as ImageIcon, FileCode, FileText, Globe, Eye, Trash2, Presentation } from 'lucide-react';
 
 export function getAttachmentFormatIcon(type: AttachmentType, className: string = 'h-3.5 w-3.5') {
   switch (type) {
@@ -14,6 +14,10 @@ export function getAttachmentFormatIcon(type: AttachmentType, className: string 
       return <FileText className={`${className} text-rose-500`} />;
     case 'html':
       return <Globe className={`${className} text-orange-500`} />;
+    case 'word':
+      return <FileText className={`${className} text-blue-600`} />;
+    case 'ppt':
+      return <Presentation className={`${className} text-orange-600`} />;
     default:
       return <FileText className={`${className} text-zinc-500`} />;
   }

@@ -22,6 +22,7 @@ import {
   Eye,
   Loader2,
   Paperclip,
+  Presentation,
 } from 'lucide-react';
 
 interface DeliverableSubmitModalProps {
@@ -166,6 +167,10 @@ function DeliverableSubmitModalContent({
         return <FileText className="h-4 w-4 text-rose-500" />;
       case 'html':
         return <Globe className="h-4 w-4 text-orange-500" />;
+      case 'word':
+        return <FileText className="h-4 w-4 text-blue-600" />;
+      case 'ppt':
+        return <Presentation className="h-4 w-4 text-orange-600" />;
       default:
         return <FileText className="h-4 w-4 text-zinc-500" />;
     }
@@ -174,14 +179,14 @@ function DeliverableSubmitModalContent({
   const formatFileSize = (bytes?: number) => {
     if (!bytes) return '';
     if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / 1048576).toFixed(1)} MB`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (task.has_deliverable && !submission.trim() && attachments.length === 0) {
-      setErrorMsg('该任务设置了交付件要求，请填写交付成果内容或上传附件（图片/MD/PDF/HTML）');
+      setErrorMsg('该任务设置了交付件要求，请填写交付成果内容或上传附件（图片/Markdown/PDF/HTML/Word/PPT）');
       return;
     }
     if (!doneDate) {
@@ -294,41 +299,24 @@ function DeliverableSubmitModalContent({
 
                 {/* 快捷填入按钮 */}
                 <div className="flex items-center gap-1.5 flex-wrap text-xs">
-                  <button
-                    type="button"
-                    onClick={() => setDoneDate(todayStr)}
-                    className={`rounded-md px-2 py-1 text-[11px] font-medium border transition-colors ${
-                      doneDate === todayStr
-                        ? 'bg-zinc-900 text-white border-zinc-900'
-                        : 'bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-100'
-                    }`}
-                  >
-                    今天
-                  </button>
-                  {task.due_date && (
+                  {[
+                    { label: '今天', date: todayStr },
+                    ...(task.due_date ? [{ label: `计划截止日 (${task.due_date})`, date: task.due_date }] : []),
+                    { label: '昨天', date: yesterdayStr },
+                  ].map((preset) => (
                     <button
+                      key={preset.label}
                       type="button"
-                      onClick={() => setDoneDate(task.due_date!)}
-                      className={`rounded-md px-2 py-1 text-[11px] font-medium border transition-colors ${
-                        doneDate === task.due_date
+                      onClick={() => setDoneDate(preset.date)}
+                      className={`rounded-md px-2 py-1 text-[11px] font-medium border transition-colors cursor-pointer ${
+                        doneDate === preset.date
                           ? 'bg-zinc-900 text-white border-zinc-900'
                           : 'bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-100'
                       }`}
                     >
-                      计划截止日 ({task.due_date})
+                      {preset.label}
                     </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => setDoneDate(yesterdayStr)}
-                    className={`rounded-md px-2 py-1 text-[11px] font-medium border transition-colors ${
-                      doneDate === yesterdayStr
-                        ? 'bg-zinc-900 text-white border-zinc-900'
-                        : 'bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-100'
-                    }`}
-                  >
-                    昨天
-                  </button>
+                  ))}
                 </div>
               </div>
             </div>
@@ -361,12 +349,12 @@ function DeliverableSubmitModalContent({
               />
             </div>
 
-            {/* 交付件附件上传区 (图片 / MD / PDF / HTML) */}
+            {/* 交付件附件上传区 (图片 / MD / PDF / HTML / Word / PPT) */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5">
                   <Paperclip className="h-3.5 w-3.5 text-zinc-500" />
-                  交付成果附件归档 (支持 图片 / Markdown / PDF / HTML)
+                  交付成果附件归档 (支持 图片 / Markdown / PDF / HTML / Word / PPT)
                 </label>
                 <span className="text-3xs text-zinc-500">已添加 {attachments.length} 个文件</span>
               </div>
@@ -387,7 +375,7 @@ function DeliverableSubmitModalContent({
                   ref={fileInputRef}
                   type="file"
                   multiple
-                  accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml,.md,.markdown,text/markdown,text/plain,.pdf,application/pdf,.html,.htm,text/html"
+                  accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml,.md,.markdown,text/markdown,text/plain,.pdf,application/pdf,.html,.htm,text/html,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation"
                   className="hidden"
                   onChange={(e) => handleFileUpload(e.target.files)}
                 />
@@ -398,11 +386,11 @@ function DeliverableSubmitModalContent({
                     <UploadCloud className="h-5 w-5 text-emerald-600" />
                   )}
                   <span className="text-xs font-medium text-zinc-700">
-                    {isUploading ? '正在上传附件至七牛云...' : '点击或拖拽上传交付成果文件'}
+                    {isUploading ? '正在上传附件至七牛云...' : '点击或拖拽上传交付成果文件 (Word/PPT/PDF/图片/MD)'}
                   </span>
                 </div>
                 <p className="text-3xs text-zinc-400 mt-1">
-                  支持 JPG/PNG 图片、Markdown (.md)、PDF 文档、HTML 页面 (单文件最大 30MB)
+                  支持 Word (.docx/.doc)、PPT (.pptx/.ppt)、PDF 文档、图片、Markdown (单文件最大 30MB)
                 </p>
               </div>
 

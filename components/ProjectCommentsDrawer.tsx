@@ -33,7 +33,7 @@ export function ProjectCommentsDrawer({
   // 筛选状态
   const [searchText, setSearchText] = useState('');
   const [onlyHasAttachments, setOnlyHasAttachments] = useState(false);
-  const [filterAttachmentType, setFilterAttachmentType] = useState<'all' | 'image' | 'pdf' | 'md' | 'html' | 'other'>('all');
+  const [filterAttachmentType, setFilterAttachmentType] = useState<'all' | 'image' | 'pdf' | 'word' | 'ppt' | 'md' | 'html' | 'other'>('all');
   const [filterNodeId, setFilterNodeId] = useState<string>('all');
 
   // 附件上传与列表
@@ -345,7 +345,7 @@ export function ProjectCommentsDrawer({
             ref={fileInputRef}
             type="file"
             multiple
-            accept="image/*,.md,.markdown,text/markdown,.pdf,application/pdf,.html,.htm,text/html"
+            accept="image/*,.md,.markdown,text/markdown,.pdf,application/pdf,.html,.htm,text/html,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation"
             onChange={(e) => {
               if (e.target.files) uploadFiles(e.target.files);
             }}
